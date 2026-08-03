@@ -1,0 +1,164 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+
+export default function LoginPage() {
+  const router = useRouter()
+  const supabase = createClient()
+
+  const [emel, setEmel] = useState('')
+  const [kataLaluan, setKataLaluan] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: emel,
+      password: kataLaluan,
+    })
+
+    if (error) {
+      setError('Invalid email or password. Please try again.')
+      setLoading(false)
+      return
+    }
+
+    router.push('/dashboard')
+    router.refresh()
+  }
+
+  return (
+    <div className="w-full max-w-[380px] space-y-8">
+      {/* Mobile logo */}
+      <div className="lg:hidden flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg bg-[oklch(0.45_0.16_255)] flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+            <path d="M3 4h14M3 10h9M3 16h14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <span className="font-semibold text-base tracking-tight text-[var(--color-text-primary)]">Traceo</span>
+      </div>
+
+      {/* Header */}
+      <div className="space-y-1.5">
+        <h2 className="text-2xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+          Sign in
+        </h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          Enter your credentials to continue
+        </p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-1.5">
+          <label
+            htmlFor="emel"
+            className="block text-sm font-medium text-[var(--color-text-primary)]"
+          >
+            Email Address
+          </label>
+          <input
+            id="emel"
+            type="email"
+            autoComplete="email"
+            required
+            value={emel}
+            onChange={(e) => setEmel(e.target.value)}
+            placeholder="name@company.com"
+            className="w-full h-10 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] transition-colors duration-150 focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 disabled:opacity-50"
+            disabled={loading}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label
+            htmlFor="kata-laluan"
+            className="block text-sm font-medium text-[var(--color-text-primary)]"
+          >
+            Password
+          </label>
+          <input
+            id="kata-laluan"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={kataLaluan}
+            onChange={(e) => setKataLaluan(e.target.value)}
+            placeholder="••••••••"
+            className="w-full h-10 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] transition-colors duration-150 focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 disabled:opacity-50"
+            disabled={loading}
+          />
+        </div>
+
+        {/* Error message */}
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-subtle)] px-3.5 py-3 text-sm text-[var(--color-danger)]"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              className="flex-shrink-0 mt-[1px]"
+            >
+              <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M8 5v3.5M8 11h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {error}
+          </div>
+        )}
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full h-10 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium tracking-tight transition-all duration-150 hover:bg-[var(--color-brand-hover)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[var(--shadow-sm)]"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg
+                className="animate-spin"
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+              >
+                <circle
+                  cx="7"
+                  cy="7"
+                  r="5.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeOpacity="0.3"
+                />
+                <path
+                  d="M7 1.5A5.5 5.5 0 0 1 12.5 7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Signing in…
+            </span>
+          ) : (
+            'Sign in'
+          )}
+        </button>
+      </form>
+
+      {/* Help text */}
+      <p className="text-xs text-[var(--color-text-tertiary)] text-center">
+        Don&apos;t have an account? Contact an Administrator for access.
+      </p>
+    </div>
+  )
+}
