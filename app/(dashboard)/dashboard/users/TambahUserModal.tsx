@@ -23,12 +23,12 @@ export function TambahUserModal() {
     setLoading(true)
     try {
       await tambahUser(formData)
-      const nama = (formData.get('nama') as string) || 'Pengguna baharu'
-      toast.success('Pengguna ditambah', `${nama} kini boleh log masuk.`)
+      const nama = (formData.get('nama') as string) || 'New user'
+      toast.success('User added', `${nama} can now log in.`)
       setOpen(false)
       router.refresh()
     } catch (err) {
-      toast.error('Gagal menambah pengguna', err instanceof Error ? err.message : 'Sila cuba lagi.')
+      toast.error('Failed to add user', err instanceof Error ? err.message : 'Please try again.')
       setLoading(false)
     }
   }

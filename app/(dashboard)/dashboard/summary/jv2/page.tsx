@@ -7,7 +7,7 @@ import { JV2Table } from './JV2Table'
 import { hasPermission } from '@/lib/auth/permissions'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'JV Tanah — Tanah Usahasama' }
+export const metadata: Metadata = { title: 'Land JV — Land Joint Venture' }
 
 export default async function SummaryJV2Page() {
   const supabase = await createClient()
@@ -42,12 +42,12 @@ export default async function SummaryJV2Page() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-                Tanah Usahasama
-              </span>
-              <span className="text-xs text-[var(--color-text-tertiary)]">• {rows.length} Rekod</span>
+                Land Joint Venture
+                </span>
+                <span className="text-xs text-[var(--color-text-tertiary)]">• {rows.length} Records</span>
             </div>
             <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
-              JV Tanah
+              Land JV
             </h1>
           </div>
         </div>
@@ -56,12 +56,12 @@ export default async function SummaryJV2Page() {
           {/* Summary Metric Band */}
           <div className="hidden md:flex items-center gap-5 text-xs bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-1.5 rounded-lg shadow-xs">
             <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Pembiayaan Modal</p>
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Capital Financing</p>
               <p className="font-mono font-bold text-[var(--color-text-primary)]">{formatRM(totalPembiayaan)}</p>
             </div>
             <div className="h-6 w-px bg-[var(--color-border)]" />
             <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Jumlah Tunggakan</p>
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Total Arrears</p>
               <p className={`font-mono font-bold ${totalTunggakan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}>
                 {formatRM(totalTunggakan)}
               </p>
@@ -74,7 +74,7 @@ export default async function SummaryJV2Page() {
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs whitespace-nowrap"
             >
               <Plus size={14} />
-              + Tambah Rekod (JV Tanah)
+              + Add Record (Land JV)
             </Link>
           )}
         </div>

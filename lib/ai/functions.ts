@@ -98,7 +98,7 @@ export async function getFasilitiSummary(
 
   if (visibleIds !== null) {
     if (visibleIds.length === 0) {
-      return { fasiliti: [], jumlah: 0, mesej: 'Tiada fasiliti ditugaskan kepada anda.' }
+      return { fasiliti: [], jumlah: 0, mesej: 'No facilities are assigned to you.' }
     }
     query = query.in('id', visibleIds)
   }
@@ -141,14 +141,14 @@ export async function getSusulanTerkini(
   ctx: AiUserContext,
   args: AiToolArgs
 ): Promise<object> {
-  if (!args.fasiliti_id) return { error: 'Parameter fasiliti_id diperlukan.' }
+  if (!args.fasiliti_id) return { error: 'The fasiliti_id parameter is required.' }
 
   const fasilitiId = await resolveFasilitiId(supabase, args.fasiliti_id)
-  if (!fasilitiId) return { error: 'Fasiliti tidak dijumpai.' }
+  if (!fasilitiId) return { error: 'Facility not found.' }
 
   const allowed = await assertFasilitiAccess(supabase, ctx, fasilitiId)
   if (!allowed) {
-    return { error: 'Akses ditolak — anda tiada kebenaran melihat fasiliti ini.' }
+    return { error: 'Access denied — you are not authorized to view this facility.' }
   }
 
   const limit = Math.min(Math.max(args.limit ?? 10, 1), 50)
@@ -193,14 +193,14 @@ export async function generateKronologiPdf(
   ctx: AiUserContext,
   args: AiToolArgs
 ): Promise<object> {
-  if (!args.fasiliti_id) return { error: 'Parameter fasiliti_id diperlukan.' }
+  if (!args.fasiliti_id) return { error: 'The fasiliti_id parameter is required.' }
 
   const fasilitiId = await resolveFasilitiId(supabase, args.fasiliti_id)
-  if (!fasilitiId) return { error: 'Fasiliti tidak dijumpai.' }
+  if (!fasilitiId) return { error: 'Facility not found.' }
 
   const allowed = await assertFasilitiAccess(supabase, ctx, fasilitiId)
   if (!allowed) {
-    return { error: 'Akses ditolak — anda tiada kebenaran melihat fasiliti ini.' }
+    return { error: 'Access denied — you are not authorized to view this facility.' }
   }
 
   const { data: fasiliti } = await supabase
@@ -209,13 +209,13 @@ export async function generateKronologiPdf(
     .eq('id', fasilitiId)
     .single()
 
-  if (!fasiliti) return { error: 'Fasiliti tidak dijumpai.' }
+  if (!fasiliti) return { error: 'Facility not found.' }
 
   return {
     fasiliti_id: fasilitiId,
     kod_rujukan: fasiliti.kod_rujukan,
     url: `/api/fasiliti/${fasilitiId}/kronologi-pdf`,
-    catatan: 'Buka pautan ini dalam tab baharu untuk memuat turun PDF kronologi.',
+    catatan: 'Open this link in a new tab to download the chronology PDF.',
   }
 }
 
@@ -235,6 +235,6 @@ export async function dispatchAiTool(
     case 'generate_kronologi_pdf':
       return await generateKronologiPdf(supabase, ctx, args)
     default:
-      return { error: `Fungsi '${name}' tidak dikenali.` }
+      return { error: `Function '${name}' is not recognized.` }
   }
 }

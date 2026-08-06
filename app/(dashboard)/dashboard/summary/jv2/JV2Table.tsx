@@ -1,28 +1,64 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
-import { dash, formatRM } from '../_helpers'
+import { dash, formatRM, STATUS_CONFIG } from '../_helpers'
 import { FormulaTooltip, ToggleColumnsButton, StatusBadge } from '../_components'
+import { TableSearch, TableSelect, matchesQuery } from '@/components/table/TableSearch'
 import type { Fasiliti } from '@/types'
 
 export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
   const [showExtra, setShowExtra] = useState(false)
+  const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
 
-  const totalPembiayaan = rows.reduce((s, f) => s + (f.jumlah_pembiayaan ?? 0), 0)
-  const totalPerkongsian = rows.reduce((s, f) => s + (f.perkongsian_keuntungan ?? 0), 0)
-  const totalTunggakanPkgs = rows.reduce((s, f) => s + (f.tunggakan_dividen ?? 0), 0)
-  const totalBayaranTambahan = rows.reduce((s, f) => s + (f.bayaran_tambahan ?? 0), 0)
-  const totalTunggakan = rows.reduce((s, f) => s + (f.jumlah_tunggakan_semasa ?? 0), 0)
+  const STATUS_FILTER_OPTIONS = [
+    { value: '', label: 'All Statuses' },
+    ...Object.entries(STATUS_CONFIG).map(([value, c]) => ({ value, label: c.label })),
+  ]
+
+  const q = query.trim().toLowerCase()
+  const visibleRows = useMemo(() => {
+    return rows.filter((f) => {
+      if (statusFilter) {
+        const effective = f.status_fasiliti || ((f.jumlah_tunggakan_semasa ?? 0) > 0 ? 'tertunggak' : 'aktif')
+        if (effective !== statusFilter) return false
+      }
+      if (!q) return true
+      return [f.nama_peminjam, f.kod_rujukan, f.pembiaya_modal, f.ringkasan_cagaran, f.nama_kontraktor].some((v) =>
+        matchesQuery(v, q)
+      )
+    })
+  }, [rows, q, statusFilter])
+
+  const totalPembiayaan = visibleRows.reduce((s, f) => s + (f.jumlah_pembiayaan ?? 0), 0)
+  const totalPerkongsian = visibleRows.reduce((s, f) => s + (f.perkongsian_keuntungan ?? 0), 0)
+  const totalTunggakanPkgs = visibleRows.reduce((s, f) => s + (f.tunggakan_dividen ?? 0), 0)
+  const totalBayaranTambahan = visibleRows.reduce((s, f) => s + (f.bayaran_tambahan ?? 0), 0)
+  const totalTunggakan = visibleRows.reduce((s, f) => s + (f.jumlah_tunggakan_semasa ?? 0), 0)
 
   return (
     <div className="space-y-3">
       {/* Table toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-0.5">
-        <p className="text-xs text-[var(--color-text-tertiary)]">
-          Nota: <strong>(E) Jumlah Tunggakan Pembiayaan</strong> merangkumi tunggakan perkongsian &amp; kos pembiayaan komited.
-        </p>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-0.5">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+          <TableSearch
+            value={query}
+            onChange={setQuery}
+            placeholder="Search name, code, financier..."
+            className="w-full sm:w-64"
+          />
+          <TableSelect
+            label="Filter by status"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={STATUS_FILTER_OPTIONS}
+          />
+          <p className="text-xs text-[var(--color-text-tertiary)]">
+            Note: <strong>(E) Total Financing Arrears</strong> includes partnership arrears &amp; committed financing costs.
+          </p>
+        </div>
         <ToggleColumnsButton
           showExtra={showExtra}
           onToggle={() => setShowExtra(!showExtra)}
@@ -36,45 +72,45 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
             <thead className="sticky top-0 z-30 bg-[var(--color-surface-raised)] border-b border-[var(--color-border)] shadow-xs">
               <tr className="border-b border-[var(--color-border)] text-[var(--color-text-secondary)]">
                 <th rowSpan={2} className="w-12 px-3 py-3 text-center font-bold text-[var(--color-text-tertiary)] uppercase tracking-wider border-r border-[var(--color-border)] sticky left-0 z-40 bg-[var(--color-surface-raised)]">
-                  Bil
+                  No.
                 </th>
                 <th rowSpan={2} className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px] sticky left-12 z-40 bg-[var(--color-surface-raised)]">
-                  Nama Kontraktor &amp; Kod
+                  Contractor Name &amp; Code
                 </th>
                 <th colSpan={3} className="px-4 py-2 font-semibold uppercase tracking-wider text-[var(--color-text-primary)] border-r border-[var(--color-border)] bg-[var(--color-surface-raised)] border-b-2 border-b-[var(--color-text-primary)]">
-                  Maklumat Pembiayaan Modal
+                  Capital Financing Details
                 </th>
                 <th colSpan={3} className="px-4 py-2 font-semibold uppercase tracking-wider text-[var(--color-text-primary)] border-r border-[var(--color-border)] bg-[var(--color-surface-raised)] border-b-2 border-b-[var(--color-danger)]">
-                  Maklumat Tunggakan &amp; Bayaran
+                  Arrears &amp; Payment Details
                 </th>
                 <th colSpan={showExtra ? 4 : 2} className="px-4 py-2 font-semibold uppercase tracking-wider text-[var(--color-text-primary)] border-r border-[var(--color-border)] bg-[var(--color-surface-raised)] border-b-2 border-b-[var(--color-text-tertiary)]">
-                  Maklumat Hartanah
+                  Property Details
                 </th>
                 <th rowSpan={2} className="px-4 py-3 font-semibold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px]">
-                  Catatan
+                  Notes
                 </th>
                 <th rowSpan={2} className="w-16 px-3 py-3 text-center font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider" />
               </tr>
 
               <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)]">
-                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Pembiaya Modal</th>
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Jumlah Pembiayaan (RM) <span className="font-semibold text-[var(--color-text-primary)]">(A)</span></th>
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Perkongsian Keuntungan (RM) <span className="font-semibold text-[var(--color-text-primary)]">(B)</span></th>
+                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Capital Financier</th>
+                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Total Financing (RM) <span className="font-semibold text-[var(--color-text-primary)]">(A)</span></th>
+                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Profit Sharing (RM) <span className="font-semibold text-[var(--color-text-primary)]">(B)</span></th>
 
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Tunggakan Perkongsian (RM) <span>(C)</span></th>
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Bayaran Tambahan (RM) <span>(D)</span></th>
+                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Partnership Arrears (RM) <span>(C)</span></th>
+                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">Additional Payments (RM) <span>(D)</span></th>
                 <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] bg-[var(--color-surface-raised)]">
                   <div className="flex items-center justify-end">
-                    <span>Jumlah Tunggakan (RM)</span>
+                    <span>Total Arrears (RM)</span>
                     <span className="font-semibold text-[var(--color-text-primary)] ml-1">(E)</span>
-                    <FormulaTooltip content="Jumlah Tunggakan Pembiayaan (E) merangkumi tunggakan perkongsian & kos pembiayaan tertunggak." />
+                    <FormulaTooltip content="Total Financing Arrears (E) includes partnership arrears & outstanding financing costs." />
                   </div>
                 </th>
 
-                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Jenis / Lokasi</th>
-                {showExtra && <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Penama Aset</th>}
-                {showExtra && <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Status PindahMilik / Jualan</th>}
-                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Harga Jualan / Jenis</th>
+                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Type / Location</th>
+                {showExtra && <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Asset Nominee</th>}
+                {showExtra && <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Transfer of Title / Sale Status</th>}
+                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">Sale Price / Type</th>
               </tr>
             </thead>
 
@@ -82,11 +118,17 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={14} className="text-center py-16 text-[var(--color-text-tertiary)]">
-                    Tiada rekod fasiliti JV 2 dijumpai.
+                    No JV 2 facility records found.
+                  </td>
+                </tr>
+              ) : visibleRows.length === 0 ? (
+                <tr>
+                  <td colSpan={14} className="text-center py-16 text-[var(--color-text-tertiary)]">
+                    No records match your search.
                   </td>
                 </tr>
               ) : (
-                rows.map((f, index) => {
+                visibleRows.map((f, index) => {
                   const hasArrears = (f.jumlah_tunggakan_semasa ?? 0) > 0
 
                   return (
@@ -151,7 +193,7 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                           href={`/dashboard/fasiliti/${f.id}`}
                           className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline"
                         >
-                          Lihat
+                          View
                           <ArrowUpRight size={12} />
                         </Link>
                       </td>
@@ -162,11 +204,11 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
             </tbody>
 
             {/* Sticky Footer Summary */}
-            {rows.length > 0 && (
+            {visibleRows.length > 0 && (
               <tfoot className="sticky bottom-0 z-30 bg-[var(--color-surface-raised)] font-semibold text-xs border-t-2 border-[var(--color-border-strong)] shadow-xs">
                 <tr>
                   <td colSpan={2} className="px-4 py-3 text-right uppercase tracking-wider text-[var(--color-text-primary)] border-r border-[var(--color-border)] sticky left-0 z-40 bg-[var(--color-surface-raised)]">
-                    Jumlah Keseluruhan ({rows.length} Rekod)
+                    Total ({visibleRows.length} Records)
                   </td>
                   <td className="border-r border-[var(--color-border)]" />
                   <td className="px-3.5 py-3 text-right font-mono text-[var(--color-text-primary)] border-r border-[var(--color-border)]">

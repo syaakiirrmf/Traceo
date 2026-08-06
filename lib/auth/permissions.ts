@@ -25,7 +25,7 @@ export function hasPermission(role: UserRole, permission: Permission): boolean {
 
 export function requireRole(role: UserRole, permission: Permission): void {
   if (!hasPermission(role, permission)) {
-    throw new Error(`Akses ditolak: peranan '${role}' tidak dibenarkan untuk '${permission}'`)
+    throw new Error(`Access denied: role '${role}' is not allowed for '${permission}'`)
   }
 }
 

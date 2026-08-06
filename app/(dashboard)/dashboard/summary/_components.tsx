@@ -43,7 +43,7 @@ export function ToggleColumnsButton({
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-all"
     >
       <SlidersHorizontal size={13} className="text-[var(--color-text-tertiary)]" />
-      <span>{showExtra ? 'Sembunyi maklumat tambahan' : 'Tunjuk maklumat tambahan (Penama & Status Pindah Milik)'}</span>
+      <span>{showExtra ? 'Hide extra details' : 'Show extra details (Nominee & Transfer of Title Status)'}</span>
     </button>
   )
 }

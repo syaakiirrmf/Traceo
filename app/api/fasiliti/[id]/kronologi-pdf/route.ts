@@ -25,7 +25,7 @@ export async function GET(
         .order('tarikh_susulan', { ascending: true }),
     ])
 
-    if (!fasiliti) return NextResponse.json({ error: 'Fasiliti tidak dijumpai' }, { status: 404 })
+    if (!fasiliti) return NextResponse.json({ error: 'Facility not found' }, { status: 404 })
 
     const buffer = await renderToBuffer(
       createElement(KronologiPDF, { fasiliti, susulan: susulan ?? [] }) as ReactElement<DocumentProps>
@@ -61,6 +61,6 @@ export async function GET(
     })
   } catch (error) {
     console.error('[PDF Export Error]', error)
-    return NextResponse.json({ error: 'Gagal jana PDF' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
   }
 }

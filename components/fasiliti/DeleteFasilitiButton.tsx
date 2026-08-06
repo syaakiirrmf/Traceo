@@ -22,7 +22,7 @@ export function DeleteFasilitiButton({ fasilitiId, kodRujukan }: DeleteFasilitiB
     } catch (err) {
       setLoading(false)
       setOpen(false)
-      toast.error('Gagal memadam fasiliti', err instanceof Error ? err.message : 'Sila cuba lagi.')
+      toast.error('Failed to delete facility', err instanceof Error ? err.message : 'Please try again.')
     }
   }
 
