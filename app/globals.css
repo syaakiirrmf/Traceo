@@ -1,43 +1,47 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
 @layer base {
   :root {
     /* ── Traceo Design Tokens ── */
 
     /* Neutral */
-    --color-bg: oklch(0.98 0.005 240);
-    --color-background: oklch(0.98 0.005 240); /* alias */
-    --color-surface: oklch(1 0 0);
-    --color-surface-raised: oklch(0.97 0.005 240);
-    --color-border: oklch(0.88 0.008 240);
-    --color-border-strong: oklch(0.78 0.01 240);
+    --color-bg: #fcfbf9;
+    --color-background: #fcfbf9; /* alias */
+    --color-surface: #ffffff;
+    --color-surface-raised: #f8f6f0;
+    --color-border: rgba(15, 23, 42, 0.09);
+    --color-border-strong: rgba(15, 23, 42, 0.18);
 
     /* Text */
-    --color-text-primary: oklch(0.15 0.02 240);
-    --color-text-secondary: oklch(0.45 0.015 240);
-    --color-text-tertiary: oklch(0.57 0.012 240);
-    --color-text-inverse: oklch(0.98 0.005 240);
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-tertiary: #64748b;
+    --color-text-inverse: #f8fafc;
 
-    /* Brand — slate-blue, precise and authoritative */
-    --color-brand: oklch(0.45 0.16 255);
-    --color-brand-hover: oklch(0.40 0.18 255);
-    --color-brand-subtle: oklch(0.94 0.04 255);
-    --color-brand-muted: oklch(0.88 0.06 255);
+    /* Brand — Teal (#0f766e) */
+    --color-brand: #0f766e;
+    --color-brand-hover: #115e59;
+    --color-brand-subtle: #f0fdf4;
+    --color-brand-muted: #ccfbf1;
 
     /* Status colors */
-    --color-success: oklch(0.55 0.18 155);
-    --color-success-subtle: oklch(0.94 0.06 155);
-    --color-warning: oklch(0.68 0.18 70);
-    --color-warning-subtle: oklch(0.96 0.06 70);
-    --color-danger: oklch(0.55 0.22 25);
-    --color-danger-subtle: oklch(0.95 0.06 25);
-    --color-info: oklch(0.55 0.18 220);
-    --color-info-subtle: oklch(0.94 0.05 220);
+    --color-success: #10b981;
+    --color-success-subtle: #ecfdf5;
+    --color-warning: #f59e0b;
+    --color-warning-subtle: #fffbebf;
+    --color-danger: #ef4444;
+    --color-danger-subtle: #fef2f2;
+    --color-info: #0284c7;
+    --color-info-subtle: #f0f9ff;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px oklch(0.15 0.02 240 / 0.06);
-    --shadow-md: 0 4px 12px oklch(0.15 0.02 240 / 0.08), 0 1px 3px oklch(0.15 0.02 240 / 0.06);
-    --shadow-lg: 0 8px 24px oklch(0.15 0.02 240 / 0.10), 0 2px 6px oklch(0.15 0.02 240 / 0.06);
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+    --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
 
     /* Radius */
     --radius-sm: 6px;
@@ -46,24 +50,24 @@
     --radius-xl: 18px;
 
     /* shadcn/ui compatibility */
-    --background: 0 0% 98%;
-    --foreground: 240 10% 10%;
+    --background: 40 33% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
-    --primary: 247 63% 43%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 6% 10%;
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
-    --accent: 240 5% 96%;
-    --accent-foreground: 240 6% 10%;
-    --destructive: 0 84% 60%;
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 247 63% 43%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 174 78% 26%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 174 78% 26%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 174 78% 26%;
     --radius: 0.625rem;
   }
 
@@ -125,7 +129,186 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ── Prevent browser auto-translate / dictionary extension font tags from altering text colors ── */
+p font, p mark, p font[color], p span[style*="color"] {
+  color: inherit !important;
+  background: transparent !important;
+  text-decoration: none !important;
+}
+
 @keyframes toast-out {
   from { opacity: 1; transform: translateY(0) scale(1); }
   to { opacity: 0; transform: translateY(-8px) scale(0.98); }
 }
+
+/* ════════════════════════════════════════════════════════
+   PAGE TRANSITION SYSTEM
+   ════════════════════════════════════════════════════════
+
+   Three patterns:
+   1. nav-forward  — deeper navigation (landing→login, login→dashboard,
+                     dashboard→sub-page). Slide left.
+   2. nav-back     — going up the hierarchy. Slide right.
+   3. page-nav     — peer-level (sidebar links). Clean crossfade.
+   4. hero-enter   — landing page entry (fade-up on first paint).
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Vita Travel-tuned timing: snappy exit, generous enter */
+  --vt-dur-exit: 180ms;
+  --vt-dur-enter: 380ms;
+  --vt-delay-enter: 180ms;
+  --vt-slide-x: 44px;
+  --vt-slide-y: 14px;
+  --vt-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Shared keyframes ── */
+@keyframes vt-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes vt-slide-right {
+  from { translate: calc(-1 * var(--vt-slide-x)); }
+  to   { translate: 0; }
+}
+@keyframes vt-slide-left {
+  from { translate: var(--vt-slide-x); }
+  to   { translate: 0; }
+}
+@keyframes vt-slide-up {
+  from { translate: 0 var(--vt-slide-y); }
+  to   { translate: 0 0; }
+}
+
+/* ── nav-forward: OLD slides out left, NEW slides in from right ── */
+::view-transition-old(.nav-forward) {
+  animation:
+    var(--vt-dur-exit) var(--vt-ease) both vt-fade reverse,
+    var(--vt-dur-exit) var(--vt-ease) both vt-slide-right reverse;
+}
+::view-transition-new(.nav-forward) {
+  animation:
+    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-fade,
+    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-slide-left;
+}
+
+/* ── nav-back: OLD slides out right, NEW slides in from left ── */
+::view-transition-old(.nav-back) {
+  animation:
+    var(--vt-dur-exit) var(--vt-ease) both vt-fade reverse,
+    var(--vt-dur-exit) var(--vt-ease) both vt-slide-left reverse;
+}
+::view-transition-new(.nav-back) {
+  animation:
+    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-fade,
+    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-slide-right;
+}
+
+/* ── page-nav: crossfade with subtle lift (Vita Travel sidebar feel) ── */
+::view-transition-old(.page-nav) {
+  animation:
+    var(--vt-dur-exit) var(--vt-ease) both vt-fade reverse,
+    var(--vt-dur-exit) var(--vt-ease) both vt-slide-up reverse;
+}
+::view-transition-new(.page-nav) {
+  animation:
+    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-fade,
+    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-slide-up;
+}
+
+/* ── hero-enter: fade-up used for landing page initial entry ── */
+::view-transition-new(.hero-enter) {
+  animation:
+    280ms ease-out both vt-fade,
+    280ms ease-out both vt-slide-up;
+}
+
+/* ── Anchor the dashboard sidebar: it should NEVER animate ── */
+::view-transition-group(traceo-sidebar) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(traceo-sidebar) { display: none; }
+::view-transition-new(traceo-sidebar) { animation: none; }
+
+/* ── Anchor the hero navbar too ── */
+::view-transition-group(traceo-hero-nav) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(traceo-hero-nav) { display: none; }
+::view-transition-new(traceo-hero-nav) { animation: none; }
+
+/* ── Reduced-motion: zero all durations ── */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   VITA TRAVEL SCROLL REVEAL SYSTEM
+   ════════════════════════════════════════════════════════
+
+   Usage:
+     <div data-animate style={{ '--stagger': '80ms' }}>…</div>
+
+   Add .in-view via IntersectionObserver (useScrollReveal hook).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Base hidden state */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity  0.72s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--stagger, 0ms);
+}
+
+/* Visible state — fires when IntersectionObserver adds .in-view */
+[data-animate].in-view {
+  opacity: 1;
+  transform: none;
+}
+
+/* Respect reduced-motion for scroll reveals too */
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] { transition-duration: 0s !important; transition-delay: 0s !important; }
+}
+
+/* ── Image zoom on hover (Vita Travel card pattern) ── */
+.vita-img-zoom {
+  overflow: hidden;
+}
+.vita-img-zoom > * {
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vita-img-zoom:hover > * {
+  transform: scale(1.05);
+}
+
+/* ── Button arrow shift on hover (Vita Travel CTA) ── */
+.vita-btn .vita-arrow {
+  display: inline-flex;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vita-btn:hover .vita-arrow {
+  transform: translateX(5px);
+}
+
+/* ── Vita Travel dark surface tokens ── */
+:root {
+  --vt-dark-bg:      #0c1928;
+  --vt-dark-bg-alt:  #0f2035;
+  --vt-dark-surface: #122438;
+  --vt-dark-border:  rgba(255, 255, 255, 0.08);
+  --vt-dark-border-strong: rgba(255, 255, 255, 0.14);
+  --vt-dark-text:    #ffffff;
+  --vt-dark-muted:   rgba(255, 255, 255, 0.52);
+  --vt-dark-accent:  #0d9488; /* teal on dark */
+}

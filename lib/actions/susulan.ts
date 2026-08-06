@@ -9,7 +9,7 @@ import { uploadFile, deleteFile, getFileType, validateFile } from '@/lib/storage
 async function getCurrentUser() {
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
-  if (!authUser) throw new Error('Tidak log masuk')
+  if (!authUser) throw new Error('Not logged in')
 
   const { data: userProfile } = await supabase
     .from('users')
@@ -17,7 +17,7 @@ async function getCurrentUser() {
     .eq('auth_id', authUser.id)
     .single()
 
-  if (!userProfile) throw new Error('Pengguna tidak dijumpai')
+  if (!userProfile) throw new Error('User not found')
   return { supabase, userProfile }
 }
 
@@ -27,7 +27,7 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'tambah_susulan')) {
-    throw new Error('Akses ditolak')
+    throw new Error('Access denied')
   }
 
   const { data: susulan, error } = await supabase
@@ -41,7 +41,7 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
     .select('id')
     .single()
 
-  if (error) throw new Error(`Gagal simpan susulan: ${error.message}`)
+  if (error) throw new Error(`Failed to save follow-up: ${error.message}`)
 
   // Handle file uploads → Cloudinary
   const files = formData.getAll('lampiran') as File[]
@@ -84,7 +84,7 @@ export async function editSusulan(
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'edit_susulan_sendiri')) {
-    throw new Error('Akses ditolak')
+    throw new Error('Access denied')
   }
 
   // Pegawai susulan only allowed to edit their own records
@@ -96,7 +96,7 @@ export async function editSusulan(
       .single()
 
     if (existing?.dicatat_oleh !== userProfile.id) {
-      throw new Error('Akses ditolak: bukan rekod anda')
+      throw new Error('Access denied: not your record')
     }
   }
 
@@ -108,7 +108,7 @@ export async function editSusulan(
     })
     .eq('id', susulanId)
 
-  if (error) throw new Error(`Gagal kemaskini: ${error.message}`)
+  if (error) throw new Error(`Failed to update: ${error.message}`)
 
   await supabase.from('log_audit').insert({
     user_id: userProfile.id,
@@ -127,7 +127,7 @@ export async function padamSusulan(susulanId: string, fasilitiId: string) {
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'padam_susulan')) {
-    throw new Error('Akses ditolak')
+    throw new Error('Access denied')
   }
 
   // Pegawai susulan only allowed to delete their own records
@@ -139,7 +139,7 @@ export async function padamSusulan(susulanId: string, fasilitiId: string) {
       .single()
 
     if (existing?.dicatat_oleh !== userProfile.id) {
-      throw new Error('Akses ditolak: bukan rekod anda')
+      throw new Error('Access denied: not your record')
     }
   }
 
@@ -154,7 +154,7 @@ export async function padamSusulan(susulanId: string, fasilitiId: string) {
   }
 
   const { error } = await supabase.from('susulan').delete().eq('id', susulanId)
-  if (error) throw new Error(`Gagal padam: ${error.message}`)
+  if (error) throw new Error(`Failed to delete: ${error.message}`)
 
   await supabase.from('log_audit').insert({
     user_id: userProfile.id,

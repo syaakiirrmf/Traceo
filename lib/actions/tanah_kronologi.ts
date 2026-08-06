@@ -115,22 +115,22 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
 
   const infoTable = new Table({
     rows: [
-      makeInfoRow('Negeri', tanah.negeri),
-      makeInfoRow('Daerah', tanah.daerah),
-      makeInfoRow('Bandar / Pekan / Mukim', tanah.bandar_mukim),
-      makeInfoRow('Tempat', tanah.tempat),
+      makeInfoRow('State', tanah.negeri),
+      makeInfoRow('District', tanah.daerah),
+      makeInfoRow('City / Town / Mukim', tanah.bandar_mukim),
+      makeInfoRow('Location', tanah.tempat),
       makeInfoRow('No. Lot', tanah.no_lot),
-      ...(tanah.no_hak_milik ? [makeInfoRow('No. Hak Milik', tanah.no_hak_milik)] : []),
-      ...(tanah.tarikh_daftar ? [makeInfoRow('Daftar Pada', fmtDate(tanah.tarikh_daftar))] : []),
-      makeInfoRow('Luas (m²)', fmtArea(tanah.luas_meter_persegi)),
-      makeInfoRow('Anggaran Nilaian (RM)', fmtCurrency(tanah.anggaran_nilaian)),
+      ...(tanah.no_hak_milik ? [makeInfoRow('Title No.', tanah.no_hak_milik)] : []),
+      ...(tanah.tarikh_daftar ? [makeInfoRow('Registered On', fmtDate(tanah.tarikh_daftar))] : []),
+      makeInfoRow('Area (m²)', fmtArea(tanah.luas_meter_persegi)),
+      makeInfoRow('Estimated Value (RM)', fmtCurrency(tanah.anggaran_nilaian)),
     ],
     width: { size: 100, type: WidthType.PERCENTAGE },
   })
 
   const catatanPara = tanah.catatan
     ? [new Paragraph({
-        children: [new TextRun({ text: 'CATATAN', bold: true, size: 22, font: 'Arial' })],
+        children: [new TextRun({ text: 'NOTES', bold: true, size: 22, font: 'Arial' })],
         heading: HeadingLevel.HEADING_2,
         spacing: { before: 200, after: 120 },
       }), new Paragraph({

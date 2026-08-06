@@ -180,9 +180,9 @@ export default async function FasilitiDetailPage({
       {/* ── Top stat cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Jumlah Pembiayaan Modal (A)', value: formatCurrency(fasiliti.jumlah_pembiayaan) },
+          { label: 'Total Capital Financing (A)', value: formatCurrency(fasiliti.jumlah_pembiayaan) },
           {
-            label: fasiliti.kategori === 'pinjaman_individu' ? 'Jumlah Tunggakan (C)' : 'Jumlah Tunggakan (E)',
+            label: fasiliti.kategori === 'pinjaman_individu' ? 'Total Arrears (C)' : 'Total Arrears (E)',
             value: formatCurrency(fasiliti.jumlah_tunggakan_semasa),
             highlight: fasiliti.jumlah_tunggakan_semasa > 0,
           },
@@ -201,29 +201,29 @@ export default async function FasilitiDetailPage({
       {/* ── Maklumat Pembiayaan Modal ── */}
       <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 space-y-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] border-b border-[var(--color-border)] pb-2">
-          Maklumat Pembiayaan Modal
+          Capital Financing Information
         </p>
-        <InfoRow label="Pembiaya Modal" value={fasiliti.pembiaya_modal} />
+        <InfoRow label="Capital Funder" value={fasiliti.pembiaya_modal} />
         {fasiliti.kategori === 'jv_tanah'
-          ? <InfoRow label="Nama Kontraktor" value={fasiliti.nama_peminjam} />
-          : <InfoRow label="Nama Peminjam" value={fasiliti.nama_peminjam} />
+          ? <InfoRow label="Contractor Name" value={fasiliti.nama_peminjam} />
+          : <InfoRow label="Borrower Name" value={fasiliti.nama_peminjam} />
         }
-        <InfoRow label="Jumlah Pembiayaan Modal (RM) — A" value={formatCurrency(fasiliti.jumlah_pembiayaan)} highlight />
+        <InfoRow label="Total Capital Financing " value={formatCurrency(fasiliti.jumlah_pembiayaan)} highlight />
 
         {/* JV1 / JV3: text description of profit sharing */}
         {fasiliti.kategori !== 'jv_tanah' && fasiliti.kadar_dividen && (
           <InfoRow
-            label={fasiliti.kategori === 'jv_syarikat' ? 'Perkongsian Dividen Keuntungan' : 'Perkongsian Keuntungan'}
+            label={fasiliti.kategori === 'jv_syarikat' ? 'Dividend Profit Sharing' : 'Profit Sharing'}
             value={fasiliti.kadar_dividen}
           />
         )}
         {/* JV2: Perkongsian Keuntungan as numeric B */}
         {fasiliti.kategori === 'jv_tanah' && fasiliti.perkongsian_keuntungan > 0 && (
-          <InfoRow label="Perkongsian Keuntungan (RM) — B" value={formatCurrency(fasiliti.perkongsian_keuntungan)} />
+          <InfoRow label="Profit Sharing (RM) — B" value={formatCurrency(fasiliti.perkongsian_keuntungan)} />
         )}
         {/* JV3: Bayaran Tambahan as B */}
         {fasiliti.kategori === 'pinjaman_individu' && fasiliti.bayaran_tambahan > 0 && (
-          <InfoRow label="Bayaran Tambahan (RM) — B" value={formatCurrency(fasiliti.bayaran_tambahan)} />
+          <InfoRow label="Additional Payment (RM) — B" value={formatCurrency(fasiliti.bayaran_tambahan)} />
         )}
       </div>
 
@@ -231,26 +231,26 @@ export default async function FasilitiDetailPage({
       {fasiliti.kategori !== 'pinjaman_individu' && (
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5">
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] border-b border-[var(--color-border)] pb-2 mb-4">
-            Maklumat Tunggakan &amp; Bayaran
+            Arrears &amp; Payments Information
           </p>
           <div className="space-y-2">
-            <BreakdownRow label="Jumlah Pembiayaan Modal (A)" value={formatCurrency(fasiliti.jumlah_pembiayaan)} />
+            <BreakdownRow label="Total Capital Financing (A)" value={formatCurrency(fasiliti.jumlah_pembiayaan)} />
             {fasiliti.kategori === 'jv_syarikat' && (
               <>
-                <BreakdownRow label="Tunggakan Dividen (B)" value={formatCurrency(fasiliti.tunggakan_dividen)} warn={fasiliti.tunggakan_dividen > 0} />
-                <BreakdownRow label="Caj Lewat (C)" value={formatCurrency(fasiliti.caj_lewat)} warn={fasiliti.caj_lewat > 0} />
-                <BreakdownRow label="Bayaran Tambahan (D)" value={formatCurrency(fasiliti.bayaran_tambahan)} />
+                <BreakdownRow label="Dividend Arrears (B)" value={formatCurrency(fasiliti.tunggakan_dividen)} warn={fasiliti.tunggakan_dividen > 0} />
+                <BreakdownRow label="Late Charges (C)" value={formatCurrency(fasiliti.caj_lewat)} warn={fasiliti.caj_lewat > 0} />
+                <BreakdownRow label="Additional Payment (D)" value={formatCurrency(fasiliti.bayaran_tambahan)} />
               </>
             )}
             {fasiliti.kategori === 'jv_tanah' && (
               <>
-                <BreakdownRow label="Perkongsian Keuntungan (B)" value={formatCurrency(fasiliti.perkongsian_keuntungan)} warn={fasiliti.perkongsian_keuntungan > 0} />
-                <BreakdownRow label="Tunggakan Perkongsian Keuntungan (C)" value={formatCurrency(fasiliti.tunggakan_dividen)} warn={fasiliti.tunggakan_dividen > 0} />
-                <BreakdownRow label="Bayaran Tambahan (D)" value={formatCurrency(fasiliti.bayaran_tambahan)} />
+                <BreakdownRow label="Profit Sharing (B)" value={formatCurrency(fasiliti.perkongsian_keuntungan)} warn={fasiliti.perkongsian_keuntungan > 0} />
+                <BreakdownRow label="Profit Sharing Arrears (C)" value={formatCurrency(fasiliti.tunggakan_dividen)} warn={fasiliti.tunggakan_dividen > 0} />
+                <BreakdownRow label="Additional Payment (D)" value={formatCurrency(fasiliti.bayaran_tambahan)} />
               </>
             )}
             <div className="flex items-center justify-between text-sm pt-2 border-t border-[var(--color-border)] mt-1">
-              <span className="font-semibold text-[var(--color-text-primary)]">Jumlah Tunggakan (E)</span>
+              <span className="font-semibold text-[var(--color-text-primary)]">Total Arrears (E)</span>
               <span className="font-bold tabular-nums text-lg text-[var(--color-danger)]">{formatCurrency(fasiliti.jumlah_tunggakan_semasa)}</span>
             </div>
           </div>
@@ -261,13 +261,13 @@ export default async function FasilitiDetailPage({
       {fasiliti.kategori === 'pinjaman_individu' && fasiliti.bayaran_tambahan > 0 && (
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5">
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] border-b border-[var(--color-border)] pb-2 mb-4">
-            Maklumat Tunggakan
+            Arrears Information
           </p>
           <div className="space-y-2">
-            <BreakdownRow label="Jumlah Pembiayaan Modal (A)" value={formatCurrency(fasiliti.jumlah_pembiayaan)} />
-            <BreakdownRow label="Bayaran Tambahan (B)" value={formatCurrency(fasiliti.bayaran_tambahan)} warn={fasiliti.bayaran_tambahan > 0} />
+            <BreakdownRow label="Total Capital Financing (A)" value={formatCurrency(fasiliti.jumlah_pembiayaan)} />
+            <BreakdownRow label="Additional Payment (B)" value={formatCurrency(fasiliti.bayaran_tambahan)} warn={fasiliti.bayaran_tambahan > 0} />
             <div className="flex items-center justify-between text-sm pt-2 border-t border-[var(--color-border)] mt-1">
-              <span className="font-semibold text-[var(--color-text-primary)]">Jumlah Tunggakan (C = A + B)</span>
+              <span className="font-semibold text-[var(--color-text-primary)]">Total Arrears (C = A + B)</span>
               <span className="font-bold tabular-nums text-lg text-[var(--color-danger)]">{formatCurrency(fasiliti.jumlah_tunggakan_semasa)}</span>
             </div>
           </div>
@@ -278,7 +278,7 @@ export default async function FasilitiDetailPage({
       {(fasiliti.ringkasan_cagaran || fasiliti.penama_aset || fasiliti.status_pindahmilik || fasiliti.nilai_cagaran) && (
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] border-b border-[var(--color-border)] pb-2">
-            {fasiliti.kategori === 'jv_tanah' ? 'Maklumat Hartanah' : 'Maklumat Cagaran Aset'}
+            {fasiliti.kategori === 'jv_tanah' ? 'Property Information' : 'Asset Collateral Information'}
           </p>
           {fasiliti.ringkasan_cagaran && (
             <p className="text-sm text-[var(--color-text-primary)] leading-relaxed whitespace-pre-wrap">
@@ -288,19 +288,19 @@ export default async function FasilitiDetailPage({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
             {fasiliti.nilai_cagaran && (
               <div>
-                <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Anggaran Nilaian (RM)</p>
+                <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Estimated Value (RM)</p>
                 <p className="text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">{formatCurrency(fasiliti.nilai_cagaran)}</p>
               </div>
             )}
             {fasiliti.penama_aset && (
               <div>
-                <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Penama Aset</p>
+                <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Asset Nominee</p>
                 <p className="text-sm font-medium text-[var(--color-text-primary)]">{fasiliti.penama_aset}</p>
               </div>
             )}
             {fasiliti.status_pindahmilik && (
               <div>
-                <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Status Pindahmilik / Jualan Aset</p>
+                <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Asset Transfer / Sale Status</p>
                 <p className="text-sm text-[var(--color-text-primary)]">{fasiliti.status_pindahmilik}</p>
               </div>
             )}
@@ -308,14 +308,14 @@ export default async function FasilitiDetailPage({
           {/* JV2 specific: sale price */}
           {fasiliti.kategori === 'jv_tanah' && fasiliti.harga_jualan && (
             <div>
-              <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Harga Jualan / Jenis</p>
+              <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Sale Price / Type</p>
               <p className="text-sm font-medium text-[var(--color-text-primary)]">{fasiliti.harga_jualan}</p>
             </div>
           )}
           {/* JV2 project year */}
           {fasiliti.kategori === 'jv_tanah' && fasiliti.tahun_projek && (
             <div>
-              <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Tahun Projek</p>
+              <p className="text-xs text-[var(--color-text-tertiary)] mb-0.5">Project Year</p>
               <p className="text-sm font-medium text-[var(--color-text-primary)]">{fasiliti.tahun_projek}</p>
             </div>
           )}
@@ -325,7 +325,7 @@ export default async function FasilitiDetailPage({
       {/* ── Catatan ── */}
       {fasiliti.catatan_am && (
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-2">Catatan</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-2">Notes</p>
           <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">{fasiliti.catatan_am}</p>
         </div>
       )}
@@ -397,7 +397,7 @@ export default async function FasilitiDetailPage({
                           <Link
                             href={`/dashboard/fasiliti/${id}/susulan/${s.id}/edit`}
                             className="w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors"
-                            title="Edit susulan"
+                            title="Edit follow-up"
                           >
                             <Pencil size={13} />
                           </Link>

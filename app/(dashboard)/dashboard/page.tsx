@@ -62,7 +62,7 @@ export default async function DashboardPage() {
 
   const categoryData = [
     {
-      name: 'Summary JV 1 (Syarikat)',
+      name: 'Summary JV 1 (Company)',
       key: 'jv1',
       href: '/dashboard/summary/jv1',
       count: jv1.length,
@@ -70,7 +70,7 @@ export default async function DashboardPage() {
       tunggakan: sumKey(jv1, 'jumlah_tunggakan_semasa'),
     },
     {
-      name: 'JV Tanah',
+      name: 'Land JV',
       key: 'jv2',
       href: '/dashboard/summary/jv2',
       count: jv2.length,
@@ -88,10 +88,10 @@ export default async function DashboardPage() {
   ]
 
   const statusData = [
-    { label: 'Lancar', key: 'aktif', count: statusCounts.aktif, color: 'var(--color-brand)' },
-    { label: 'Tertunggak', key: 'tertunggak', count: statusCounts.tertunggak, color: 'var(--color-warning)' },
-    { label: 'Tindakan Guaman', key: 'tindakan_guaman', count: statusCounts.tindakan_guaman, color: 'var(--color-danger)' },
-    { label: 'Selesai', key: 'selesai', count: statusCounts.selesai, color: 'var(--color-text-tertiary)' },
+    { label: 'Active', key: 'aktif', count: statusCounts.aktif, color: 'var(--color-brand)' },
+    { label: 'Overdue', key: 'tertunggak', count: statusCounts.tertunggak, color: 'var(--color-warning)' },
+    { label: 'Legal Action', key: 'tindakan_guaman', count: statusCounts.tindakan_guaman, color: 'var(--color-danger)' },
+    { label: 'Completed', key: 'selesai', count: statusCounts.selesai, color: 'var(--color-text-tertiary)' },
   ]
 
   // Top overdue list (sorted by highest arrears)
@@ -101,86 +101,87 @@ export default async function DashboardPage() {
     .slice(0, 5)
 
   return (
-    <div className="space-y-6 max-w-[1600px]">
+    <div className="space-y-6 max-w-[1600px] p-6">
       {/* Executive Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-              Pengurusan Fasiliti &amp; Portfoli JV
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide border border-teal-200/80 bg-teal-50/80 text-teal-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-600 animate-pulse"></span>
+              Facility Management &amp; JV Portfolio
             </span>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
-            Dashboard Utama
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+            Main Dashboard
           </h1>
         </div>
 
         {/* Quick Action Navigation */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <Link
             href="/dashboard/summary/jv1"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
           >
-            <Building2 size={14} />
+            <Building2 size={14} className="text-teal-700" />
             Summary JV 1
           </Link>
           <Link
             href="/dashboard/summary/jv2"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
           >
-            <Landmark size={14} />
-            JV Tanah
+            <Landmark size={14} className="text-teal-700" />
+            Land JV
           </Link>
           <Link
             href="/dashboard/summary/jv3"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
           >
-            <UserRound size={14} />
+            <UserRound size={14} className="text-teal-700" />
             Personal Loan
           </Link>
           <Link
             href="/dashboard/tanah-jv"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
           >
-            <MapPin size={14} />
-            Tanah MD (JV)
+            <MapPin size={14} className="text-teal-700" />
+            MD Land (JV)
           </Link>
           <Link
             href="/dashboard/fasiliti/tambah"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800 transition-all duration-200 shadow-xs hover:shadow-md"
           >
             <Plus size={14} />
-            + Tambah Fasiliti
+            + Add Facility
           </Link>
         </div>
       </div>
 
-      {/* KPI Key Metric Bands (Typography-First, Restrained Palette) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4 shadow-xs">
-          <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Jumlah Fasiliti</p>
-          <p className="text-xl font-bold font-mono text-[var(--color-text-primary)] mt-1">{fasilitiList.length} Rekod</p>
-          <p className="text-[11px] text-[var(--color-text-tertiary)] mt-0.5">{statusCounts.aktif} Lancar · {statusCounts.tertunggak + statusCounts.tindakan_guaman} Risiko</p>
+      {/* KPI Key Metric Bands */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:border-teal-200 transition-all duration-200">
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Facilities</p>
+          <p className="text-2xl font-extrabold font-mono text-slate-900 mt-1">{fasilitiList.length} Records</p>
+          <p className="text-[12px] text-slate-500 mt-1">{statusCounts.aktif} Active · {statusCounts.tertunggak + statusCounts.tindakan_guaman} At Risk</p>
         </div>
 
-        <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4 shadow-xs">
-          <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Jumlah Pembiayaan Modal</p>
-          <p className="text-xl font-bold font-mono text-[var(--color-brand)] mt-1">{formatCurrency(totalPembiayaan)}</p>
-          <p className="text-[11px] text-[var(--color-text-tertiary)] mt-0.5">Seluruh Kategori JV</p>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:border-teal-200 transition-all duration-200">
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Capital Financing</p>
+          <p className="text-2xl font-extrabold font-mono text-teal-700 mt-1">{formatCurrency(totalPembiayaan)}</p>
+          <p className="text-[12px] text-slate-500 mt-1">Across All JV Categories</p>
         </div>
 
-        <div className={`bg-[var(--color-surface)] rounded-xl border p-4 shadow-xs ${totalTunggakan > 0 ? 'border-l-4 border-l-[var(--color-danger)] border-[var(--color-border)]' : 'border-[var(--color-border)]'}`}>
-          <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Jumlah Tunggakan Semasa</p>
-          <p className={`text-xl font-extrabold font-mono mt-1 ${totalTunggakan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}>
+        <div className={`bg-white rounded-2xl border p-5 shadow-2xs transition-all duration-200 ${totalTunggakan > 0 ? 'border-l-4 border-l-red-500 border-slate-200/80' : 'border-slate-200/80'}`}>
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Current Arrears</p>
+          <p className={`text-2xl font-extrabold font-mono mt-1 ${totalTunggakan > 0 ? 'text-red-600' : 'text-slate-900'}`}>
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-[11px] text-[var(--color-text-tertiary)] mt-0.5">{overdueList.length} Fasiliti Memerlukan Tindakan</p>
+          <p className="text-[12px] text-slate-500 mt-1">{overdueList.length} Facilities Requiring Action</p>
         </div>
 
-        <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4 shadow-xs">
-          <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Jumlah Cagaran Nilaian</p>
-          <p className="text-xl font-bold font-mono text-[var(--color-text-primary)] mt-1">{formatCurrency(totalCagaran)}</p>
-          <p className="text-[11px] text-[var(--color-text-tertiary)] mt-0.5">{tanahList.length} Lot Tanah MD (JV)</p>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:border-teal-200 transition-all duration-200">
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Collateral Value</p>
+          <p className="text-2xl font-extrabold font-mono text-slate-900 mt-1">{formatCurrency(totalCagaran)}</p>
+          <p className="text-[12px] text-slate-500 mt-1">{tanahList.length} MD Land Lots (JV)</p>
         </div>
       </div>
 

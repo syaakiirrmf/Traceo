@@ -36,21 +36,21 @@ export async function POST(request: NextRequest) {
     .eq('auth_id', authUser.id)
     .single()
   if (!profile) {
-    return NextResponse.json({ error: 'Profil pengguna tidak dijumpai' }, { status: 401 })
+    return NextResponse.json({ error: 'User profile not found' }, { status: 401 })
   }
 
   let body: { messages?: ChatMessage[] }
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'Badan permintaan tidak sah' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
   const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : []
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    return NextResponse.json({ error: 'GEMINI_API_KEY tidak dikonfigurasi' }, { status: 500 })
+    return NextResponse.json({ error: 'GEMINI_API_KEY is not configured' }, { status: 500 })
   }
 
   const ctx: AiUserContext = {
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
             if (url) pdfUrl = url
           }
         } catch (err) {
-          toolResult = { error: err instanceof Error ? err.message : 'Ralat memproses alat.' }
+          toolResult = { error: err instanceof Error ? err.message : 'Error processing the tool.' }
         }
         contents.push({
           role: 'function',
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!reply) {
-      reply = 'Maaf, saya tidak dapat memproses permintaan tersebut. Sila cuba lagi.'
+      reply = 'Sorry, I could not process that request. Please try again.'
     }
 
     const cleanedReply = cleanAiResponse(reply)
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('[AI Chat Error]', err)
     return NextResponse.json(
-      { error: 'Ralat komunikasi dengan perkhidmatan AI. Sila cuba lagi.' },
+      { error: 'Error communicating with the AI service. Please try again.' },
       { status: 500 }
     )
   }

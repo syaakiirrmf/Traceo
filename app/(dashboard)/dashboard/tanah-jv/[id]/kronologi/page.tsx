@@ -120,15 +120,15 @@ export default async function TanahKronologiPage({
           <table className="w-full text-sm">
             <tbody className="divide-y divide-[var(--color-border)]">
               {[
-                ['Negeri', tanah.negeri],
-                ['Daerah', tanah.daerah],
-                ['Bandar / Pekan / Mukim', tanah.bandar_mukim],
-                ['Tempat', tanah.tempat],
+                ['State', tanah.negeri],
+                ['District', tanah.daerah],
+                ['Town / Village / Mukim', tanah.bandar_mukim],
+                ['Location', tanah.tempat],
                 ['No. Lot', tanah.no_lot],
-                ...(tanah.no_hak_milik ? [['No. Hak Milik', tanah.no_hak_milik]] : []),
-                ...(tanah.tarikh_daftar ? [['Daftar Pada', formatDate(tanah.tarikh_daftar)]] : []),
-                ['Luas (m²)', fmtArea(tanah.luas_meter_persegi)],
-                ['Anggaran Nilaian (RM)', fmtCurrency(tanah.anggaran_nilaian)],
+                ...(tanah.no_hak_milik ? [['Title No.', tanah.no_hak_milik]] : []),
+                ...(tanah.tarikh_daftar ? [['Registered On', formatDate(tanah.tarikh_daftar)]] : []),
+                ['Area (m²)', fmtArea(tanah.luas_meter_persegi)],
+                ['Estimated Value (RM)', fmtCurrency(tanah.anggaran_nilaian)],
               ].map(([label, value]) => (
                 <tr key={label}>
                   <td className="py-2 pr-4 font-medium text-[var(--color-text-secondary)] w-[40%]">{label}</td>
@@ -143,7 +143,7 @@ export default async function TanahKronologiPage({
         {tanah.catatan && (
           <div className="px-8 py-5 border-b border-[var(--color-border)]">
             <h3 className="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wider mb-2">
-              Catatan
+              Notes
             </h3>
             <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">{tanah.catatan}</p>
           </div>

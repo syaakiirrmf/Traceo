@@ -25,7 +25,7 @@ export async function GET(
         .order('tarikh_susulan', { ascending: true }),
     ])
 
-    if (!tanah) return NextResponse.json({ error: 'Tanah tidak dijumpai' }, { status: 404 })
+    if (!tanah) return NextResponse.json({ error: 'Land not found' }, { status: 404 })
 
     const buffer = await renderToBuffer(
       createElement(TanahKronologiPDF, { tanah, susulan: susulan ?? [] }) as ReactElement<DocumentProps>
@@ -61,6 +61,6 @@ export async function GET(
     })
   } catch (error) {
     console.error('[Tanah PDF Export Error]', error)
-    return NextResponse.json({ error: 'Gagal jana PDF' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
   }
 }

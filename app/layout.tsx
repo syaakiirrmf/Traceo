@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     default: 'Traceo',
     template: '%s | Traceo',
   },
-  description: 'Sistem Pengurusan Fasiliti JV & Penjanaan Kronologi',
+  description: 'JV Facility Management & Chronology Generation',
 }
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ms" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
       </body>

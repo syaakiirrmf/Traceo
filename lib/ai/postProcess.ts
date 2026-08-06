@@ -28,12 +28,16 @@ export function cleanAiResponse(text: string): string {
   cleaned = cleaned.replace(/\*\*/g, '').replace(/__(.*?)__/g, '$1')
 
   // 7. Buang frasa pembuka generic yang common (case-insensitive)
-  const genericOpeners = [
-    /^Berdasarkan data (yang diperolehi|di atas|semasa)[,:]?\s*/i,
-    /^Berikut adalah (analisis|ringkasan|senarai)[^:]*:?\s*/i,
-    /^Untuk menjawab soalan (anda|awak)[,:]?\s*/i,
-    /^Sebenarnya[,:]?\s*/i,
-  ]
+const genericOpeners = [
+  /^Berdasarkan data (yang diperolehi|di atas|semasa)[,:]?\s*/i,
+  /^Berikut adalah (analisis|ringkasan|senarai)[^:]*:?\s*/i,
+  /^Untuk menjawab soalan (anda|awak)[,:]?\s*/i,
+  /^Sebenarnya[,:]?\s*/i,
+  /^Based on (the |our )?(data|records)( obtained| above| current| we have)?[,:]?\s*/i,
+  /^Here (is|are) (an? )?(analysis|summary|list|overview)[^:]*:?\s*/i,
+  /^To (answer|address|respond to) your (question|request|query)[,:]?\s*/i,
+  /^Actually[,:]?\s*/i,
+]
   for (const pattern of genericOpeners) {
     cleaned = cleaned.replace(pattern, '')
   }

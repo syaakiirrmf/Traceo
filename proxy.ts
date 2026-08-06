@@ -32,7 +32,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Public routes — no auth needed
-  const publicRoutes = ['/login']
+  const publicRoutes = ['/', '/login']
   if (publicRoutes.includes(pathname)) {
     // If already logged in, redirect to dashboard
     if (user) {

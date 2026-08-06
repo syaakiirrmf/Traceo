@@ -27,8 +27,8 @@ export function calculateLTV(jumlahPembiayaan: number | null | undefined, nilaiC
 
 // Minimalist status config — no loud solid pills, disciplined colors
 export const STATUS_CONFIG = {
-  aktif: { label: 'Lancar', bg: 'bg-[var(--color-surface-raised)]', text: 'text-[var(--color-text-secondary)]', border: 'border-[var(--color-border)]' },
-  tertunggak: { label: 'Tertunggak', bg: 'bg-[var(--color-danger-subtle)]', text: 'text-[var(--color-danger)]', border: 'border-[var(--color-danger)]/30' },
-  tindakan_guaman: { label: 'Tindakan Guaman', bg: 'bg-[var(--color-danger-subtle)]', text: 'text-[var(--color-danger)]', border: 'border-[var(--color-danger)]/30' },
-  selesai: { label: 'Selesai', bg: 'bg-[var(--color-surface-raised)]', text: 'text-[var(--color-text-tertiary)]', border: 'border-[var(--color-border)]' },
+  aktif: { label: 'Active', bg: 'bg-[var(--color-surface-raised)]', text: 'text-[var(--color-text-secondary)]', border: 'border-[var(--color-border)]' },
+  tertunggak: { label: 'Overdue', bg: 'bg-[var(--color-danger-subtle)]', text: 'text-[var(--color-danger)]', border: 'border-[var(--color-danger)]/30' },
+  tindakan_guaman: { label: 'Legal Action', bg: 'bg-[var(--color-danger-subtle)]', text: 'text-[var(--color-danger)]', border: 'border-[var(--color-danger)]/30' },
+  selesai: { label: 'Completed', bg: 'bg-[var(--color-surface-raised)]', text: 'text-[var(--color-text-tertiary)]', border: 'border-[var(--color-border)]' },
 } as const

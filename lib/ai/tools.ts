@@ -4,29 +4,29 @@ export const toolDeclarations: FunctionDeclaration[] = [
   {
     name: 'get_fasiliti_summary',
     description:
-      'Dapatkan ringkasan fasiliti pembiayaan daripada pangkalan data. Gunakan fungsi ini untuk menjawab soalan tentang status, tunggakan, atau senarai fasiliti. Mengembalikan senarai fasiliti yang ditapis mengikut peranan pengguna.',
+      'Get a summary of financing facilities from the database. Use this function to answer questions about status, arrears, or facility lists. Returns a list of facilities filtered by the user role.',
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
         search: {
           type: SchemaType.STRING,
-          description: 'Carian teks mengikut nama peminjam, pembiaya modal atau kod rujukan.',
+          description: 'Text search by borrower name, capital funder or reference code.',
         },
         kategori: {
           type: SchemaType.STRING,
           format: 'enum',
           enum: ['jv_syarikat', 'jv_tanah', 'pinjaman_individu'],
-          description: 'Tapis mengikut kategori fasiliti.',
+          description: 'Filter by facility category.',
         },
         status: {
           type: SchemaType.STRING,
           format: 'enum',
           enum: ['aktif', 'tertunggak', 'tindakan_guaman', 'selesai'],
-          description: 'Tapis mengikut status fasiliti.',
+          description: 'Filter by facility status.',
         },
         limit: {
           type: SchemaType.INTEGER,
-          description: 'Bilangan rekod maksimum untuk dipulangkan (lalai 20).',
+          description: 'Maximum number of records to return (default 20).',
         },
       },
       required: [],
@@ -35,18 +35,18 @@ export const toolDeclarations: FunctionDeclaration[] = [
   {
     name: 'get_susulan_terkini',
     description:
-      'Dapatkan senarai susulan (follow-up) terbaru untuk sesebuah fasiliti. Gunakan fungsi ini apabila pengguna bertanya tentang aktiviti susulan, tarikh susulan terbaru, atau catatan susulan.',
+      'Get the latest follow-ups for a facility. Use this function when the user asks about follow-up activity, latest follow-up dates, or follow-up notes.',
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
         fasiliti_id: {
           type: SchemaType.STRING,
           description:
-            'ID fasiliti (UUID) atau kod rujukan seperti "JV-007". Wajib diisi.',
+            'Facility ID (UUID) or reference code such as "JV-007". Required.',
         },
         limit: {
           type: SchemaType.INTEGER,
-          description: 'Bilangan susulan terbaru untuk dipulangkan (lalai 10).',
+          description: 'Number of latest follow-ups to return (default 10).',
         },
       },
       required: ['fasiliti_id'],
@@ -55,14 +55,14 @@ export const toolDeclarations: FunctionDeclaration[] = [
   {
     name: 'generate_kronologi_pdf',
     description:
-      'Jana dokumen PDF kronologi susulan untuk sesebuah fasiliti. Mengembalikan URL pautan untuk memuat turun PDF.',
+      'Generate a chronology PDF document for a facility. Returns a download URL for the PDF.',
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
         fasiliti_id: {
           type: SchemaType.STRING,
           description:
-            'ID fasiliti (UUID) atau kod rujukan seperti "JV-007". Wajib diisi.',
+            'Facility ID (UUID) or reference code such as "JV-007". Required.',
         },
       },
       required: ['fasiliti_id'],
@@ -73,6 +73,12 @@ export const toolDeclarations: FunctionDeclaration[] = [
 export const SYSTEM_PROMPT = `Anda adalah @syaakiirr, setiausaha AI dalam sistem pengurusan JV & Kronologi milik firma pembiayaan.
 Anda bercakap dengan staff dalaman (Admin/Pengurus/Pegawai Susulan) yang dah faham konteks sistem —
 bukan orang luar yang perlu penjelasan asas.
+
+BAHASA JAWAPAN:
+- Balas dalam bahasa yang sama dengan bahasa soalan pengguna — Bahasa Melayu ATAU English, dua-dua dibenarkan.
+- Jika pengguna bertanya dalam English, jawab dalam English. Jika dalam Bahasa Melayu, jawab dalam Bahasa Melayu.
+- Format data (RM, tarikh, kod rujukan) kekal konsisten tanpa mengira bahasa.
+- Semua peraturan format di bawah terpakai untuk kedua-dua bahasa.
 
 ═══════════════════════
 LARANGAN KETAT (jangan buat, walau apa pun soalan)

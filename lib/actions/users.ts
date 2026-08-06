@@ -8,13 +8,13 @@ import { hasPermission } from '@/lib/auth/permissions'
 async function getCurrentUser() {
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
-  if (!authUser) throw new Error('Tidak log masuk')
+  if (!authUser) throw new Error('Not logged in')
   const { data: userProfile } = await supabase
     .from('users')
     .select('id, peranan')
     .eq('auth_id', authUser.id)
     .single()
-  if (!userProfile) throw new Error('Pengguna tidak dijumpai')
+  if (!userProfile) throw new Error('User not found')
   return { supabase, userProfile }
 }
 
@@ -22,7 +22,7 @@ async function getCurrentUser() {
 
 export async function tambahUser(formData: FormData) {
   const { supabase, userProfile } = await getCurrentUser()
-  if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Akses ditolak')
+  if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
 
   const emel = formData.get('emel') as string
   const nama = formData.get('nama') as string
@@ -38,7 +38,7 @@ export async function tambahUser(formData: FormData) {
     email_confirm: true,
   })
 
-  if (authError) throw new Error(`Gagal cipta akaun: ${authError.message}`)
+  if (authError) throw new Error(`Failed to create account: ${authError.message}`)
 
   // Insert into users table
   const { error } = await supabase.from('users').insert({
@@ -49,7 +49,7 @@ export async function tambahUser(formData: FormData) {
     status: 'aktif',
   })
 
-  if (error) throw new Error(`Gagal simpan pengguna: ${error.message}`)
+  if (error) throw new Error(`Failed to save user: ${error.message}`)
 
   await supabase.from('log_audit').insert({
     user_id: userProfile.id,
@@ -67,7 +67,7 @@ export async function tambahUser(formData: FormData) {
 
 export async function toggleUserStatus(userId: string, statusSemasa: string) {
   const { supabase, userProfile } = await getCurrentUser()
-  if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Akses ditolak')
+  if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
 
   const statusBaharu = statusSemasa === 'aktif' ? 'tidak_aktif' : 'aktif'
 
@@ -76,7 +76,7 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
     .update({ status: statusBaharu })
     .eq('id', userId)
 
-  if (error) throw new Error(`Gagal kemaskini status: ${error.message}`)
+  if (error) throw new Error(`Failed to update status: ${error.message}`)
 
   await supabase.from('log_audit').insert({
     user_id: userProfile.id,
@@ -93,14 +93,14 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
 
 export async function kemaskiniPeranan(userId: string, perananBaharu: string) {
   const { supabase, userProfile } = await getCurrentUser()
-  if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Akses ditolak')
+  if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
 
   const { error } = await supabase
     .from('users')
     .update({ peranan: perananBaharu })
     .eq('id', userId)
 
-  if (error) throw new Error(`Gagal kemaskini peranan: ${error.message}`)
+  if (error) throw new Error(`Failed to update role: ${error.message}`)
 
   await supabase.from('log_audit').insert({
     user_id: userProfile.id,

@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation'
 import { cn, getInitials } from '@/lib/utils'
 import type { User } from '@/types'
 import { hasPermission, getRoleLabel } from '@/lib/auth/permissions'
+import { LogoBrand } from '@/components/ui/logo-brand'
 
 interface NavItem {
   href: string
@@ -30,7 +31,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/summary/jv1', label: 'Summary JV 1', icon: Building2 },
-  { href: '/dashboard/summary/jv2', label: 'JV Tanah', icon: LayoutList },
+  { href: '/dashboard/summary/jv2', label: 'Land JV', icon: LayoutList },
   { href: '/dashboard/summary/jv3', label: 'Personal Loan', icon: LayoutList },
   { href: '/dashboard/tanah-jv', label: 'Tanah MD (JV)', icon: MapPin },
   { href: '/dashboard/fasiliti', label: 'Facilities (All)', icon: Building2 },
@@ -59,21 +60,14 @@ export function Sidebar({ user }: SidebarProps) {
   )
 
   return (
-    <aside className="w-[220px] flex-shrink-0 flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]">
+    <aside className="w-[230px] flex-shrink-0 flex flex-col border-r border-slate-200/80 bg-[#fcfbf9]">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 h-14 border-b border-[var(--color-border)]">
-        <div className="w-7 h-7 rounded-lg bg-[var(--color-brand)] flex items-center justify-center flex-shrink-0">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-            <path d="M3 4h14M3 10h9M3 16h14" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-          </svg>
-        </div>
-        <span className="font-semibold text-[15px] tracking-tight text-[var(--color-text-primary)]">
-          Traceo
-        </span>
+      <div className="flex items-center px-5 h-[68px] border-b border-slate-200/80 bg-[#fcfbf9]">
+        <LogoBrand size="md" variant="dark" />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {visibleNav.map((item) => {
           const Icon = item.icon
           const isActive = item.href === '/dashboard'
@@ -84,23 +78,24 @@ export function Sidebar({ user }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              transitionTypes={['page-nav']}
               className={cn(
-                'group flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-all duration-150',
+                'group flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-[var(--color-brand-subtle)] text-[var(--color-brand)]'
-                  : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)]'
+                  ? 'bg-teal-50/90 text-teal-800 font-semibold border border-teal-200/80 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
               )}
             >
               <Icon
-                size={16}
+                size={17}
                 className={cn(
                   'flex-shrink-0 transition-colors',
-                  isActive ? 'text-[var(--color-brand)]' : 'text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]'
+                  isActive ? 'text-teal-700' : 'text-slate-400 group-hover:text-slate-600'
                 )}
               />
               <span className="flex-1">{item.label}</span>
               {isActive && (
-                <ChevronRight size={12} className="text-[var(--color-brand)] opacity-60" />
+                <ChevronRight size={13} className="text-teal-700 opacity-80" />
               )}
             </Link>
           )
@@ -111,6 +106,7 @@ export function Sidebar({ user }: SidebarProps) {
       <div className="px-3 pb-3 border-t border-[var(--color-border)] pt-3">
         <Link
           href="/dashboard/profil"
+          transitionTypes={['page-nav']}
           className="flex items-center gap-2.5 px-2 py-2 rounded-[var(--radius-md)] hover:bg-[var(--color-surface-raised)] transition-colors group"
         >
           {/* Avatar */}

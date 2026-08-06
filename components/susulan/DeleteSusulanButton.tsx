@@ -22,12 +22,12 @@ export function DeleteSusulanButton({ susulanId, fasilitiId, tarikh }: DeleteSus
     startTransition(async () => {
       try {
         await padamSusulan(susulanId, fasilitiId)
-        toast.success('Susulan dipadam', `Rekod susulan ${tarikh} telah dibuang.`)
+        toast.success('Follow-up deleted', `Follow-up record ${tarikh} has been removed.`)
         setOpen(false)
         router.refresh()
       } catch (err) {
         setOpen(false)
-        toast.error('Gagal memadam susulan', err instanceof Error ? err.message : 'Sila cuba lagi.')
+        toast.error('Failed to delete follow-up', err instanceof Error ? err.message : 'Please try again.')
       }
     })
   }

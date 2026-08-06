@@ -8,7 +8,7 @@ import { hasPermission } from '@/lib/auth/permissions'
 async function getCurrentUser() {
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
-  if (!authUser) throw new Error('Tidak log masuk')
+  if (!authUser) throw new Error('Not logged in')
 
   const { data: userProfile } = await supabase
     .from('users')
@@ -16,7 +16,7 @@ async function getCurrentUser() {
     .eq('auth_id', authUser.id)
     .single()
 
-  if (!userProfile) throw new Error('Pengguna tidak dijumpai')
+  if (!userProfile) throw new Error('User not found')
   return { supabase, userProfile }
 }
 
@@ -60,7 +60,7 @@ export async function tambahFasiliti(formData: FormData) {
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'tambah_fasiliti')) {
-    throw new Error('Akses ditolak')
+    throw new Error('Access denied')
   }
 
   const kategori = formData.get('kategori') as string
@@ -125,7 +125,7 @@ export async function tambahFasiliti(formData: FormData) {
     .select('id')
     .single()
 
-  if (error) throw new Error(`Gagal simpan: ${error.message}`)
+  if (error) throw new Error(`Failed to save: ${error.message}`)
 
   // Assign pegawai susulan jika ada
   if (pegawaiIds.length > 0) {
@@ -146,7 +146,7 @@ export async function editFasiliti(fasilitiId: string, formData: FormData) {
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'edit_fasiliti')) {
-    throw new Error('Akses ditolak')
+    throw new Error('Access denied')
   }
 
   const kategori = formData.get('kategori') as string
@@ -200,7 +200,7 @@ export async function editFasiliti(fasilitiId: string, formData: FormData) {
     .update(payload)
     .eq('id', fasilitiId)
 
-  if (error) throw new Error(`Gagal kemaskini: ${error.message}`)
+  if (error) throw new Error(`Failed to update: ${error.message}`)
 
   await logAudit(supabase, userProfile.id, 'edit_fasiliti', 'fasiliti', fasilitiId)
 
@@ -215,11 +215,11 @@ export async function padamFasiliti(fasilitiId: string) {
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'padam_fasiliti')) {
-    throw new Error('Akses ditolak')
+    throw new Error('Access denied')
   }
 
   const { error } = await supabase.from('fasiliti').delete().eq('id', fasilitiId)
-  if (error) throw new Error(`Gagal padam: ${error.message}`)
+  if (error) throw new Error(`Failed to delete: ${error.message}`)
 
   await logAudit(supabase, userProfile.id, 'padam_fasiliti', 'fasiliti', fasilitiId)
 
@@ -233,7 +233,7 @@ export async function kemaskiniPegawaiFasiliti(fasilitiId: string, pegawaiIds: s
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'edit_fasiliti')) {
-    throw new Error('Akses ditolak')
+    throw new Error('Access denied')
   }
 
   // Delete existing assignments for this fasiliti
@@ -246,7 +246,7 @@ export async function kemaskiniPegawaiFasiliti(fasilitiId: string, pegawaiIds: s
       user_id: userId,
     }))
     const { error } = await supabase.from('fasiliti_pegawai').insert(rows)
-    if (error) throw new Error(`Gagal tugaskan pegawai: ${error.message}`)
+    if (error) throw new Error(`Failed to assign officer: ${error.message}`)
   }
 
   await logAudit(supabase, userProfile.id, 'kemaskini_pegawai', 'fasiliti', fasilitiId, {

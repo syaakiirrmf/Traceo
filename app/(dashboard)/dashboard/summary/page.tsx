@@ -52,49 +52,49 @@ export default async function SummaryIndexPage() {
     {
       href: '/dashboard/summary/jv1',
       title: 'Summary JV 1',
-      category: 'Syarikat Usahasama',
-      description: 'Pembiayaan modal, dividen keuntungan, tunggakan & cagaran aset syarikat',
+      category: 'Company Joint Venture',
+      description: 'Capital financing, profit dividends, arrears & company asset collateral',
       count: jv1.length,
       hasArrears: sum(jv1, 'jumlah_tunggakan_semasa') > 0,
       stats: [
-        { label: 'Jumlah Pembiayaan', value: formatCurrency(sum(jv1, 'jumlah_pembiayaan')) },
-        { label: 'Jumlah Tunggakan', value: formatCurrency(sum(jv1, 'jumlah_tunggakan_semasa')), isArrears: sum(jv1, 'jumlah_tunggakan_semasa') > 0 },
+        { label: 'Total Financing', value: formatCurrency(sum(jv1, 'jumlah_pembiayaan')) },
+        { label: 'Total Arrears', value: formatCurrency(sum(jv1, 'jumlah_tunggakan_semasa')), isArrears: sum(jv1, 'jumlah_tunggakan_semasa') > 0 },
       ],
     },
     {
       href: '/dashboard/summary/jv2',
-      title: 'JV Tanah',
-      category: 'Tanah Usahasama',
-      description: 'Pembiayaan modal kontraktor, perkongsian keuntungan & maklumat hartanah',
+      title: 'Land JV',
+      category: 'Land Joint Venture',
+      description: 'Contractor capital financing, profit sharing & property information',
       count: jv2.length,
       hasArrears: sum(jv2, 'jumlah_tunggakan_semasa') > 0,
       stats: [
-        { label: 'Jumlah Pembiayaan', value: formatCurrency(sum(jv2, 'jumlah_pembiayaan')) },
-        { label: 'Jumlah Tunggakan', value: formatCurrency(sum(jv2, 'jumlah_tunggakan_semasa')), isArrears: sum(jv2, 'jumlah_tunggakan_semasa') > 0 },
+        { label: 'Total Financing', value: formatCurrency(sum(jv2, 'jumlah_pembiayaan')) },
+        { label: 'Total Arrears', value: formatCurrency(sum(jv2, 'jumlah_tunggakan_semasa')), isArrears: sum(jv2, 'jumlah_tunggakan_semasa') > 0 },
       ],
     },
     {
       href: '/dashboard/summary/jv3',
       title: 'Personal Loan',
-      category: 'Pinjaman Individu',
-      description: 'Pembiayaan individu, perkongsian keuntungan & cagaran (A + B = C)',
+      category: 'Individual Loan',
+      description: 'Individual financing, profit sharing & collateral (A + B = C)',
       count: jv3.length,
       hasArrears: sum(jv3, 'jumlah_tunggakan_semasa') > 0,
       stats: [
-        { label: 'Jumlah Pembiayaan', value: formatCurrency(sum(jv3, 'jumlah_pembiayaan')) },
-        { label: 'Jumlah Tunggakan', value: formatCurrency(sum(jv3, 'jumlah_tunggakan_semasa')), isArrears: sum(jv3, 'jumlah_tunggakan_semasa') > 0 },
+        { label: 'Total Financing', value: formatCurrency(sum(jv3, 'jumlah_pembiayaan')) },
+        { label: 'Total Arrears', value: formatCurrency(sum(jv3, 'jumlah_tunggakan_semasa')), isArrears: sum(jv3, 'jumlah_tunggakan_semasa') > 0 },
       ],
     },
     {
       href: '/dashboard/summary/tanah-md',
       title: 'Tanah MD (JV)',
-      category: 'Pendaftaran Tanah',
-      description: 'Hak milik tanah, maklumat tajuk, luas & cagaran nilaian aset',
+      category: 'Land Registration',
+      description: 'Land title, title information, area & collateral asset value',
       count: tanah.length,
       hasArrears: false,
       stats: [
-        { label: 'Jumlah Lot Tanah', value: tanah.length + ' lot' },
-        { label: 'Jumlah Cagaran Nilaian', value: formatCurrency(sum(tanah, 'anggaran_nilaian')) },
+        { label: 'Total Land Lots', value: tanah.length + ' lots' },
+        { label: 'Total Collateral Value', value: formatCurrency(sum(tanah, 'anggaran_nilaian')) },
       ],
     },
   ]
@@ -109,10 +109,10 @@ export default async function SummaryIndexPage() {
       {/* Page Header: Pure Typography */}
       <div className="border-b border-[var(--color-border)] pb-4">
         <h1 className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
-          Ringkasan Pembiayaan JV &amp; Tanah
+          JV &amp; Land Financing Summary
         </h1>
         <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-          Pilih kategori jadual untuk melihat butiran lengkap.
+          Select a table category to view full details.
         </p>
       </div>
 
@@ -132,7 +132,7 @@ export default async function SummaryIndexPage() {
                 {card.category}
               </span>
               <span className="text-xs font-mono font-medium text-[var(--color-text-secondary)] bg-[var(--color-surface-raised)] px-2 py-0.5 rounded-full border border-[var(--color-border)]">
-                {card.count} rekod
+                {card.count} records
               </span>
             </div>
 
@@ -165,27 +165,27 @@ export default async function SummaryIndexPage() {
       {/* Aggregate Strip (Clean Typography Only) */}
       <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-5 shadow-xs">
         <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-3">
-          Agregat Keseluruhan Sistem
+          System-Wide Aggregate
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
           <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Jumlah Fasiliti</p>
-            <p className="font-mono font-bold text-[var(--color-text-primary)]">{jv1.length + jv2.length + jv3.length} Rekod</p>
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Total Facilities</p>
+            <p className="font-mono font-bold text-[var(--color-text-primary)]">{jv1.length + jv2.length + jv3.length} Records</p>
           </div>
           <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Jumlah Pembiayaan</p>
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Total Financing</p>
             <p className="font-mono font-bold text-[var(--color-text-primary)]">
               {formatCurrency(sum(jv1, 'jumlah_pembiayaan') + sum(jv2, 'jumlah_pembiayaan') + sum(jv3, 'jumlah_pembiayaan'))}
             </p>
           </div>
           <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Jumlah Tunggakan</p>
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Total Arrears</p>
             <p className={`font-mono font-bold ${totalTunggakanKeseluruhan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}>
               {formatCurrency(totalTunggakanKeseluruhan)}
             </p>
           </div>
           <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Cagaran Nilaian (Tanah)</p>
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Collateral Value (Land)</p>
             <p className="font-mono font-bold text-[var(--color-text-primary)]">
               {formatCurrency(sum(tanah, 'anggaran_nilaian'))}
             </p>

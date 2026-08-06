@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { LogoBrand } from '@/components/ui/logo-brand'
 
 export const metadata: Metadata = {
   title: 'Sign In',
@@ -12,50 +13,43 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen flex">
       {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-[420px] xl:w-[480px] flex-col justify-between p-10 bg-[oklch(0.15_0.06_255)] relative overflow-hidden flex-shrink-0">
+      <div className="hidden lg:flex lg:w-[420px] xl:w-[480px] flex-col justify-between p-10 bg-slate-900 relative overflow-hidden flex-shrink-0">
         {/* Subtle grid pattern */}
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `linear-gradient(oklch(0.9 0 0) 1px, transparent 1px), linear-gradient(90deg, oklch(0.9 0 0) 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)`,
             backgroundSize: '32px 32px',
           }}
         />
-        {/* Glow accent */}
-        <div className="absolute top-[-80px] left-[-80px] w-[320px] h-[320px] rounded-full bg-[oklch(0.45_0.16_255)] opacity-20 blur-[80px]" />
-        <div className="absolute bottom-[-60px] right-[-60px] w-[240px] h-[240px] rounded-full bg-[oklch(0.55_0.18_200)] opacity-15 blur-[60px]" />
+        {/* Ambient Teal glow accent */}
+        <div className="absolute top-[-80px] left-[-80px] w-[320px] h-[320px] rounded-full bg-teal-600 opacity-20 blur-[80px]" />
+        <div className="absolute bottom-[-60px] right-[-60px] w-[240px] h-[240px] rounded-full bg-teal-500 opacity-15 blur-[60px]" />
 
         {/* Logo */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[oklch(0.45_0.16_255)] flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M3 4h14M3 10h9M3 16h14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </div>
-            <span className="text-white font-semibold text-lg tracking-tight">Traceo</span>
-          </div>
+          <LogoBrand size="lg" variant="light" />
         </div>
 
         {/* Main copy */}
         <div className="relative z-10 space-y-4">
-          <h1 className="text-white text-3xl font-semibold leading-tight tracking-tight">
+          <h1 className="text-white text-3xl font-extrabold leading-tight tracking-tight">
             Facility Management<br />
-            <span className="text-[oklch(0.70_0.12_255)]">Streamlined.</span>
+            <span className="text-teal-400">Streamlined.</span>
           </h1>
-          <p className="text-[oklch(0.65_0.05_255)] text-sm leading-relaxed max-w-[280px]">
+          <p className="text-slate-400 text-sm leading-relaxed max-w-[300px]">
             Record follow-ups, generate chronology reports, and track all JV facilities in one central platform.
           </p>
 
           {/* Feature list */}
-          <ul className="space-y-2 pt-2">
+          <ul className="space-y-2.5 pt-2">
             {[
               'Follow-up logs with notes & files',
               'Export chronology to Word & PDF',
-              'Role-based access control',
+              'Role-based access control (RBAC)',
             ].map((item) => (
-              <li key={item} className="flex items-center gap-2.5 text-[oklch(0.72_0.06_255)] text-sm">
-                <div className="w-1.5 h-1.5 rounded-full bg-[oklch(0.55_0.18_155)] flex-shrink-0" />
+              <li key={item} className="flex items-center gap-2.5 text-slate-300 text-sm">
+                <div className="w-2 h-2 rounded-full bg-teal-400 flex-shrink-0" />
                 {item}
               </li>
             ))}
@@ -64,8 +58,8 @@ export default function AuthLayout({
 
         {/* Footer */}
         <div className="relative z-10">
-          <p className="text-[oklch(0.42_0.04_255)] text-xs">
-            © 2026 Traceo. Internal System.
+          <p className="text-slate-500 text-xs font-mono">
+            &copy; 2026 Traceo. Internal System.
           </p>
         </div>
       </div>
