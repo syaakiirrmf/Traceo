@@ -61,32 +61,32 @@ export default async function EditTanahJVPage({
 
       <form action={action} className="space-y-5">
         {/* Tajuk */}
-        <Section title="Tajuk — Land Title Information">
+        <Section title="Title — Land Title Information">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Negeri (State)" name="negeri" required defaultValue={s('negeri')} placeholder="e.g. Negeri Sembilan" />
-            <Field label="Daerah (District)" name="daerah" required defaultValue={s('daerah')} placeholder="e.g. Seremban" />
+            <Field label="State" name="negeri" required defaultValue={s('negeri')} placeholder="e.g. Negeri Sembilan" />
+            <Field label="District" name="daerah" required defaultValue={s('daerah')} placeholder="e.g. Seremban" />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Bandar / Pekan / Mukim" name="bandar_mukim" required defaultValue={s('bandar_mukim')} placeholder="e.g. Mukim Tuk Jamal" />
-            <Field label="Tempat (Location)" name="tempat" required defaultValue={s('tempat')} placeholder="e.g. Gemencheh" />
+            <Field label="Town / Village / Mukim" name="bandar_mukim" required defaultValue={s('bandar_mukim')} placeholder="e.g. Mukim Tuk Jamal" />
+            <Field label="Location" name="tempat" required defaultValue={s('tempat')} placeholder="e.g. Gemencheh" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Field label="No. Lot" name="no_lot" required defaultValue={s('no_lot')} placeholder="e.g. LOT 1979" />
-            <Field label="No. Hak Milik (Title No.)" name="no_hak_milik" defaultValue={s('no_hak_milik')} placeholder="e.g. GM 1837" />
+            <Field label="Title No." name="no_hak_milik" defaultValue={s('no_hak_milik')} placeholder="e.g. GM 1837" />
           </div>
-          <Field label="Daftar Pada (Registration Date)" name="tarikh_daftar" type="date" defaultValue={s('tarikh_daftar')} />
+          <Field label="Registration Date" name="tarikh_daftar" type="date" defaultValue={s('tarikh_daftar')} />
         </Section>
 
         {/* Luas & Nilaian */}
-        <Section title="Luas &amp; Penilaian">
+        <Section title="Area &amp; Valuation">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Luas (m²)" name="luas_meter_persegi" type="number" defaultValue={s('luas_meter_persegi')} placeholder="0.0000" step="0.0001" min="0" />
-            <Field label="Cagaran Nilaian (RM)" name="anggaran_nilaian" type="number" defaultValue={s('anggaran_nilaian')} placeholder="0.00" step="0.01" min="0" />
+            <Field label="Area (m²)" name="luas_meter_persegi" type="number" defaultValue={s('luas_meter_persegi')} placeholder="0.0000" step="0.0001" min="0" />
+            <Field label="Collateral Value (RM)" name="anggaran_nilaian" type="number" defaultValue={s('anggaran_nilaian')} placeholder="0.00" step="0.01" min="0" />
           </div>
         </Section>
 
         {/* Catatan */}
-        <Section title="Catatan">
+        <Section title="Notes">
           <textarea
             name="catatan"
             rows={4}

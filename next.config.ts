@@ -4,6 +4,7 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
   experimental: {
+    viewTransition: true,
     staleTimes: {
       dynamic: 30,
     },

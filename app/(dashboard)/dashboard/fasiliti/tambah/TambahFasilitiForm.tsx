@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { tambahFasiliti } from '@/lib/actions/fasiliti'
 
 const KATEGORI_OPTIONS = [
-  { value: 'jv_syarikat', label: 'Summary JV 1 — Corporate JV' },
-  { value: 'jv_tanah', label: 'JV Tanah — Land JV' },
-  { value: 'pinjaman_individu', label: 'Personal Loan — Individual Loan' },
+  { value: 'jv_syarikat', label: 'Company JV' },
+  { value: 'jv_tanah', label: 'Land JV' },
+  { value: 'pinjaman_individu', label: 'Individual Loan' },
 ]
 
 const STATUS_OPTIONS = [
@@ -74,7 +74,7 @@ export function TambahFasilitiForm({
 
         <div className="grid grid-cols-2 gap-4">
           <Field
-            label="Capital Funder (Pembiaya Modal)"
+            label="Capital Funder"
             name="pembiaya_modal"
             required
             placeholder="e.g. MUAZ FORCE SDN BHD"
@@ -82,14 +82,14 @@ export function TambahFasilitiForm({
           {/* JV2 shows Nama Kontraktor, JV1/JV3 shows Nama Peminjam */}
           {isJV2 ? (
             <Field
-              label="Contractor Name (Nama Kontraktor)"
+              label="Contractor Name"
               name="nama_peminjam"
               required
               placeholder="e.g. MF PROPERTIES"
             />
           ) : (
             <Field
-              label="Borrower Name (Nama Peminjam)"
+              label="Borrower Name"
               name="nama_peminjam"
               required
               placeholder="e.g. VERTEX CENTRAL INDUSTRIES SDN BHD"
@@ -104,10 +104,10 @@ export function TambahFasilitiForm({
       </Section>
 
       {/* ── Section 2: Maklumat Pembiayaan Modal ── */}
-      <Section title="Maklumat Pembiayaan Modal">
+      <Section title="Capital Financing Information">
         <div className="grid grid-cols-2 gap-4">
           <Field
-            label="Jumlah Pembiayaan Modal (RM) — A"
+            label="Total Capital Financing (RM) — A"
             name="jumlah_pembiayaan"
             type="number"
             required
@@ -119,12 +119,12 @@ export function TambahFasilitiForm({
           {(isJV1 || isJV3) && (
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-                {isJV1 ? 'Perkongsian Dividen Keuntungan (RM)' : 'Perkongsian Keuntungan (RM)'}
+                {isJV1 ? 'Dividend Profit Sharing (RM)' : 'Profit Sharing (RM)'}
               </label>
               <input
                 type="text"
                 name="kadar_dividen"
-                placeholder={isJV1 ? "e.g. AZRIN - 3,375/BULAN · HAFIZ - 500/BULAN" : "e.g. 3,000/BULAN"}
+                placeholder={isJV1 ? "e.g. AZRIN - 3,375/month · HAFIZ - 500/month" : "e.g. 3,000/month"}
                 className="w-full h-10 px-3.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
               />
             </div>
@@ -132,7 +132,7 @@ export function TambahFasilitiForm({
           {/* JV2: Perkongsian Keuntungan is a numeric amount (B component) */}
           {isJV2 && (
             <Field
-              label="Perkongsian Keuntungan (RM) — B"
+              label="Profit Sharing (RM) — B"
               name="perkongsian_keuntungan"
               type="number"
               placeholder="0.00"
@@ -145,7 +145,7 @@ export function TambahFasilitiForm({
         {/* JV3: also has Bayaran Tambahan as B */}
         {isJV3 && (
           <Field
-            label="Bayaran Tambahan (RM) — B"
+            label="Additional Payment (RM) — B"
             name="bayaran_tambahan"
             type="number"
             placeholder="0.00"
@@ -158,62 +158,62 @@ export function TambahFasilitiForm({
       {/* ── Section 3: Maklumat Tunggakan & Bayaran (JV1 and JV2 only) ── */}
       {(isJV1 || isJV2) && (
         <Section
-          title="Maklumat Tunggakan & Bayaran"
+          title="Arrears & Payments Information"
           subtitle="Leave Total (E) blank to auto-compute"
         >
           <div className="grid grid-cols-3 gap-4">
             {isJV1 && (
               <>
-                <Field label="Tunggakan Dividen (RM) — B" name="tunggakan_dividen" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Caj Lewat (RM) — C" name="caj_lewat" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Bayaran Tambahan (RM) — D" name="bayaran_tambahan" type="number" placeholder="0.00" step="0.01" min="0" />
+                <Field label="Dividend Arrears (RM) — B" name="tunggakan_dividen" type="number" placeholder="0.00" step="0.01" min="0" />
+                <Field label="Late Charges (RM) — C" name="caj_lewat" type="number" placeholder="0.00" step="0.01" min="0" />
+                <Field label="Additional Payment (RM) — D" name="bayaran_tambahan" type="number" placeholder="0.00" step="0.01" min="0" />
               </>
             )}
             {isJV2 && (
               <>
-                <Field label="Tunggakan Perkongsian Keuntungan (RM) — C" name="tunggakan_dividen" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Bayaran Tambahan (RM) — D" name="bayaran_tambahan" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Tahun Projek" name="tahun_projek" type="number" placeholder="e.g. 2023" min="2000" />
+                <Field label="Profit Sharing Arrears (RM) — C" name="tunggakan_dividen" type="number" placeholder="0.00" step="0.01" min="0" />
+                <Field label="Additional Payment (RM) — D" name="bayaran_tambahan" type="number" placeholder="0.00" step="0.01" min="0" />
+                <Field label="Project Year" name="tahun_projek" type="number" placeholder="e.g. 2023" min="2000" />
               </>
             )}
           </div>
-          <TotalArrears label={isJV3 ? 'Jumlah Tunggakan (RM) — C (A + B)' : 'Jumlah Tunggakan (RM) — E (A + B + C + D)'} />
+          <TotalArrears label={isJV3 ? 'Total Arrears (RM) — C (A + B)' : 'Total Arrears (RM) — E (A + B + C + D)'} />
         </Section>
       )}
 
       {/* JV3 total */}
       {isJV3 && (
-        <Section title="Maklumat Tunggakan" subtitle="Leave blank to auto-compute from A + B">
-          <TotalArrears label="Jumlah Tunggakan (RM) — C (A + B)" />
+        <Section title="Arrears Information" subtitle="Leave blank to auto-compute from A + B">
+          <TotalArrears label="Total Arrears (RM) — C (A + B)" />
         </Section>
       )}
 
       {/* ── Section 4: Maklumat Cagaran / Hartanah ── */}
-      <Section title={isJV2 ? 'Maklumat Hartanah' : 'Maklumat Cagaran Aset'}>
+      <Section title={isJV2 ? 'Property Information' : 'Asset Collateral Information'}>
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-            {isJV2 ? 'Jenis / Lokasi' : 'Jenis / Lokasi / Nilaian Aset Cagaran'}
+            {isJV2 ? 'Type / Location' : 'Type / Location / Collateral Asset Valuation'}
           </label>
           <textarea
             name="ringkasan_cagaran"
             rows={3}
             placeholder={isJV2
               ? "e.g. GM 1837 LOT 1979 MUKIM TUK JAMAL"
-              : "e.g. TANAH N9 — NILAIAN 1.5 JUTA"}
+              : "e.g. LAND N9 — VALUATION 1.5 MILLION"}
             className="w-full px-3.5 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors resize-none"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Anggaran Nilaian (RM)" name="nilai_cagaran" type="number" placeholder="0.00" step="0.01" min="0" />
-          <Field label="Penama Aset" name="penama_aset" placeholder="e.g. MOHD AZRUL BIN ZAKARIA" />
+          <Field label="Estimated Value (RM)" name="nilai_cagaran" type="number" placeholder="0.00" step="0.01" min="0" />
+          <Field label="Asset Nominee" name="penama_aset" placeholder="e.g. MOHD AZRUL BIN ZAKARIA" />
         </div>
 
-        <Field label="Status Pindahmilik / Jualan Aset" name="status_pindahmilik" placeholder="e.g. Telah dijual kepada pembeli — Selesai" />
+        <Field label="Asset Transfer / Sale Status" name="status_pindahmilik" placeholder="e.g. Sold to buyer — Completed" />
 
         {/* JV2 specific: Harga Jualan */}
         {isJV2 && (
-          <Field label="Harga Jualan / Jenis" name="harga_jualan" placeholder="e.g. 400,000 - BUNGALOW" />
+          <Field label="Sale Price / Type" name="harga_jualan" placeholder="e.g. 400,000 - BUNGALOW" />
         )}
       </Section>
 
@@ -240,7 +240,7 @@ export function TambahFasilitiForm({
       )}
 
       {/* ── Section 6: Catatan ── */}
-      <Section title="Catatan (General Notes)">
+      <Section title="General Notes">
         <textarea
           name="catatan_am"
           rows={5}

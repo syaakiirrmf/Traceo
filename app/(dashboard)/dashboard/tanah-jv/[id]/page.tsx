@@ -103,11 +103,11 @@ export default async function TanahJVDetailPage({
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
-          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">Luas</p>
+          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">Area</p>
           <p className="text-base font-semibold tabular-nums text-[var(--color-text-primary)]">{formatArea(tanah.luas_meter_persegi)}</p>
         </div>
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
-          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">Cagaran Nilaian</p>
+          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">Collateral Value</p>
           <p className="text-base font-semibold tabular-nums text-[var(--color-brand)]">{formatCurrency(tanah.anggaran_nilaian)}</p>
         </div>
       </div>
@@ -115,21 +115,21 @@ export default async function TanahJVDetailPage({
       {/* Tajuk details */}
       <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 space-y-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] border-b border-[var(--color-border)] pb-2">
-          Tajuk — Land Title Information
+          Title — Land Title Information
         </p>
-        <InfoRow label="Negeri" value={tanah.negeri} />
-        <InfoRow label="Daerah" value={tanah.daerah} />
-        <InfoRow label="Bandar / Pekan / Mukim" value={tanah.bandar_mukim} />
-        <InfoRow label="Tempat" value={tanah.tempat} />
+        <InfoRow label="State" value={tanah.negeri} />
+        <InfoRow label="District" value={tanah.daerah} />
+        <InfoRow label="Town / Village / Mukim" value={tanah.bandar_mukim} />
+        <InfoRow label="Location" value={tanah.tempat} />
         <InfoRow label="No. Lot" value={tanah.no_lot} />
-        {tanah.no_hak_milik && <InfoRow label="No. Hak Milik" value={tanah.no_hak_milik} />}
-        {tanah.tarikh_daftar && <InfoRow label="Daftar Pada" value={formatDate(tanah.tarikh_daftar)} />}
+        {tanah.no_hak_milik && <InfoRow label="Title No." value={tanah.no_hak_milik} />}
+        {tanah.tarikh_daftar && <InfoRow label="Registered On" value={formatDate(tanah.tarikh_daftar)} />}
       </div>
 
       {/* Catatan */}
       {tanah.catatan && (
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-2">Catatan</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-2">Notes</p>
           <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">{tanah.catatan}</p>
         </div>
       )}
@@ -203,7 +203,7 @@ export default async function TanahJVDetailPage({
                           <Link
                             href={`/dashboard/tanah-jv/${id}/susulan/${s.id}/edit`}
                             className="w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors"
-                            title="Edit susulan"
+                            title="Edit follow-up"
                           >
                             <Pencil size={13} />
                           </Link>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LogoBrand } from '@/components/ui/logo-brand'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -29,20 +30,15 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    router.push('/dashboard', { transitionTypes: ['nav-forward'] })
     router.refresh()
   }
 
   return (
     <div className="w-full max-w-[380px] space-y-8">
       {/* Mobile logo */}
-      <div className="lg:hidden flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-lg bg-[oklch(0.45_0.16_255)] flex items-center justify-center">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-            <path d="M3 4h14M3 10h9M3 16h14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </div>
-        <span className="font-semibold text-base tracking-tight text-[var(--color-text-primary)]">Traceo</span>
+      <div className="lg:hidden">
+        <LogoBrand size="md" variant="default" />
       </div>
 
       {/* Header */}

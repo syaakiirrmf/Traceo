@@ -11,10 +11,10 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = { title: 'Facilities — All Records' }
 
 const STATUS_LABELS = {
-  aktif: 'Lancar',
-  tertunggak: 'Tertunggak',
-  tindakan_guaman: 'Tindakan Guaman',
-  selesai: 'Selesai',
+  aktif: 'Active',
+  tertunggak: 'Overdue',
+  tindakan_guaman: 'Legal Action',
+  selesai: 'Completed',
 } as const
 
 const STATUS_STYLES = {
@@ -25,9 +25,9 @@ const STATUS_STYLES = {
 } as const
 
 const KATEGORI_LABELS = {
-  jv_syarikat: 'Summary JV 1',
-  jv_tanah: 'JV Tanah',
-  pinjaman_individu: 'Personal Loan',
+  jv_syarikat: 'Company JV',
+  jv_tanah: 'Land JV',
+  pinjaman_individu: 'Individual Loan',
 } as const
 
 interface SearchParams {
@@ -76,12 +76,12 @@ export default async function FasilitiPage({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-              Pengurusan Fasiliti
+              Facility Management
             </span>
-            <span className="text-xs text-[var(--color-text-tertiary)]">• {fasiliti?.length ?? 0} Rekod</span>
+            <span className="text-xs text-[var(--color-text-tertiary)]">• {fasiliti?.length ?? 0} Records</span>
           </div>
           <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
-            Semua Fasiliti Pembiayaan
+            All Financing Facilities
           </h1>
         </div>
 
@@ -91,7 +91,7 @@ export default async function FasilitiPage({
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs"
           >
             <Plus size={14} />
-            + Tambah Fasiliti
+            + Add Facility
           </Link>
         )}
       </div>
@@ -117,13 +117,13 @@ export default async function FasilitiPage({
             <div className="w-10 h-10 rounded-lg bg-[var(--color-surface-raised)] flex items-center justify-center">
               <Search size={18} className="text-[var(--color-text-tertiary)]" />
             </div>
-            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Tiada rekod fasiliti dijumpai</p>
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">No facility records found</p>
             {canAdd && (
               <Link
                 href="/dashboard/fasiliti/tambah"
                 className="text-xs text-[var(--color-brand)] hover:underline"
               >
-                Tambah fasiliti pertama
+                Add first facility
               </Link>
             )}
           </div>
@@ -132,11 +132,11 @@ export default async function FasilitiPage({
             <table className="w-full text-xs text-left border-collapse">
               <thead>
                 <tr className="border-b border-[var(--color-border)] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)] font-medium">
-                  <th className="px-4 py-3">Kod Rujukan</th>
-                  <th className="px-4 py-3">Peminjam / Kontraktor</th>
-                  <th className="px-4 py-3">Kategori</th>
-                  <th className="px-4 py-3 text-right">Jumlah Pembiayaan</th>
-                  <th className="px-4 py-3 text-right">Jumlah Tunggakan</th>
+                  <th className="px-4 py-3">Reference Code</th>
+                  <th className="px-4 py-3">Borrower / Contractor</th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3 text-right">Total Financing</th>
+                  <th className="px-4 py-3 text-right">Total Arrears</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-center" />
                 </tr>
@@ -177,7 +177,7 @@ export default async function FasilitiPage({
                           href={`/dashboard/fasiliti/${f.id}`}
                           className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline"
                         >
-                          Buka
+                          Open
                           <ArrowUpRight size={12} />
                         </Link>
                       </td>

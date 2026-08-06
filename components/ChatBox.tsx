@@ -60,9 +60,9 @@ function renderContent(content: string): React.ReactNode[] {
 }
 
 const SUGGESTIONS = [
-  'Senaraikan fasiliti yang tertunggak',
-  'Berapa jumlah tunggakan keseluruhan?',
-  'Tunjukkan susulan terbaru',
+  'List facilities that are overdue',
+  'What is the total amount of arrears?',
+  'Show the latest follow-ups',
 ]
 
 interface ChatBoxProps {
@@ -99,12 +99,12 @@ export function ChatBox({ userName }: ChatBoxProps) {
 
       const data = await res.json()
       if (!res.ok) {
-        throw new Error(data.error ?? 'Permintaan gagal')
+        throw new Error(data.error ?? 'Request failed')
       }
 
       setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ralat berlaku. Sila cuba lagi.')
+      setError(err instanceof Error ? err.message : 'An error occurred. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -122,7 +122,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
             @syaakiirr
           </p>
           <p className="text-[11px] text-[var(--color-text-tertiary)] leading-tight">
-            {userName ? `Hai ${userName}, ada apa-apa yang boleh tanya?` : 'Setiausaha pintar yang tahu selok-belok fasiliti & susulan'}
+            {userName ? `Hi ${userName}, anything I can help you with?` : 'A smart assistant that knows the ins and outs of facilities & follow-ups'}
           </p>
         </div>
       </div>
@@ -136,11 +136,11 @@ export function ChatBox({ userName }: ChatBoxProps) {
             </div>
             <div>
               <p className="text-sm font-semibold text-[var(--color-text-primary)]">
-                Tanya apa sahaja tentang fasiliti
+                Ask anything about facilities
               </p>
               <p className="text-xs text-[var(--color-text-tertiary)] mt-1 max-w-sm">
-                Saya @syaakiirr — semak status fasiliti, jumlah tunggakan, dan aktiviti susulan
-                terus dari pangkalan data.
+                I am @syaakiirr, i can help you to check facility status, total arrears, and follow-up activity
+                directly from the database.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 justify-center max-w-md">
@@ -225,21 +225,21 @@ export function ChatBox({ userName }: ChatBoxProps) {
               }
             }}
             rows={1}
-            placeholder="Taip soalan anda…"
+            placeholder="Type your question…"
             className="flex-1 resize-none px-3.5 py-2.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
             className="h-10 w-10 flex-shrink-0 rounded-lg bg-[var(--color-brand)] text-white flex items-center justify-center hover:bg-[var(--color-brand-hover)] transition-colors disabled:opacity-40 disabled:pointer-events-none"
-            aria-label="Hantar"
+            aria-label="Send"
           >
             <Send size={16} />
           </button>
         </form>
         <p className="text-[11px] text-[var(--color-text-tertiary)] mt-2">
-          Jawapan AI dijana berdasarkan data sebenar dari pangkalan data. Sahkan maklumat kritikal
-          sebelum tindakan.
+          AI answers are generated based on real data from the database. Verify critical information
+          before acting.
         </p>
       </div>
     </div>
