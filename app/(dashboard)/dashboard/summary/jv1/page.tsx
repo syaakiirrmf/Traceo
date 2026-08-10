@@ -52,17 +52,17 @@ Company Joint Venture
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap min-w-0">
           {/* Summary Metric Band */}
-          <div className="hidden md:flex items-center gap-5 text-xs bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-1.5 rounded-lg shadow-xs">
-            <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Capital Financing</p>
-              <p className="font-mono font-bold text-[var(--color-text-primary)]">{formatRM(totalPembiayaan)}</p>
+          <div className="hidden md:flex items-center gap-4 lg:gap-5 text-xs bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-1.5 rounded-lg shadow-xs min-w-0">
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">Capital Financing</p>
+              <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatRM(totalPembiayaan)}>{formatRM(totalPembiayaan)}</p>
             </div>
-            <div className="h-6 w-px bg-[var(--color-border)]" />
-            <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Total Arrears</p>
-              <p className={`font-mono font-bold ${totalTunggakan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}>
+            <div className="h-6 w-px bg-[var(--color-border)] shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">Total Arrears</p>
+              <p className={`font-mono font-bold truncate ${totalTunggakan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`} title={formatRM(totalTunggakan)}>
                 {formatRM(totalTunggakan)}
               </p>
             </div>

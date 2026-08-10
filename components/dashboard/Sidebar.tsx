@@ -42,14 +42,17 @@ const navItems: NavItem[] = [
 
 interface SidebarProps {
   user: User
+  onClose?: () => void
+  className?: string
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, onClose, className }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
 
   async function handleSignOut() {
+    if (onClose) onClose()
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
@@ -60,10 +63,19 @@ export function Sidebar({ user }: SidebarProps) {
   )
 
   return (
-    <aside className="w-[230px] flex-shrink-0 flex flex-col border-r border-slate-200/80 bg-[#fcfbf9]">
+    <aside className={cn("w-[240px] flex-shrink-0 flex flex-col border-r border-slate-200/80 bg-[#fcfbf9] h-full", className)}>
       {/* Logo */}
-      <div className="flex items-center px-5 h-[68px] border-b border-slate-200/80 bg-[#fcfbf9]">
+      <div className="flex items-center justify-between px-5 h-[68px] border-b border-slate-200/80 bg-[#fcfbf9]">
         <LogoBrand size="md" variant="dark" />
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            aria-label="Close sidebar"
+          >
+            &times;
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -78,6 +90,7 @@ export function Sidebar({ user }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onClose && onClose()}
               transitionTypes={['page-nav']}
               className={cn(
                 'group flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium transition-all duration-200',

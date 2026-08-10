@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next'
-import path from 'path'
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
@@ -8,9 +7,6 @@ const nextConfig: NextConfig = {
     staleTimes: {
       dynamic: 30,
     },
-  },
-  turbopack: {
-    root: path.resolve(__dirname),
   },
 }
 

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Fustat:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
 @import "tailwindcss";
 
 html {
@@ -303,12 +304,59 @@ p font, p mark, p font[color], p span[style*="color"] {
 
 /* ── Vita Travel dark surface tokens ── */
 :root {
-  --vt-dark-bg:      #0c1928;
+  --vt-dark-bg:      #0d1a14;
   --vt-dark-bg-alt:  #0f2035;
   --vt-dark-surface: #122438;
   --vt-dark-border:  rgba(255, 255, 255, 0.08);
   --vt-dark-border-strong: rgba(255, 255, 255, 0.14);
   --vt-dark-text:    #ffffff;
   --vt-dark-muted:   rgba(255, 255, 255, 0.52);
-  --vt-dark-accent:  #0d9488; /* teal on dark */
+  --vt-dark-accent:  #4ade80; /* Alethia green on dark */
+}
+
+/* ── Alethia hero scroll-to-discover bounce ── */
+@keyframes alethia-bounce {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(6px); }
+}
+
+/* ── Liquid Glass landing page keyframes ── */
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+@keyframes lp-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes lp-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Alethia CTA button hover: fills white, flips text dark ── */
+.alethia-cta-btn {
+  position: relative;
+  overflow: hidden;
+}
+.alethia-cta-btn:hover {
+  background: #ffffff !important;
+  color: #0d1a14 !important;
+  border-color: #ffffff !important;
+}
+.alethia-cta-btn:hover span {
+  background: rgba(13, 26, 20, 0.12) !important;
+  color: #0d1a14 !important;
+}
+
+/* ── Alethia floating badge subtle pulse ── */
+@keyframes alethia-badge-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.0); }
+  50%       { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.06); }
+}
+.alethia-badge {
+  animation: alethia-badge-pulse 4s ease-in-out infinite;
 }

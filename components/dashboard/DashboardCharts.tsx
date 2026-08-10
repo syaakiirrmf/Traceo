@@ -88,15 +88,15 @@ export function DashboardCharts({
                   onMouseEnter={() => setActiveBar(cat.key)}
                   onMouseLeave={() => setActiveBar(null)}
                 >
-                  <div className="flex items-center justify-between text-xs">
-                    <Link href={cat.href} className="font-bold text-slate-900 hover:text-teal-700 flex items-center gap-1.5">
-                      <span>{cat.name}</span>
-                      <span className="text-[10px] text-slate-400 font-normal">({cat.count} records)</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-xs">
+                    <Link href={cat.href} className="font-bold text-slate-900 hover:text-teal-700 flex items-center gap-1.5 min-w-0 truncate">
+                      <span className="truncate">{cat.name}</span>
+                      <span className="text-[10px] text-slate-400 font-normal shrink-0">({cat.count} records)</span>
                     </Link>
-                    <div className="flex items-center gap-3 font-mono text-xs">
-                      <span className="text-slate-900 font-bold">{formatRM(cat.pembiayaan)}</span>
+                    <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs flex-wrap sm:flex-nowrap shrink-0">
+                      <span className="text-slate-900 font-bold tabular-nums">{formatRM(cat.pembiayaan)}</span>
                       {cat.tunggakan > 0 && (
-                        <span className="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded-full text-[11px] border border-red-200">
+                        <span className="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded-full text-[11px] border border-red-200 tabular-nums shrink-0">
                           Arrears: {formatRM(cat.tunggakan)}
                         </span>
                       )}
