@@ -43,7 +43,7 @@ export function LogoBrand({
     default: 'text-[var(--color-text-primary)]',
     dark: 'text-slate-900',
     light: 'text-white',
-    gradient: 'bg-gradient-to-r from-teal-700 via-slate-800 to-slate-900 bg-clip-text text-transparent dark:from-teal-400 dark:to-white',
+    gradient: 'bg-gradient-to-r from-[#0066FF] via-slate-800 to-slate-900 bg-clip-text text-transparent',
   }
 
   const currentSize = sizeMap[size] || sizeMap.md
@@ -51,20 +51,23 @@ export function LogoBrand({
 
   return (
     <div className={cn('flex items-center gap-2.5 select-none group', className)}>
-      {/* Clean solid brand letter mark (White "T" in solid teal #0f766e box) */}
+      {/* Liquid Glass Brand Icon Box (#0066FF) */}
       <div
         className={cn(
-          'bg-[#0f766e] text-white font-extrabold flex items-center justify-center flex-shrink-0 shadow-xs transition-transform duration-200 group-hover:scale-105',
+          'bg-[#0066FF] text-white font-extrabold flex items-center justify-center flex-shrink-0 shadow-[inset_0px_2px_4px_rgba(255,255,255,0.35),0_2px_8px_rgba(0,102,255,0.3)] transition-transform duration-200 group-hover:scale-105',
           currentSize.box,
           iconClassName
         )}
       >
-        <span className="leading-none select-none">T</span>
+        <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1L1.5 4.5v5L7 13l5.5-3.5v-5L7 1z" fill="rgba(255,255,255,0.95)" />
+          <path d="M7 4.5v5M4.5 6L7 7.5 9.5 6" stroke="rgba(0,102,255,0.8)" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
       </div>
       {showText && (
         <span
           className={cn(
-            'font-sans leading-none',
+            'font-fustat leading-none font-bold',
             currentSize.text,
             currentVariant,
             textClassName

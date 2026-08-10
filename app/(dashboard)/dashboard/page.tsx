@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Building2, Landmark, UserRound, MapPin, Plus } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
+import { hasPermission } from '@/lib/auth/permissions'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Executive Dashboard' }
@@ -20,6 +21,8 @@ export default async function DashboardPage() {
     .eq('auth_id', authUser.id)
     .single()
   if (!userProfile) redirect('/login')
+
+  const canAddFacility = hasPermission(userProfile.peranan, 'tambah_fasiliti')
 
   // Fetch all fasiliti + tanah_jv in parallel
   const [{ data: allFasiliti }, { data: allTanah }] = await Promise.all([
@@ -101,17 +104,17 @@ export default async function DashboardPage() {
     .slice(0, 5)
 
   return (
-    <div className="space-y-6 max-w-[1600px] p-6">
+    <div className="space-y-6 max-w-[1600px] p-6 font-dm">
       {/* Executive Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide border border-teal-200/80 bg-teal-50/80 text-teal-800">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-600 animate-pulse"></span>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-bold border border-[#0066FF]/20 bg-[#EBF2FF] text-[#0066FF]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0066FF] animate-pulse"></span>
               Facility Management &amp; JV Portfolio
             </span>
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-fustat font-black tracking-tight text-slate-900">
             Main Dashboard
           </h1>
         </div>
@@ -120,71 +123,78 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-2.5 flex-wrap">
           <Link
             href="/dashboard/summary/jv1"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
+            transitionTypes={['nav-forward']}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-700 hover:text-[#0066FF] hover:border-[#0066FF]/30 hover:shadow-xs transition-all duration-200 shadow-xs"
           >
-            <Building2 size={14} className="text-teal-700" />
+            <Building2 size={14} className="text-[#0066FF]" />
             Summary JV 1
           </Link>
           <Link
             href="/dashboard/summary/jv2"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
+            transitionTypes={['nav-forward']}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-700 hover:text-[#0066FF] hover:border-[#0066FF]/30 hover:shadow-xs transition-all duration-200 shadow-xs"
           >
-            <Landmark size={14} className="text-teal-700" />
+            <Landmark size={14} className="text-[#0066FF]" />
             Land JV
           </Link>
           <Link
             href="/dashboard/summary/jv3"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
+            transitionTypes={['nav-forward']}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-700 hover:text-[#0066FF] hover:border-[#0066FF]/30 hover:shadow-xs transition-all duration-200 shadow-xs"
           >
-            <UserRound size={14} className="text-teal-700" />
+            <UserRound size={14} className="text-[#0066FF]" />
             Personal Loan
           </Link>
           <Link
             href="/dashboard/tanah-jv"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-teal-300 hover:shadow-xs transition-all duration-200 shadow-2xs"
+            transitionTypes={['nav-forward']}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-700 hover:text-[#0066FF] hover:border-[#0066FF]/30 hover:shadow-xs transition-all duration-200 shadow-xs"
           >
-            <MapPin size={14} className="text-teal-700" />
+            <MapPin size={14} className="text-[#0066FF]" />
             MD Land (JV)
           </Link>
-          <Link
-            href="/dashboard/fasiliti/tambah"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800 transition-all duration-200 shadow-xs hover:shadow-md"
-          >
-            <Plus size={14} />
-            + Add Facility
-          </Link>
+          {canAddFacility && (
+            <Link
+              href="/dashboard/fasiliti/tambah"
+              transitionTypes={['nav-forward']}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs hover:shadow-md font-fustat"
+            >
+              <Plus size={14} />
+              + Add Facility
+            </Link>
+          )}
         </div>
       </div>
 
       {/* KPI Key Metric Bands */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs hover:border-teal-200 transition-all duration-200 min-w-0 flex flex-col justify-between">
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Facilities</p>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold font-mono text-slate-900 mt-1 truncate min-w-0" title={`${fasilitiList.length} Records`}>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs hover:border-[#0066FF]/30 transition-all duration-200 flex flex-col justify-between">
+          <p className="text-[11px] uppercase font-bold text-slate-400 tracking-wider truncate">Total Facilities</p>
+          <p className="text-xl xl:text-2xl font-fustat font-black text-slate-900 mt-1 truncate" title={`${fasilitiList.length} Records`}>
             {fasilitiList.length} Records
           </p>
           <p className="text-[12px] text-slate-500 mt-1 truncate">{statusCounts.aktif} Active · {statusCounts.tertunggak + statusCounts.tindakan_guaman} At Risk</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs hover:border-teal-200 transition-all duration-200 min-w-0 flex flex-col justify-between">
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Capital Financing</p>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold font-mono text-teal-700 mt-1 truncate min-w-0" title={formatCurrency(totalPembiayaan)}>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs hover:border-[#0066FF]/30 transition-all duration-200 flex flex-col justify-between">
+          <p className="text-[11px] uppercase font-bold text-slate-400 tracking-wider truncate">Total Capital Financing</p>
+          <p className="text-xl xl:text-2xl font-fustat font-black text-[#0066FF] mt-1 truncate" title={formatCurrency(totalPembiayaan)}>
             {formatCurrency(totalPembiayaan)}
           </p>
           <p className="text-[12px] text-slate-500 mt-1 truncate">Across All JV Categories</p>
         </div>
 
-        <div className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs transition-all duration-200 min-w-0 flex flex-col justify-between ${totalTunggakan > 0 ? 'border-l-4 border-l-red-500 border-slate-200/80' : 'border-slate-200/80'}`}>
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Current Arrears</p>
-          <p className={`text-lg sm:text-xl xl:text-2xl font-extrabold font-mono mt-1 truncate min-w-0 ${totalTunggakan > 0 ? 'text-red-600' : 'text-slate-900'}`} title={formatCurrency(totalTunggakan)}>
+        <div className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-xs transition-all duration-200 flex flex-col justify-between ${totalTunggakan > 0 ? 'border-l-4 border-l-red-500 border-slate-200/80' : 'border-slate-200/80'}`}>
+          <p className="text-[11px] uppercase font-bold text-slate-400 tracking-wider truncate">Total Current Arrears</p>
+          <p className={`text-xl xl:text-2xl font-fustat font-black mt-1 truncate ${totalTunggakan > 0 ? 'text-red-600' : 'text-slate-900'}`} title={formatCurrency(totalTunggakan)}>
             {formatCurrency(totalTunggakan)}
           </p>
           <p className="text-[12px] text-slate-500 mt-1 truncate">{overdueList.length} Facilities Requiring Action</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs hover:border-teal-200 transition-all duration-200 min-w-0 flex flex-col justify-between">
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Collateral Value</p>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold font-mono text-slate-900 mt-1 truncate min-w-0" title={formatCurrency(totalCagaran)}>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs hover:border-[#0066FF]/30 transition-all duration-200 flex flex-col justify-between">
+          <p className="text-[11px] uppercase font-bold text-slate-400 tracking-wider truncate">Total Collateral Value</p>
+          <p className="text-xl xl:text-2xl font-fustat font-black text-slate-900 mt-1 truncate" title={formatCurrency(totalCagaran)}>
             {formatCurrency(totalCagaran)}
           </p>
           <p className="text-[12px] text-slate-500 mt-1 truncate">{tanahList.length} MD Land Lots (JV)</p>
