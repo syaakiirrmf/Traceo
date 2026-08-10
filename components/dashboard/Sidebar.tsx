@@ -63,10 +63,12 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
   )
 
   return (
-    <aside className={cn("w-[240px] flex-shrink-0 flex flex-col border-r border-slate-200/80 bg-[#fcfbf9] h-full", className)}>
+    <aside className={cn("w-[240px] flex-shrink-0 flex flex-col border-r border-slate-200/70 bg-white/90 backdrop-blur-md h-full font-dm", className)}>
       {/* Logo */}
-      <div className="flex items-center justify-between px-5 h-[68px] border-b border-slate-200/80 bg-[#fcfbf9]">
-        <LogoBrand size="md" variant="dark" />
+      <div className="flex items-center justify-between px-5 h-[68px] border-b border-slate-200/70 bg-white">
+        <Link href="/" transitionTypes={['nav-back']}>
+          <LogoBrand size="md" variant="dark" />
+        </Link>
         {onClose && (
           <button
             onClick={onClose}
@@ -79,7 +81,7 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {visibleNav.map((item) => {
           const Icon = item.icon
           const isActive = item.href === '/dashboard'
@@ -93,22 +95,22 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
               onClick={() => onClose && onClose()}
               transitionTypes={['page-nav']}
               className={cn(
-                'group flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13.5px] font-medium transition-all duration-200',
+                'group flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-teal-50/90 text-teal-800 font-semibold border border-teal-200/80 shadow-2xs'
-                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                  ? 'bg-[#0066FF]/10 text-[#0066FF] font-semibold border border-[#0066FF]/20 shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
               )}
             >
               <Icon
                 size={17}
                 className={cn(
                   'flex-shrink-0 transition-colors',
-                  isActive ? 'text-teal-700' : 'text-slate-400 group-hover:text-slate-600'
+                  isActive ? 'text-[#0066FF]' : 'text-slate-400 group-hover:text-slate-600'
                 )}
               />
               <span className="flex-1">{item.label}</span>
               {isActive && (
-                <ChevronRight size={13} className="text-teal-700 opacity-80" />
+                <ChevronRight size={13} className="text-[#0066FF] opacity-80" />
               )}
             </Link>
           )
@@ -116,32 +118,32 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
       </nav>
 
       {/* User section */}
-      <div className="px-3 pb-3 border-t border-[var(--color-border)] pt-3">
+      <div className="px-3 pb-3 border-t border-slate-200/70 pt-3">
         <Link
           href="/dashboard/profil"
           transitionTypes={['page-nav']}
-          className="flex items-center gap-2.5 px-2 py-2 rounded-[var(--radius-md)] hover:bg-[var(--color-surface-raised)] transition-colors group"
+          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-slate-100/70 transition-colors group"
         >
           {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-[var(--color-brand-subtle)] flex items-center justify-center flex-shrink-0">
-            <span className="text-[11px] font-semibold text-[var(--color-brand)]">
+          <div className="w-8 h-8 rounded-full bg-[#EBF2FF] border border-[#0066FF]/20 flex items-center justify-center flex-shrink-0">
+            <span className="text-[11px] font-bold text-[#0066FF]">
               {getInitials(user.nama)}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[var(--color-text-primary)] truncate leading-tight">
+            <p className="text-sm font-semibold text-slate-900 truncate leading-tight">
               {user.nama}
             </p>
-            <p className="text-[11px] text-[var(--color-text-tertiary)] truncate leading-tight">
+            <p className="text-[11px] text-slate-500 truncate leading-tight">
               {getRoleLabel(user.peranan)}
             </p>
           </div>
-          <UserCircle2 size={14} className="text-[var(--color-text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity" />
+          <UserCircle2 size={14} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
         </Link>
 
         <button
           onClick={handleSignOut}
-          className="mt-1 w-full flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)] transition-all duration-150"
+          className="mt-1.5 w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
         >
           <LogOut size={15} className="flex-shrink-0" />
           Sign out

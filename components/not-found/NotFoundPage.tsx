@@ -22,9 +22,7 @@ export default function NotFoundPage() {
   }, [menuOpen])
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col relative" style={{ background: '#0a1a14' }}>
-
-
+    <div className="w-full h-screen overflow-hidden flex flex-col relative font-dm" style={{ background: '#060618' }}>
 
       {/* ─────────────────────────────────────────────────────
           LAYER 1 — Ambient glow atmosphere (z-0)
@@ -35,28 +33,22 @@ export default function NotFoundPage() {
           position: 'absolute', top: '15%', left: '50%',
           transform: 'translateX(-50%)',
           width: 700, height: 600,
-          background: 'radial-gradient(ellipse, rgba(13,148,136,0.22) 0%, rgba(13,148,136,0.06) 45%, transparent 72%)',
+          background: 'radial-gradient(ellipse, rgba(0,102,255,0.22) 0%, rgba(96,177,255,0.06) 45%, transparent 72%)',
           filter: 'blur(72px)',
         }} />
         {/* top-left leak */}
         <div style={{
           position: 'absolute', top: '-8%', left: '-4%',
           width: 420, height: 380,
-          background: 'radial-gradient(ellipse, rgba(15,118,110,0.15) 0%, transparent 66%)',
+          background: 'radial-gradient(ellipse, rgba(0,102,255,0.18) 0%, transparent 66%)',
           filter: 'blur(56px)',
         }} />
         {/* bottom-right accent */}
         <div style={{
           position: 'absolute', bottom: '-6%', right: '-4%',
           width: 460, height: 400,
-          background: 'radial-gradient(ellipse, rgba(52,211,153,0.08) 0%, transparent 60%)',
+          background: 'radial-gradient(ellipse, rgba(96,177,255,0.12) 0%, transparent 60%)',
           filter: 'blur(60px)',
-        }} />
-        {/* dot grid */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
         }} />
       </div>
 
@@ -68,10 +60,10 @@ export default function NotFoundPage() {
         aria-hidden
       >
         <span
-          className="font-black leading-none tracking-tighter text-teal-400 select-none"
+          className="font-fustat font-black leading-none tracking-tighter text-[#0066FF] select-none"
           style={{
             fontSize: 'clamp(180px, 40vw, 680px)',
-            opacity: 0.07,
+            opacity: 0.08,
             letterSpacing: '-0.04em',
           }}
         >
@@ -81,8 +73,6 @@ export default function NotFoundPage() {
 
       {/* ─────────────────────────────────────────────────────
           LAYER 3 — Mascot animation video (z-20)
-          mix-blend-mode: screen makes the dark/black video
-          background fully transparent on our dark page bg
       ───────────────────────────────────────────────────── */}
       <div
         className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
@@ -123,12 +113,14 @@ export default function NotFoundPage() {
       ───────────────────────────────────────────────────── */}
       <nav className="relative z-30 flex items-center justify-between px-5 sm:px-8 md:px-14 py-4 sm:py-5 flex-shrink-0">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5" style={{ textDecoration: 'none' }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M12 2L3 7v10l9 5 9-5V7L12 2z" stroke="#0d9488" strokeWidth="1.6" strokeLinejoin="round" fill="rgba(13,148,136,0.15)" />
-            <path d="M12 7v10M7 9.5l5 2.5 5-2.5" stroke="#0d9488" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-white font-bold text-[15px] tracking-[-0.01em]">Traceo</span>
+        <Link href="/" transitionTypes={['nav-back']} className="flex items-center gap-2.5" style={{ textDecoration: 'none' }}>
+          <div className="w-8 h-8 rounded-lg bg-[#0066FF] flex items-center justify-center shadow-[inset_0px_2px_4px_rgba(255,255,255,0.35),0_2px_8px_rgba(0,102,255,0.3)]">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1L1.5 4.5v5L7 13l5.5-3.5v-5L7 1z" fill="rgba(255,255,255,0.95)" />
+              <path d="M7 4.5v5M4.5 6L7 7.5 9.5 6" stroke="rgba(0,102,255,0.8)" strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <span className="text-white font-fustat font-bold text-[15px] tracking-tight">Traceo</span>
         </Link>
 
         {/* Desktop nav pills */}
@@ -147,7 +139,7 @@ export default function NotFoundPage() {
         {/* Mobile hamburger */}
         <button
           onClick={() => setMenuOpen(true)}
-          className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-full text-white text-sm font-semibold bg-teal-600/80 hover:bg-teal-600 border border-teal-500/40 backdrop-blur-sm transition-colors"
+          className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-full text-white text-sm font-semibold bg-[#0066FF]/80 hover:bg-[#0066FF] border border-[#0066FF]/40 backdrop-blur-sm transition-colors"
           aria-label="Buka menu"
         >
           <Menu className="w-4 h-4" />
@@ -157,36 +149,37 @@ export default function NotFoundPage() {
 
       {/* ─────────────────────────────────────────────────────
           LAYER 5 — Bottom text + CTA (z-30)
-          mt-auto pushes it to the bottom regardless of video
       ───────────────────────────────────────────────────── */}
       <div className="relative z-30 mt-auto flex-shrink-0 flex flex-col items-center text-center px-4 pb-8 sm:pb-12 gap-3">
         {/* Sparkle accent */}
         <div className="flex items-center justify-center gap-2 mb-1">
-          <span className="block w-1.5 h-1.5 rounded-full bg-teal-400 opacity-70" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-300 opacity-80">
+          <span className="block w-1.5 h-1.5 rounded-full bg-[#0066FF] opacity-90 animate-ping" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#60B1FF]">
             Ralat 404 &bull; Page Not Found
           </span>
-          <span className="block w-1.5 h-1.5 rounded-full bg-teal-400 opacity-70" />
+          <span className="block w-1.5 h-1.5 rounded-full bg-[#0066FF] opacity-90 animate-ping" />
         </div>
 
-        <h1 className="text-white text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
-          Alamak, halaman ini tidak wujud!
+        <h1 className="text-white text-xl sm:text-2xl md:text-3xl font-fustat font-black tracking-tight leading-tight">
+          Halaman ini tidak wujud.
         </h1>
         <p className="text-slate-400 text-xs sm:text-sm max-w-xs sm:max-w-sm leading-relaxed">
-          Halaman yang anda cari mungkin telah dipadam atau URL yang dimasukkan tidak tepat.
+          Halaman yang anda cari telah dipadam atau URL yang dimasukkan tidak tepat.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center gap-2.5 mt-1">
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 mt-1 font-fustat">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-semibold text-sm bg-teal-600 hover:bg-teal-500 transition-all duration-200 shadow-lg hover:shadow-teal-500/25 active:scale-95"
+            transitionTypes={['nav-back']}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white font-bold text-sm bg-[#0066FF] hover:bg-[#0048CC] transition-all duration-200 shadow-lg hover:shadow-[#0066FF]/30 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
             Ke Dashboard
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white/80 font-semibold text-sm border border-white/15 bg-white/8 hover:bg-white/15 transition-all duration-200 active:scale-95"
+            transitionTypes={['nav-back']}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white/80 font-bold text-sm border border-white/15 bg-white/8 hover:bg-white/15 transition-all duration-200 active:scale-95"
           >
             Laman Utama
           </Link>

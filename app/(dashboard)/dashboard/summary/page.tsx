@@ -105,13 +105,13 @@ export default async function SummaryIndexPage() {
     sum(jv3, 'jumlah_tunggakan_semasa')
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-8 max-w-5xl font-dm">
       {/* Page Header: Pure Typography */}
-      <div className="border-b border-[var(--color-border)] pb-4">
-        <h1 className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
+      <div className="border-b border-slate-200/70 pb-4">
+        <h1 className="text-2xl font-fustat font-black tracking-tight text-slate-900">
           JV &amp; Land Financing Summary
         </h1>
-        <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+        <p className="text-xs text-slate-500 mt-1">
           Select a table category to view full details.
         </p>
       </div>
@@ -122,37 +122,38 @@ export default async function SummaryIndexPage() {
           <Link
             key={card.href}
             href={card.href}
-            className={`group bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-5 shadow-xs hover:shadow-sm hover:border-[var(--color-border-strong)] transition-all flex flex-col justify-between gap-4 no-underline ${
-              card.hasArrears ? 'border-l-4 border-l-[var(--color-danger)]' : ''
+            transitionTypes={['nav-forward']}
+            className={`group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md hover:border-[#0066FF]/30 transition-all flex flex-col justify-between gap-4 no-underline ${
+              card.hasArrears ? 'border-l-4 border-l-red-500' : ''
             }`}
           >
             {/* Top row: category label & count */}
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 {card.category}
               </span>
-              <span className="text-xs font-mono font-medium text-[var(--color-text-secondary)] bg-[var(--color-surface-raised)] px-2 py-0.5 rounded-full border border-[var(--color-border)]">
+              <span className="text-xs font-mono font-bold text-[#0066FF] bg-[#EBF2FF] px-2.5 py-0.5 rounded-full border border-[#0066FF]/20">
                 {card.count} records
               </span>
             </div>
 
             {/* Title & description */}
             <div className="space-y-1">
-              <h2 className="text-base font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand)] transition-colors flex items-center justify-between">
+              <h2 className="text-lg font-fustat font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors flex items-center justify-between">
                 <span>{card.title}</span>
-                <ArrowRight size={15} className="text-[var(--color-text-tertiary)] group-hover:text-[var(--color-brand)] group-hover:translate-x-1 transition-all" />
+                <ArrowRight size={15} className="text-slate-400 group-hover:text-[#0066FF] group-hover:translate-x-1 transition-all" />
               </h2>
-              <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 {card.description}
               </p>
             </div>
 
             {/* Minimal Stat Band */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--color-border)] text-xs">
+            <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-xs">
               {card.stats.map((s) => (
                 <div key={s.label} className="min-w-0">
-                  <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">{s.label}</p>
-                  <p className={`font-mono font-semibold truncate ${s.isArrears ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`} title={s.value}>
+                  <p className="text-[10px] uppercase font-bold text-slate-400 truncate">{s.label}</p>
+                  <p className={`font-fustat font-bold truncate text-sm mt-0.5 ${s.isArrears ? 'text-red-600' : 'text-slate-900'}`} title={s.value}>
                     {s.value}
                   </p>
                 </div>

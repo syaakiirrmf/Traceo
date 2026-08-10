@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI, type Content } from '@google/generative-ai'
 import { createClient } from '@/lib/supabase/server'
-import { toolDeclarations, SYSTEM_PROMPT } from '@/lib/ai/tools'
+import { toolDeclarations, SYSTEM_PROMPT, AI_ROLE_SCOPE } from '@/lib/ai/tools'
 import { dispatchAiTool, type AiUserContext } from '@/lib/ai/functions'
 import { cleanAiResponse } from '@/lib/ai/postProcess'
 import type { UserRole } from '@/types'
@@ -58,11 +58,38 @@ export async function POST(request: NextRequest) {
     role: profile.peranan as UserRole,
   }
 
+  // ─── Layer 1: Server-side pre-flight role guard ────────────────────────
+  // Block restricted questions before they EVER reach the AI model.
+  const roleScope = AI_ROLE_SCOPE[profile.peranan] ?? null
+  if (roleScope) {
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+    for (const pattern of roleScope.blocked) {
+      if (pattern.test(lastUserMessage)) {
+        return NextResponse.json(
+          { reply: roleScope.rejectMessage },
+          { status: 200 } // return 200 so frontend renders it as a normal AI reply
+        )
+      }
+    }
+  }
+
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
+
+    // ─── Layer 2: Inject dynamic role-aware system instruction into AI ──────
+    const dynamicSystemInstruction = `${SYSTEM_PROMPT}
+
+═══════════════════════
+KONTEKS PENGGUNA YANG TERHUBUNG SEKARANG:
+═══════════════════════
+- Peranan Pengguna: ${profile.peranan.toUpperCase()}
+- ID Pengguna: ${profile.id}
+
+Peraturan had skop [${profile.peranan.toUpperCase()}] di atas adalah WAJIB untuk pengguna ini. Jika soalan menyentuh topik yang dilarang untuk peranan ini, tolak dengan mesej yang sesuai tanpa memberikan sebarang maklumat.`
+
     const model = genAI.getGenerativeModel({
       model: 'gemini-3.1-flash-lite',
-      systemInstruction: SYSTEM_PROMPT,
+      systemInstruction: dynamicSystemInstruction,
     })
 
     // Build conversation contents (user + model turns only)

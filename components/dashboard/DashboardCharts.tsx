@@ -60,10 +60,10 @@ export function DashboardCharts({
       {/* ── Section 1: Financial & Status Charts Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Chart 1: Category Financial Breakdown (Bar Chart) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-fustat font-black text-slate-900">
                 Financing &amp; Arrears Distribution by Category
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -89,7 +89,7 @@ export function DashboardCharts({
                   onMouseLeave={() => setActiveBar(null)}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-xs">
-                    <Link href={cat.href} className="font-bold text-slate-900 hover:text-teal-700 flex items-center gap-1.5 min-w-0 truncate">
+                    <Link href={cat.href} transitionTypes={['nav-forward']} className="font-bold text-slate-900 hover:text-[#0066FF] flex items-center gap-1.5 min-w-0 truncate">
                       <span className="truncate">{cat.name}</span>
                       <span className="text-[10px] text-slate-400 font-normal shrink-0">({cat.count} records)</span>
                     </Link>
@@ -107,7 +107,7 @@ export function DashboardCharts({
                   <div className="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden flex relative">
                     <div
                       style={{ width: `${pembiayaanWidth}%` }}
-                      className={`h-full bg-teal-700 transition-all duration-300 ${isHovered ? 'bg-teal-800' : ''}`}
+                      className={`h-full bg-[#0066FF] transition-all duration-300 ${isHovered ? 'bg-[#0048CC]' : ''}`}
                     />
                   </div>
                 </div>
@@ -118,7 +118,7 @@ export function DashboardCharts({
           <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-200/80">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-teal-700" /> Total Financing
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#0066FF]" /> Total Financing
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm bg-red-500" /> Arrears
@@ -149,7 +149,7 @@ export function DashboardCharts({
                 return (
                   <div
                     key={st.key}
-                    style={{ width: `${pct}%`, backgroundColor: st.color === 'var(--color-brand)' ? '#0f766e' : st.color }}
+                    style={{ width: `${pct}%`, backgroundColor: st.color === 'var(--color-brand)' ? '#0066FF' : st.color }}
                     className="h-full border-r border-white last:border-0"
                     title={`${st.label}: ${st.count} (${pct.toFixed(0)}%)`}
                   />
@@ -161,7 +161,7 @@ export function DashboardCharts({
             <div className="space-y-2.5 pt-2">
               {statuses.map((st) => {
                 const pct = totalCount > 0 ? ((st.count / totalCount) * 100).toFixed(0) : '0'
-                const displayColor = st.color === 'var(--color-brand)' ? '#0f766e' : st.color
+                const displayColor = st.color === 'var(--color-brand)' ? '#0066FF' : st.color
                 return (
                   <div key={st.key} className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0">
                     <div className="flex items-center gap-2">
@@ -179,28 +179,28 @@ export function DashboardCharts({
           </div>
 
           {/* Collateral Overview Strip */}
-          <div className="p-3.5 rounded-xl bg-teal-50/60 border border-teal-200/70 text-xs space-y-1">
-            <p className="text-[10px] uppercase font-semibold text-teal-800 tracking-wider">Collateral Coverage (LTV Ratio)</p>
+          <div className="p-3.5 rounded-xl bg-[#EBF2FF]/80 border border-[#0066FF]/20 text-xs space-y-1">
+            <p className="text-[10px] uppercase font-bold text-[#0066FF] tracking-wider">Collateral Coverage (LTV Ratio)</p>
             <div className="flex items-center justify-between">
               <span className="text-slate-600 font-medium">Land Collateral Value:</span>
-              <span className="font-mono font-extrabold text-teal-900">{formatRM(totalCagaran)}</span>
+              <span className="font-mono font-extrabold text-[#0066FF]">{formatRM(totalCagaran)}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Section 2: Overdue Attention List ── */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-fustat font-black text-slate-900">
               Facilities Requiring Action &amp; Highest Arrears
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Priority follow-up list for high-risk records
             </p>
           </div>
-          <Link href="/dashboard/fasiliti?status=tertunggak" className="text-xs font-bold text-teal-700 hover:text-teal-800 hover:underline flex items-center gap-1">
+          <Link href="/dashboard/fasiliti?status=tertunggak" transitionTypes={['nav-forward']} className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1">
             View All Overdue
             <ArrowUpRight size={14} />
           </Link>
@@ -226,8 +226,8 @@ export function DashboardCharts({
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {overdueList.map((item) => (
-                  <tr key={item.id} className="hover:bg-teal-50/30 transition-colors">
-                    <td className="px-4 py-3 font-mono font-bold text-teal-700">
+                  <tr key={item.id} className="hover:bg-[#EBF2FF]/30 transition-colors">
+                    <td className="px-4 py-3 font-mono font-bold text-[#0066FF]">
                       {item.kod_rujukan}
                     </td>
                     <td className="px-4 py-3 font-bold text-slate-900">
@@ -248,7 +248,7 @@ export function DashboardCharts({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <Link href={`/dashboard/fasiliti/${item.id}`} className="text-[12px] font-bold text-teal-700 hover:underline">
+                      <Link href={`/dashboard/fasiliti/${item.id}`} transitionTypes={['nav-forward']} className="text-[12px] font-bold text-[#0066FF] hover:underline">
                         Open &rarr;
                       </Link>
                     </td>

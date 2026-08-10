@@ -10,39 +10,39 @@ html {
     /* ── Traceo Design Tokens ── */
 
     /* Neutral */
-    --color-bg: #fcfbf9;
-    --color-background: #fcfbf9; /* alias */
+    --color-bg: #fafafc;
+    --color-background: #fafafc; /* alias */
     --color-surface: #ffffff;
-    --color-surface-raised: #f8f6f0;
-    --color-border: rgba(15, 23, 42, 0.09);
-    --color-border-strong: rgba(15, 23, 42, 0.18);
+    --color-surface-raised: #f4f6fb;
+    --color-border: rgba(15, 23, 42, 0.08);
+    --color-border-strong: rgba(15, 23, 42, 0.16);
 
     /* Text */
-    --color-text-primary: #0f172a;
+    --color-text-primary: #0d0e14;
     --color-text-secondary: #475569;
     --color-text-tertiary: #64748b;
-    --color-text-inverse: #f8fafc;
+    --color-text-inverse: #ffffff;
 
-    /* Brand — Teal (#0f766e) */
-    --color-brand: #0f766e;
-    --color-brand-hover: #115e59;
-    --color-brand-subtle: #f0fdf4;
-    --color-brand-muted: #ccfbf1;
+    /* Brand — Electric Blue (#0066FF) */
+    --color-brand: #0066FF;
+    --color-brand-hover: #0048CC;
+    --color-brand-subtle: #EBF2FF;
+    --color-brand-muted: #D6E4FF;
 
     /* Status colors */
     --color-success: #10b981;
     --color-success-subtle: #ecfdf5;
     --color-warning: #f59e0b;
-    --color-warning-subtle: #fffbebf;
+    --color-warning-subtle: #fffbeb;
     --color-danger: #ef4444;
     --color-danger-subtle: #fef2f2;
-    --color-info: #0284c7;
-    --color-info-subtle: #f0f9ff;
+    --color-info: #0066FF;
+    --color-info-subtle: #ebf2ff;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
-    --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+    --shadow-lg: 0 10px 30px rgba(0, 102, 255, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04);
 
     /* Radius */
     --radius-sm: 6px;
@@ -51,24 +51,24 @@ html {
     --radius-xl: 18px;
 
     /* shadcn/ui compatibility */
-    --background: 40 33% 98%;
+    --background: 220 20% 98%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 174 78% 26%;
+    --primary: 216 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
+    --secondary: 216 30% 96%;
     --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
+    --muted: 216 30% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 174 78% 26%;
+    --accent: 216 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 174 78% 26%;
+    --ring: 216 100% 50%;
     --radius: 0.625rem;
   }
 
@@ -80,6 +80,7 @@ html {
   body {
     background-color: var(--color-bg);
     color: var(--color-text-primary);
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -100,17 +101,26 @@ html {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: oklch(0.78 0.01 240);
+    background: rgba(0, 102, 255, 0.2);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.65 0.015 240);
+    background: rgba(0, 102, 255, 0.4);
   }
 }
 
 @layer utilities {
-  .font-sans {
-    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  .font-fustat {
+    font-family: 'Fustat', system-ui, -apple-system, sans-serif;
+  }
+  .font-dm {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  }
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 102, 255, 0.08);
   }
 }
 

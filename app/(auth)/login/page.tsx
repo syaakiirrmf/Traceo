@@ -43,20 +43,20 @@ export default function LoginPage() {
 
       {/* Header */}
       <div className="space-y-1.5">
-        <h2 className="text-2xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+        <h2 className="text-2xl font-fustat font-black tracking-tight text-slate-900">
           Sign in
         </h2>
-        <p className="text-sm text-[var(--color-text-secondary)]">
+        <p className="text-sm text-slate-500 font-dm">
           Enter your credentials to continue
         </p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 font-dm">
         <div className="space-y-1.5">
           <label
             htmlFor="emel"
-            className="block text-sm font-medium text-[var(--color-text-primary)]"
+            className="block text-xs font-bold uppercase tracking-wider text-slate-700"
           >
             Email Address
           </label>
@@ -68,7 +68,7 @@ export default function LoginPage() {
             value={emel}
             onChange={(e) => setEmel(e.target.value)}
             placeholder="name@company.com"
-            className="w-full h-10 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] transition-colors duration-150 focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 disabled:opacity-50"
+            className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 disabled:opacity-50"
             disabled={loading}
           />
         </div>
@@ -76,7 +76,7 @@ export default function LoginPage() {
         <div className="space-y-1.5">
           <label
             htmlFor="kata-laluan"
-            className="block text-sm font-medium text-[var(--color-text-primary)]"
+            className="block text-xs font-bold uppercase tracking-wider text-slate-700"
           >
             Password
           </label>
@@ -88,7 +88,7 @@ export default function LoginPage() {
             value={kataLaluan}
             onChange={(e) => setKataLaluan(e.target.value)}
             placeholder="••••••••"
-            className="w-full h-10 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] transition-colors duration-150 focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 disabled:opacity-50"
+            className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 disabled:opacity-50"
             disabled={loading}
           />
         </div>
@@ -97,7 +97,7 @@ export default function LoginPage() {
         {error && (
           <div
             role="alert"
-            className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-subtle)] px-3.5 py-3 text-sm text-[var(--color-danger)]"
+            className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/80 px-3.5 py-3 text-sm text-red-600 font-medium"
           >
             <svg
               width="16"
@@ -117,7 +117,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full h-10 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium tracking-tight transition-all duration-150 hover:bg-[var(--color-brand-hover)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[var(--shadow-sm)]"
+          className="w-full h-11 rounded-xl bg-[#0066FF] text-white text-sm font-bold tracking-wide transition-all duration-150 hover:bg-[#0048CC] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[inset_0px_2px_3px_rgba(255,255,255,0.22),0_4px_16px_rgba(0,102,255,0.25)] font-fustat"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
