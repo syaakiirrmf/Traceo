@@ -56,17 +56,17 @@ export default async function TanahJVPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap min-w-0">
           {/* Minimalist Summary Metric Band */}
-          <div className="hidden md:flex items-center gap-5 text-xs bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-1.5 rounded-lg shadow-xs">
-            <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Total Area</p>
-              <p className="font-mono font-bold text-[var(--color-text-primary)]">{formatArea(totalLuas)}</p>
+          <div className="hidden md:flex items-center gap-4 lg:gap-5 text-xs bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-1.5 rounded-lg shadow-xs min-w-0">
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">Total Area</p>
+              <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatArea(totalLuas)}>{formatArea(totalLuas)}</p>
             </div>
-            <div className="h-6 w-px bg-[var(--color-border)]" />
-            <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Collateral Value</p>
-              <p className="font-mono font-bold text-[var(--color-text-primary)]">{formatRM(totalNilaian)}</p>
+            <div className="h-6 w-px bg-[var(--color-border)] shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">Collateral Value</p>
+              <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatRM(totalNilaian)}>{formatRM(totalNilaian)}</p>
             </div>
           </div>
 

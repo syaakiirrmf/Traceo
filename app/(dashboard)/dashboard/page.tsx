@@ -157,31 +157,37 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI Key Metric Bands */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:border-teal-200 transition-all duration-200">
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Facilities</p>
-          <p className="text-2xl font-extrabold font-mono text-slate-900 mt-1">{fasilitiList.length} Records</p>
-          <p className="text-[12px] text-slate-500 mt-1">{statusCounts.aktif} Active · {statusCounts.tertunggak + statusCounts.tindakan_guaman} At Risk</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs hover:border-teal-200 transition-all duration-200 min-w-0 flex flex-col justify-between">
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Facilities</p>
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold font-mono text-slate-900 mt-1 truncate min-w-0" title={`${fasilitiList.length} Records`}>
+            {fasilitiList.length} Records
+          </p>
+          <p className="text-[12px] text-slate-500 mt-1 truncate">{statusCounts.aktif} Active · {statusCounts.tertunggak + statusCounts.tindakan_guaman} At Risk</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:border-teal-200 transition-all duration-200">
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Capital Financing</p>
-          <p className="text-2xl font-extrabold font-mono text-teal-700 mt-1">{formatCurrency(totalPembiayaan)}</p>
-          <p className="text-[12px] text-slate-500 mt-1">Across All JV Categories</p>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs hover:border-teal-200 transition-all duration-200 min-w-0 flex flex-col justify-between">
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Capital Financing</p>
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold font-mono text-teal-700 mt-1 truncate min-w-0" title={formatCurrency(totalPembiayaan)}>
+            {formatCurrency(totalPembiayaan)}
+          </p>
+          <p className="text-[12px] text-slate-500 mt-1 truncate">Across All JV Categories</p>
         </div>
 
-        <div className={`bg-white rounded-2xl border p-5 shadow-2xs transition-all duration-200 ${totalTunggakan > 0 ? 'border-l-4 border-l-red-500 border-slate-200/80' : 'border-slate-200/80'}`}>
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Current Arrears</p>
-          <p className={`text-2xl font-extrabold font-mono mt-1 ${totalTunggakan > 0 ? 'text-red-600' : 'text-slate-900'}`}>
+        <div className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-2xs transition-all duration-200 min-w-0 flex flex-col justify-between ${totalTunggakan > 0 ? 'border-l-4 border-l-red-500 border-slate-200/80' : 'border-slate-200/80'}`}>
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Current Arrears</p>
+          <p className={`text-lg sm:text-xl xl:text-2xl font-extrabold font-mono mt-1 truncate min-w-0 ${totalTunggakan > 0 ? 'text-red-600' : 'text-slate-900'}`} title={formatCurrency(totalTunggakan)}>
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-[12px] text-slate-500 mt-1">{overdueList.length} Facilities Requiring Action</p>
+          <p className="text-[12px] text-slate-500 mt-1 truncate">{overdueList.length} Facilities Requiring Action</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:border-teal-200 transition-all duration-200">
-          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider">Total Collateral Value</p>
-          <p className="text-2xl font-extrabold font-mono text-slate-900 mt-1">{formatCurrency(totalCagaran)}</p>
-          <p className="text-[12px] text-slate-500 mt-1">{tanahList.length} MD Land Lots (JV)</p>
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs hover:border-teal-200 transition-all duration-200 min-w-0 flex flex-col justify-between">
+          <p className="text-[11px] uppercase font-semibold text-slate-400 tracking-wider truncate">Total Collateral Value</p>
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold font-mono text-slate-900 mt-1 truncate min-w-0" title={formatCurrency(totalCagaran)}>
+            {formatCurrency(totalCagaran)}
+          </p>
+          <p className="text-[12px] text-slate-500 mt-1 truncate">{tanahList.length} MD Land Lots (JV)</p>
         </div>
       </div>
 

@@ -178,7 +178,7 @@ export default async function FasilitiDetailPage({
       </div>
 
       {/* ── Top stat cards ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'Total Capital Financing (A)', value: formatCurrency(fasiliti.jumlah_pembiayaan) },
           {
@@ -189,9 +189,9 @@ export default async function FasilitiDetailPage({
           { label: 'Start Date', value: formatDate(fasiliti.tarikh_mula) },
           { label: 'End Date', value: fasiliti.tarikh_tamat ? formatDate(fasiliti.tarikh_tamat) : '—' },
         ].map((item) => (
-          <div key={item.label} className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
-            <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">{item.label}</p>
-            <p className={`text-base font-semibold tabular-nums ${item.highlight ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}>
+          <div key={item.label} className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4 min-w-0 flex flex-col justify-between">
+            <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1 truncate">{item.label}</p>
+            <p className={`text-sm sm:text-base font-semibold tabular-nums truncate min-w-0 ${item.highlight ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`} title={item.value}>
               {item.value}
             </p>
           </div>
@@ -442,9 +442,9 @@ export default async function FasilitiDetailPage({
 
 function InfoRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="flex items-start justify-between gap-4 py-1">
-      <span className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wide min-w-0 flex-shrink-0 w-52">{label}</span>
-      <span className={`text-sm text-right min-w-0 break-words ${highlight ? 'font-semibold text-[var(--color-brand)]' : 'text-[var(--color-text-primary)]'}`}>{value}</span>
+    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-4 py-1.5 border-b border-slate-100/80 last:border-0">
+      <span className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wide min-w-0 shrink-0 sm:w-52">{label}</span>
+      <span className={`text-sm sm:text-right min-w-0 break-words ${highlight ? 'font-semibold text-[var(--color-brand)]' : 'text-[var(--color-text-primary)]'}`}>{value}</span>
     </div>
   )
 }

@@ -150,9 +150,9 @@ export default async function SummaryIndexPage() {
             {/* Minimal Stat Band */}
             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--color-border)] text-xs">
               {card.stats.map((s) => (
-                <div key={s.label}>
-                  <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">{s.label}</p>
-                  <p className={`font-mono font-semibold ${s.isArrears ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}>
+                <div key={s.label} className="min-w-0">
+                  <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">{s.label}</p>
+                  <p className={`font-mono font-semibold truncate ${s.isArrears ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`} title={s.value}>
                     {s.value}
                   </p>
                 </div>
@@ -167,26 +167,26 @@ export default async function SummaryIndexPage() {
         <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-3">
           System-Wide Aggregate
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-          <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Total Facilities</p>
-            <p className="font-mono font-bold text-[var(--color-text-primary)]">{jv1.length + jv2.length + jv3.length} Records</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Total Facilities</p>
+            <p className="font-mono font-bold text-[var(--color-text-primary)] truncate">{jv1.length + jv2.length + jv3.length} Records</p>
           </div>
-          <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Total Financing</p>
-            <p className="font-mono font-bold text-[var(--color-text-primary)]">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Total Financing</p>
+            <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatCurrency(sum(jv1, 'jumlah_pembiayaan') + sum(jv2, 'jumlah_pembiayaan') + sum(jv3, 'jumlah_pembiayaan'))}>
               {formatCurrency(sum(jv1, 'jumlah_pembiayaan') + sum(jv2, 'jumlah_pembiayaan') + sum(jv3, 'jumlah_pembiayaan'))}
             </p>
           </div>
-          <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Total Arrears</p>
-            <p className={`font-mono font-bold ${totalTunggakanKeseluruhan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}>
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Total Arrears</p>
+            <p className={`font-mono font-bold truncate ${totalTunggakanKeseluruhan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`} title={formatCurrency(totalTunggakanKeseluruhan)}>
               {formatCurrency(totalTunggakanKeseluruhan)}
             </p>
           </div>
-          <div>
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)]">Collateral Value (Land)</p>
-            <p className="font-mono font-bold text-[var(--color-text-primary)]">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Collateral Value (Land)</p>
+            <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatCurrency(sum(tanah, 'anggaran_nilaian'))}>
               {formatCurrency(sum(tanah, 'anggaran_nilaian'))}
             </p>
           </div>
