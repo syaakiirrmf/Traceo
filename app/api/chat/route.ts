@@ -3,7 +3,7 @@ import { GoogleGenerativeAI, type Content } from '@google/generative-ai'
 import { createClient } from '@/lib/supabase/server'
 import { toolDeclarations, SYSTEM_PROMPT, AI_ROLE_SCOPE } from '@/lib/ai/tools'
 import { dispatchAiTool, type AiUserContext } from '@/lib/ai/functions'
-import { cleanAiResponse } from '@/lib/ai/postProcess'
+import { cleanAiResponse, detectStructuredRequest } from '@/lib/ai/postProcess'
 import type { UserRole } from '@/types'
 
 export const runtime = 'nodejs'
@@ -141,7 +141,9 @@ Peraturan had skop [${profile.peranan.toUpperCase()}] di atas adalah WAJIB untuk
       reply = 'Sorry, I could not process that request. Please try again.'
     }
 
-    const cleanedReply = cleanAiResponse(reply)
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+    const isStructured = detectStructuredRequest(lastUserMessage)
+    const cleanedReply = cleanAiResponse(reply, isStructured)
 
     return NextResponse.json({ reply: cleanedReply, ...(pdfUrl ? { downloadUrl: pdfUrl } : {}) })
   } catch (err) {

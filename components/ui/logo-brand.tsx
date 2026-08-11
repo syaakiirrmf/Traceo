@@ -59,9 +59,15 @@ export function LogoBrand({
           iconClassName
         )}
       >
-        <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
-          <path d="M7 1L1.5 4.5v5L7 13l5.5-3.5v-5L7 1z" fill="rgba(255,255,255,0.95)" />
-          <path d="M7 4.5v5M4.5 6L7 7.5 9.5 6" stroke="rgba(0,102,255,0.8)" strokeWidth="1.2" strokeLinecap="round" />
+        <svg width="16" height="16" viewBox="0 0 512 512" fill="none">
+          {/* Outer Hexagon Gem Body */}
+          <path d="M256 96 L394 176 V336 L256 416 L118 336 V176 Z" fill="rgba(255,255,255,0.95)" />
+          {/* T-Stem Cutout */}
+          <path d="M256 220 V380" stroke="#0066FF" strokeWidth="26" strokeLinecap="round" />
+          {/* T-Crossbar Facet Cuts */}
+          <path d="M178 260 L256 304 L334 260" stroke="#0066FF" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          {/* Top Bar Accent */}
+          <path d="M190 176 H322" stroke="#0066FF" strokeWidth="22" strokeLinecap="round" fill="none" />
         </svg>
       </div>
       {showText && (

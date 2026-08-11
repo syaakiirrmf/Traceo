@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0066FF"/>
+      <stop offset="100%" stop-color="#0048CC"/>
+    </linearGradient>
+
+    <!-- Glass Specular Highlight -->
+    <linearGradient id="glassReflection" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Mark Inner Glow -->
+    <linearGradient id="markGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#EBF2FF"/>
+    </linearGradient>
+
+    <!-- Drop Shadow for Mark -->
+    <filter id="markShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#002980" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base (iOS Style Super-ellipse) -->
+  <rect width="512" height="512" rx="120" fill="url(#bgGlow)"/>
+
+  <!-- Glass Specular Inset Reflection -->
+  <rect width="512" height="512" rx="120" fill="url(#glassReflection)"/>
+
+  <!-- Subtle Inset Border Ring -->
+  <rect x="4" y="4" width="504" height="504" rx="116" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="8" fill="none"/>
+
+  <!-- Centered Styled Hexagon Gem Mark + Integrated T Monogram -->
+  <g filter="url(#markShadow)" transform="translate(0, 0)">
+    <!-- Outer Hexagon Gem Body -->
+    <path d="M256 96 L394 176 V336 L256 416 L118 336 V176 Z" 
+          fill="url(#markGradient)" />
+
+    <!-- Integrated T-Gem Facet Geometry (Blue Contrast Cuts) -->
+    <!-- Vertical T-Stem Cutout -->
+    <path d="M256 220 V380" 
+          stroke="#0066FF" stroke-width="24" stroke-linecap="round"/>
+
+    <!-- T-Crossbar Facet Angle Cuts -->
+    <path d="M178 260 L256 304 L334 260" 
+          stroke="#0066FF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- Top Cap T-Bar Accent Line -->
+    <path d="M190 176 H322" 
+          stroke="#0066FF" stroke-width="20" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>

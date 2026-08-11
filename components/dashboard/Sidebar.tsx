@@ -33,9 +33,9 @@ const navItems: NavItem[] = [
   { href: '/dashboard/summary/jv1', label: 'Summary JV 1', icon: Building2 },
   { href: '/dashboard/summary/jv2', label: 'Land JV', icon: LayoutList },
   { href: '/dashboard/summary/jv3', label: 'Personal Loan', icon: LayoutList },
-  { href: '/dashboard/tanah-jv', label: 'Tanah MD (JV)', icon: MapPin },
+  { href: '/dashboard/tanah-jv', label: 'Tanah MD (JV)', icon: MapPin, permission: 'tambah_fasiliti' },
   { href: '/dashboard/fasiliti', label: 'Facilities (All)', icon: Building2 },
-  { href: '/dashboard/assistant', label: '@syaakiirr', icon: Sparkles },
+  { href: '/dashboard/assistant', label: '@syaakiirr', icon: Sparkles, permission: 'tambah_susulan' },
   { href: '/dashboard/users', label: 'Users', icon: Users, permission: 'urus_pengguna' },
   { href: '/dashboard/audit', label: 'Audit Log', icon: ClipboardList, permission: 'lihat_audit_log' },
 ]
@@ -58,9 +58,15 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
     router.refresh()
   }
 
-  const visibleNav = navItems.filter(
-    (item) => !item.permission || hasPermission(user.peranan, item.permission)
-  )
+  const visibleNav = navItems
+    .filter((item) => !item.permission || hasPermission(user.peranan, item.permission))
+    .map((item) => {
+      // Rename 'Facilities (All)' to 'My Facilities' for Pegawai Susulan
+      if (item.href === '/dashboard/fasiliti' && user.peranan === 'pegawai_susulan') {
+        return { ...item, label: 'My Facilities' }
+      }
+      return item
+    })
 
   return (
     <aside className={cn("w-[240px] flex-shrink-0 flex flex-col border-r border-slate-200/70 bg-white/90 backdrop-blur-md h-full font-dm", className)}>

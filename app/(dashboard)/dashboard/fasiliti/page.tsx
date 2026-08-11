@@ -55,10 +55,27 @@ export default async function FasilitiPage({
 
   if (!userProfile) redirect('/login')
 
+  const isPegawai = userProfile.peranan === 'pegawai_susulan'
+
+  // For pegawai_susulan: scope to only assigned facilities
+  let assignedIds: string[] | null = null
+  if (isPegawai) {
+    const { data: assigned } = await supabase
+      .from('fasiliti_pegawai')
+      .select('fasiliti_id')
+      .eq('user_id', userProfile.id)
+    assignedIds = (assigned ?? []).map((r) => r.fasiliti_id as string)
+    // If pegawai has no assigned facilities, return empty
+    if (assignedIds.length === 0) assignedIds = ['00000000-0000-0000-0000-000000000000']
+  }
+
   let query = supabase
     .from('fasiliti')
     .select('id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, status_fasiliti, tarikh_mula, jumlah_tunggakan_semasa')
     .order('dicipta_pada', { ascending: false })
+
+  // Scope query to assigned facilities for pegawai
+  if (assignedIds !== null) query = query.in('id', assignedIds)
 
   if (params.status) query = query.eq('status_fasiliti', params.status)
   if (params.kategori) query = query.eq('kategori', params.kategori)

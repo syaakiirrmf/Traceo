@@ -21,6 +21,9 @@ export default async function TanahJVPage() {
     .single()
   if (!userProfile) redirect('/login')
 
+  // Only admin and pengurus can access Tanah MD (JV)
+  if (!['admin', 'pengurus'].includes(userProfile.peranan)) redirect('/dashboard')
+
   const { data: tanahList } = await supabase
     .from('tanah_jv')
     .select('id, negeri, daerah, bandar_mukim, tempat, no_lot, tarikh_daftar, no_hak_milik, luas_meter_persegi, anggaran_nilaian, catatan, dikemaskini_pada')

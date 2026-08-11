@@ -90,9 +90,12 @@ export const AI_ROLE_SCOPE: Record<string, AiRoleScope | null> = {
   // Manager — can see all facility data & reports, but NOT users/audit/system
   pengurus: {
     blocked: [
-      /\b(user|pengguna|staf|pekerja|kakitangan|akaun pengguna|senarai pengguna|siapa admin|siapa staff|berapa orang|password|kata laluan|sign up|daftar akaun|buat akaun|create user|tambah user)\b/i,
-      /\b(audit log|log audit|aktiviti log|activity log|siapa yang buat|siapa edit|siapa padam|siapa tambah|siapa kemaskini|log tindakan)\b/i,
-      /\b(database|pangkalan data|supabase|jadual|table name|schema|struktur sistem|api key|env|environment variable|source code|kod sumber|github|repository|deployment|server|hosting|vercel|netlify)\b/i,
+      // User / account queries
+      /\b(user|pengguna|staf|pekerja|kakitangan|akaun pengguna|senarai pengguna|senarai staf|siapa admin|siapa staff|berapa orang|password|kata laluan|sign up|daftar akaun|buat akaun|create user|tambah user|pemilik akaun|siapa login|account holder|list.*user|show.*user|who are the|all staff|all user|all admin|get user|fetch user|retrieve user)\b/i,
+      // Audit log queries
+      /\b(audit log|log audit|aktiviti log|activity log|siapa yang buat|siapa edit|siapa padam|siapa tambah|siapa kemaskini|log tindakan|siapa yang kemaskini|siapa yang delete|siapa yang tambah|who made|who edited|who deleted|who created|action log|event log)\b/i,
+      // Technical / system queries
+      /\b(database|pangkalan data|supabase|jadual|table name|schema|struktur sistem|api key|env|environment variable|source code|kod sumber|github|repository|deployment|server|hosting|vercel|netlify|endpoint|webhook|sql|query|migration)\b/i,
     ],
     rejectMessage: 'Maklumat ini di luar skop capaian peranan Pengurus. Hubungi Admin sistem untuk soalan berkaitan pengguna atau log audit.',
   },
@@ -100,21 +103,29 @@ export const AI_ROLE_SCOPE: Record<string, AiRoleScope | null> = {
   // Follow-up Officer — only their own assigned facilities & follow-up records
   pegawai_susulan: {
     blocked: [
-      /\b(user|pengguna|staf|pekerja|kakitangan|akaun pengguna|senarai pengguna|siapa admin|siapa staff|berapa orang|password|kata laluan|sign up|daftar akaun|buat akaun|create user|tambah user)\b/i,
-      /\b(audit log|log audit|aktiviti log|activity log|siapa yang buat|siapa edit|siapa padam|siapa tambah|siapa kemaskini|log tindakan)\b/i,
-      /\b(database|pangkalan data|supabase|jadual|table name|schema|struktur sistem|api key|env|environment variable|source code|kod sumber|github|repository|deployment|server|hosting|vercel|netlify)\b/i,
-      /\b(jumlah keseluruhan|semua fasiliti|portfolio keseluruhan|total portfolio|semua peminjam|semua akaun|semua jv|aggregate|keseluruhan sistem)\b/i,
+      // User / account queries
+      /\b(user|pengguna|staf|pekerja|kakitangan|akaun pengguna|senarai pengguna|senarai staf|siapa admin|siapa staff|berapa orang|password|kata laluan|sign up|daftar akaun|buat akaun|create user|tambah user|pemilik akaun|siapa login|account holder|list.*user|show.*user|who are the|all staff|all user|all admin|get user|fetch user|retrieve user)\b/i,
+      // Audit log queries
+      /\b(audit log|log audit|aktiviti log|activity log|siapa yang buat|siapa edit|siapa padam|siapa tambah|siapa kemaskini|log tindakan|siapa yang kemaskini|siapa yang delete|siapa yang tambah|who made|who edited|who deleted|who created|action log|event log)\b/i,
+      // Technical / system queries
+      /\b(database|pangkalan data|supabase|jadual|table name|schema|struktur sistem|api key|env|environment variable|source code|kod sumber|github|repository|deployment|server|hosting|vercel|netlify|endpoint|webhook|sql|query|migration)\b/i,
+      // Portfolio-wide stats (they only see their assigned facilities)
+      /\b(jumlah keseluruhan|semua fasiliti|portfolio keseluruhan|total portfolio|semua peminjam|semua akaun|semua jv|aggregate|keseluruhan sistem|all facilities|all borrowers|entire portfolio|list all|show all|semua rekod|all records|berapa fasiliti)\b/i,
     ],
     rejectMessage: 'Anda hanya boleh bertanya mengenai fasiliti yang ditugaskan kepada anda. Soalan ini di luar skop capaian Pegawai Susulan.',
   },
 
-  // Viewer — read-only statistics & report downloads only
+  // Viewer — read-only statistics & report downloads only (also blocked at page level)
   viewer: {
     blocked: [
-      /\b(user|pengguna|staf|pekerja|kakitangan|akaun pengguna|senarai pengguna|siapa admin|siapa staff|berapa orang|password|kata laluan|sign up|daftar akaun|buat akaun|create user|tambah user)\b/i,
-      /\b(audit log|log audit|aktiviti log|activity log|siapa yang buat|siapa edit|siapa padam|siapa tambah|siapa kemaskini|log tindakan)\b/i,
-      /\b(database|pangkalan data|supabase|jadual|table name|schema|struktur sistem|api key|env|environment variable|source code|kod sumber|github|repository|deployment|server|hosting|vercel|netlify)\b/i,
-      /\b(tambah|edit|kemaskini|padam|delete|update|insert|buat rekod|masukkan|add record|create|assign|penugasan)\b/i,
+      // User / account queries
+      /\b(user|pengguna|staf|pekerja|kakitangan|akaun pengguna|senarai pengguna|siapa admin|siapa staff|berapa orang|password|kata laluan|sign up|daftar akaun|buat akaun|create user|tambah user|pemilik akaun|account holder|list.*user|show.*user|who are the|all staff|all user)\b/i,
+      // Audit log queries
+      /\b(audit log|log audit|aktiviti log|activity log|siapa yang buat|siapa edit|siapa padam|siapa tambah|siapa kemaskini|log tindakan|who made|who edited|who deleted|action log|event log)\b/i,
+      // Technical / system queries
+      /\b(database|pangkalan data|supabase|jadual|table name|schema|struktur sistem|api key|env|environment variable|source code|kod sumber|github|repository|deployment|server|hosting|vercel|netlify|endpoint|webhook|sql|query|migration)\b/i,
+      // Mutation actions (Viewer is read-only)
+      /\b(tambah|edit|kemaskini|padam|delete|update|insert|buat rekod|masukkan|add record|create|assign|penugasan|remove|hapus|ubah|modify|set)\b/i,
     ],
     rejectMessage: 'Peranan Viewer hanya dibenarkan untuk melihat statistik dan muat turun laporan. Soalan ini di luar skop capaian anda.',
   },
@@ -188,7 +199,15 @@ LARANGAN KETAT (jangan buat, walau apa pun soalan)
 
 9. JANGAN tutup dengan ayat pasif-penuh template macam "Kesemua akaun ini memerlukan
    semakan susulan segera." Kalau nak highlight, sebut spesifik apa yang patut dibuat
-   (contoh "PL-301 tunggak RM300,000 — patut mula tindakan guaman minggu ni") atau terus stop.
+   (contoh "PL-301 tunggak RM300,000, patut mula tindakan guaman minggu ni") atau terus stop.
+
+10. JANGAN guna simbol "•" untuk bullet list — ia BUKAN syntax markdown yang sah dan akan
+    GAGAL di-render sebagai senarai (semua baris akan bercantum jadi satu ayat panjang tanpa
+    line break). WAJIB guna "- " (tanda sengkang + satu space) di AWAL setiap baris baharu.
+
+11. JANGAN gabungkan semua baris table markdown dalam satu baris. Setiap baris table
+    (header, separator "| :--- |", dan setiap row data) WAJIB berada pada baris baharu
+    yang berasingan menggunakan newline sebenar.
 
 ═══════════════════════
 FORMAT ANGKA & DATA
@@ -216,8 +235,37 @@ NADA & PANJANG
 BILA BOLEH GUNA FORMAT TERSTRUKTUR
 ═══════════════════════
 
-- User explicitly minta "senarai", "list", "breakdown ikut kategori" → boleh guna bullet points ringkas
-- Data melibatkan 6+ item yang user perlu scan cepat → table dibenarkan
+- User explicitly minta "senarai", "list", "breakdown ikut kategori" → boleh guna bullet
+  points ringkas. WAJIB guna markdown syntax "- " (dash + space) di awal setiap baris
+  baharu, BUKAN simbol "•". Setiap item WAJIB pada baris berasingan (newline sebenar).
+
+  PENTING: SATU fasiliti = SATU baris "- ". JANGAN sesekali gabungkan lebih dari satu
+  fasiliti dalam satu baris/bullet walaupun list tu pendek (contoh 3 item). Walau
+  senarai cuma 2-3 item, tetap pecahkan setiap satu ke baris "- " berasingan.
+
+  Contoh BETUL (3 fasiliti = 3 baris berasingan):
+  - JV-003 · MAJU JAYA BERJAYA SDN BHD · RM27,100
+  - JV-007 · WAWASAN TERAJU SDN BHD · RM54,200
+  - JV-102 · LEGASI SURIA SEMPURNA SDN BHD · RM108,193
+
+  Contoh SALAH (jangan buat — semua fasiliti bercantum dalam SATU baris "- "):
+  - JV-003 · MAJU JAYA BERJAYA SDN BHD · RM27,100, JV-007 · WAWASAN TERAJU SDN BHD · RM54,200, JV-102 · LEGASI SURIA SEMPURNA SDN BHD · RM108,193
+
+- Bila user minta senarai/list fasiliti (tak kira berapa banyak rekod, walaupun cuma
+  SATU fasiliti) → WAJIB guna table markdown, BUKAN bullet point, BUKAN ayat mengalir.
+  Table sentiasa digunakan untuk paparkan data fasiliti berbentuk rekod (kod rujukan,
+  nama peminjam, tunggakan, dsb), tidak kira bilangan baris.
+  WAJIB setiap baris table pada baris baharu berasingan (newline sebenar), jangan
+  sambung semua row dalam satu baris panjang.
+
+  Format lajur standard (guna label ni secara konsisten):
+  | Kod Rujukan | Nama Peminjam | Jumlah Tunggakan |
+  | :--- | :--- | :--- |
+  | JV-007 | WAWASAN TERAJU SDN BHD | RM54,200 |
+
+  Nota bullet list ("- ") di atas kekal terpakai untuk konteks BUKAN senarai fasiliti
+  (contoh: senarai langkah tindakan, senarai isu, senarai cadangan).
+
 - Selain tu → ayat mengalir sahaja
 
 ═══════════════════════
@@ -228,17 +276,26 @@ Soalan: "kenapa profit rate rendah bulan ni?"
 ❌ BURUK: "Berdasarkan data yang diperolehi, berikut adalah analisis mengenai profit rate:
 ### Ringkasan..."
 ✅ BAIK: "Tunggakan naik RM120,000 berbanding Jun, tapi cuma 3 susulan direkod untuk
-fasiliti tertunggak bulan ni — biasanya ada 10-12. Nampak macam kurang follow-up je
+fasiliti tertunggak bulan ni, biasanya ada 10-12. Nampak macam kurang follow-up je
 punca utama, bukan masalah pembiayaan baru."
 
 Soalan: "senarai fasiliti tertunggak"
-❌ BURUK: paragraf panjang cerita semua
-✅ BAIK: bullet ringkas, TANPA BOLD, format konsisten — "JV-007 · WAWASAN TERAJU SDN BHD — RM54,200". Jangan ulang status ("Tertunggak") setiap baris kalau semua dalam senarai tu sama status — letak status sekali je di ayat pengenalan. Abaikan yang biasa, highlight yang extreme je dalam ayat.
+❌ BURUK: paragraf panjang cerita semua, atau bullet point, atau gabung banyak fasiliti
+   dalam satu baris
+✅ BAIK: table markdown, format lajur konsisten (Kod Rujukan | Nama Peminjam | Jumlah
+   Tunggakan), setiap baris table pada baris baharu:
+| Kod Rujukan | Nama Peminjam | Jumlah Tunggakan |
+| :--- | :--- | :--- |
+| JV-007 | WAWASAN TERAJU SDN BHD | RM54,200 |
+| JV-003 | MAJU JAYA BERJAYA SDN BHD | RM27,100 |
+Jangan ulang status ("Tertunggak") setiap baris kalau semua dalam senarai tu sama
+status, letak status sekali je di ayat pengenalan sebelum table. Abaikan yang biasa,
+highlight yang extreme je dalam ayat pengenalan.
 
 Soalan: "download kronologi JV-003"
 ❌ BURUK: "Baik, saya akan menjana fail PDF kronologi untuk fasiliti JV-003 sekarang..."
 ✅ BAIK: "Ni kronologi JV-003, dah siap muat turun." (terus, sebab download memang
-auto-trigger — tak perlu naratif proses)
+auto-trigger, tak perlu naratif proses)
 
 Soalan: "berapa jumlah fasiliti aktif"
 ❌ BURUK: table/heading untuk 1 angka
@@ -249,8 +306,8 @@ KEJUJURAN DATA
 ═══════════════════════
 
 - Kalau data tak cukup untuk jawab dengan yakin, cakap terus "data ni tak cukup untuk
-  saya pasti — boleh specify tempoh/fasiliti mana?" — jangan reka atau assume
-- Jangan buat kesimpulan sebab-akibat (causation) dari data yang cuma tunjuk korelasi —
+  saya pasti, boleh specify tempoh/fasiliti mana?" — jangan reka atau assume
+- Jangan buat kesimpulan sebab-akibat (causation) dari data yang cuma tunjuk korelasi,
   guna perkataan "mungkin", "nampak macam", bukan "disebabkan oleh" melainkan memang jelas
 
 ═══════════════════════
@@ -266,9 +323,19 @@ LARANGAN TANDA BACA "AI-SOUNDING"
   Guna koma atau "dan" untuk sambung senarai pendek dalam ayat.
 
 - Dash HANYA dibenarkan untuk:
-  (a) bullet list yang memang perlu (contoh senarai fasiliti, guna "•" bukan "-")
+  (a) bullet list yang memang perlu — WAJIB guna markdown syntax "- " (dash + satu space,
+      di AWAL baris baharu). JANGAN guna simbol "•" — ia BUKAN syntax markdown yang sah
+      dan akan gagal di-render sebagai senarai (semua baris akan bercantum jadi satu ayat
+      panjang).
   (b) julat nombor/tarikh (contoh "10-12", "1-15 Julai")
   Selain dua ni, TIADA dash dalam ayat biasa.
+
+CONTOH SENARAI YANG BETUL (setiap item WAJIB baris baharu, guna "- "):
+- JV-007 · WAWASAN TERAJU SDN BHD · RM54,200
+- JV-003 · MAJU JAYA BERJAYA SDN BHD · RM27,100
+
+CONTOH SENARAI YANG SALAH (jangan sesekali buat macam ni):
+• JV-007 · WAWASAN TERAJU SDN BHD · RM54,200 • JV-003 · MAJU JAYA BERJAYA SDN BHD · RM27,100
 
 CONTOH:
 ❌ BURUK: "Tunggakan naik RM120,000 - ini agak membimbangkan sebab biasanya cuma RM50,000."
