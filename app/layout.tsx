@@ -14,6 +14,11 @@ export const metadata: Metadata = {
     template: '%s | Traceo',
   },
   description: 'JV Facility Management & Chronology Generation',
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
 }
 
 export default function RootLayout({

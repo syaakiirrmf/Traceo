@@ -15,9 +15,12 @@ export default async function AssistantPage() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('nama')
+    .select('nama, peranan')
     .eq('auth_id', authUser.id)
     .single()
+
+  // Viewer role cannot access AI assistant
+  if (!profile || profile.peranan === 'viewer') redirect('/dashboard')
 
   return (
     <div className="space-y-5 h-full">

@@ -14,6 +14,18 @@ export async function GET(
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('id, peranan')
+      .eq('auth_id', authUser.id)
+      .single()
+
+    if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
+
+    if (!['admin', 'pengurus'].includes(userProfile.peranan)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const buffer = await generateTanahKronologiDocx(id)
 
     // Get tanah no_lot for filename
@@ -28,12 +40,6 @@ export async function GET(
     const filename = `KRONOLOGI_${kod}_${today}.docx`
 
     // Audit log
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('id')
-      .eq('auth_id', authUser.id)
-      .single()
-
     if (userProfile) {
       await supabase.from('log_audit').insert({
         user_id: userProfile.id,

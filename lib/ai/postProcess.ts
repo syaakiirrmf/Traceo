@@ -1,73 +1,119 @@
 /**
- * Bersihkan jawapan AI dari pattern "AI slop" yang lepas dari system instruction.
+ * Helper to detect if the user's prompt explicitly requests structured/report outputs.
  */
-export function cleanAiResponse(text: string): string {
+export function detectStructuredRequest(userMessage: string): boolean {
+  if (!userMessage) return false
+  const pattern = /\b(laporan|breakdown|senarai|senarai lengkap|ikut kategori|jadual|ringkasan|portfolio|analisis|report|list|category|table|summary|overview)\b/i
+  return pattern.test(userMessage)
+}
+
+/**
+ * Clean AI responses from slop, enforce RM formatting, unbold facility codes,
+ * normalize mid-sentence dashes, strip generic openers/closers, and handle structured headings.
+ */
+export function cleanAiResponse(text: string, isStructuredRequest: boolean = false): string {
+  if (!text) return ''
   let cleaned = text
 
-  // 1. Ganti " - " (dash dikelilingi spasi, tengah ayat) dengan koma
-  //    Elak kena julat nombor/tarikh (10-12, 1-15) sebab tiada spasi kat situ
-  cleaned = cleaned.replace(/\s+-\s+/g, ', ')
-
-  // 2. Ganti em-dash (—) yang sama tujuan
-  cleaned = cleaned.replace(/\s*—\s*/g, ', ')
-
-  // 3. Buang bullet list guna "-" di awal baris (tukar jadi "•")
-  //    Ini untuk kes bila dash memang sengaja jadi bullet, standardize je style dia
-  cleaned = cleaned.replace(/^-\s+/gm, '• ')
-
-  // 4. Buang koma berturut-turut yang mungkin terhasil dari replace di atas
-  //    (contoh: "A, , B" jadi "A, B")
-  cleaned = cleaned.replace(/,\s*,/g, ',')
-
-  // 5. Buang heading markdown (##, ###) kalau ada — safety net tambahan
-  //    kalau model masih generate heading walau dah instructed jangan
-  cleaned = cleaned.replace(/^#{1,6}\s+/gm, '')
-
-  // 6. Buang semua marker bold/italic markdown (model overuse sangat)
-  //    Prompt dah hadkan 1-2 bold je, tapi kalau masih lepas, buang semua
-  cleaned = cleaned.replace(/\*\*/g, '').replace(/__(.*?)__/g, '$1')
-
-  // 7. Buang frasa pembuka generic yang common (case-insensitive)
-const genericOpeners = [
-  /^Berdasarkan data (yang diperolehi|di atas|semasa)[,:]?\s*/i,
-  /^Berikut adalah (analisis|ringkasan|senarai)[^:]*:?\s*/i,
-  /^Untuk menjawab soalan (anda|awak)[,:]?\s*/i,
-  /^Sebenarnya[,:]?\s*/i,
-  /^Based on (the |our )?(data|records)( obtained| above| current| we have)?[,:]?\s*/i,
-  /^Here (is|are) (an? )?(analysis|summary|list|overview)[^:]*:?\s*/i,
-  /^To (answer|address|respond to) your (question|request|query)[,:]?\s*/i,
-  /^Actually[,:]?\s*/i,
-]
+  // 1. Buang frasa pembuka generic / slop di awal jawapan (case-insensitive)
+  const genericOpeners = [
+    /^(Sebenarnya|Jujurnya|Sejujurnya|Pada hakikatnya)[,:]?\s*/i,
+    /^Berdasarkan data (yang diperolehi|di atas|semasa)[,:]?\s*/i,
+    /^Berikut adalah (analisis|ringkasan|senarai)[^:]*:?\s*/i,
+    /^Untuk menjawab soalan (anda|awak)[,:]?\s*/i,
+    /^Based on (the |our )?(data|records)( obtained| above| current| we have)?[,:]?\s*/i,
+    /^Here (is|are) (an? )?(analysis|summary|list|overview)[^:]*:?\s*/i,
+    /^To (answer|address|respond to) your (question|request|query)[,:]?\s*/i,
+    /^Actually[,:]?\s*/i,
+  ]
   for (const pattern of genericOpeners) {
     cleaned = cleaned.replace(pattern, '')
   }
 
-  // 7b. Buang baris "Berikut adalah senarai ..." (announcement sebelum bullet)
-  //     walau di tengah-tengah teks — model selalu generate ni sebelum senarai
+  // 1b. Buang baris "Berikut adalah senarai ..." walau di tengah-tengah teks
   cleaned = cleaned.replace(/[ \t]*[Bb]erikut adalah senarai[^:\n]*:?\s*\n/g, '\n')
 
-  // 8. Buang frasa penutup template yang common di hujung jawapan
-  //    TAPI: stop sebelum markdown link — jangan makan pautan muat turun
-  cleaned = cleaned.replace(
-    /[,;]?\s*(Semoga|Terima kasih kerana|Jangan ragu)[^.!?\[\]]*[.!?]?\s*$/i,
-    ''
-  )
+  // 1c. Safety net: pecahkan bullet line yang (walaupun dah diinstruct elak) masih
+  //     gabungkan LEBIH DARI SATU fasiliti dalam SATU baris "- " dipisah koma.
+  //     Contoh: "- JV-003 · Nama · RM100, JV-007 · Nama2 · RM200" akan dipecah
+  //     jadi dua baris "- " berasingan. Kod fasiliti dikesan guna pattern umum
+  //     seperti JV-003, PL-301, JVT-2016 (2-4 huruf + sengkang + 2-5 digit).
+  const FASILITI_CODE_RE = /[A-Z]{2,4}-\d{2,5}/
+  cleaned = cleaned.replace(/^-\s+(.+)$/gm, (line, content: string) => {
+    // Pecahkan pada koma yang diikuti oleh kod fasiliti baharu (bukan koma dalam nombor RM)
+    const parts = content
+      .split(new RegExp(`,\\s+(?=${FASILITI_CODE_RE.source}\\s*·)`))
+      .map((p: string) => p.trim())
+      .filter(Boolean)
+    if (parts.length > 1) {
+      return parts.map((p: string) => `- ${p}`).join('\n')
+    }
+    return line
+  })
 
-  // 8b. Buang kata defensif orphan (Sebenarnya/Jujurnya) yang tersisa di hujung
-  //     selepas frasa penutup dibuang
-  cleaned = cleaned.replace(/\s+(Sebenarnya|Sejujurnya|Jujurnya)[.,]?\s*$/i, '')
+  // 2. Dash Normalization (sengkang TENGAH AYAT " - " atau " — " tukar ke koma).
+  //    PENTING: guna [ \t] (bukan \s) supaya TIDAK merentasi newline — ini elak
+  //    regex ni "makan" bullet list markdown ("- item" di awal baris baharu),
+  //    sebab \s dalam JS regex turut match \n, yang boleh gabungkan baris bullet
+  //    jadi satu ayat panjang bersambung koma (bug yang pernah jadi sebelum ni).
+  //    Dengan [ \t] sahaja, cuma dash yang benar-benar berada DALAM satu baris
+  //    yang sama (bukan bullet marker di permulaan baris baharu) akan kena normalize.
+  cleaned = cleaned.replace(/(\S)[ \t]+-[ \t]+(\S)/g, '$1, $2')
+  cleaned = cleaned.replace(/(\S)[ \t]*—[ \t]*(\S)/g, '$1, $2')
 
-  // 9. Trim whitespace berlebihan yang mungkin tertinggal
+  // 3. Bold pada Kod Fasiliti (KOD/NAMA FASILITI TIDAK BOLEH BOLD: **JV-007** -> JV-007)
+  cleaned = cleaned.replace(/\*\*\b([A-Z]{2,3}-\d{3,})\b\*\*/gi, '$1')
+
+  // 4. Uppercase Kod Fasiliti (contoh jv-007 -> JV-007, pi-001 -> PI-001)
+  cleaned = cleaned.replace(/\b(jv|pi)-(\d{3,})\b/gi, (_, prefix, num) => `${prefix.toUpperCase()}-${num}`)
+
+  // 5. Enforce RM formatting & peratus pada code level
+  //    Contoh: "RM 54200.00" / "RM54200.00" -> "RM54,200"
+  cleaned = cleaned.replace(/\bRM\s*([\d,]+)(?:\.(\d{2}))?\b/gi, (_, amountStr, decimals) => {
+    const rawNum = parseFloat(amountStr.replace(/,/g, ''))
+    if (isNaN(rawNum)) return `RM${amountStr}`
+
+    const formattedInt = new Intl.NumberFormat('ms-MY').format(Math.floor(rawNum))
+    if (decimals && decimals !== '00') {
+      return `RM${formattedInt}.${decimals}`
+    }
+    return `RM${formattedInt}`
+  })
+
+  // 6. Buang frasa penutup template, soalan template & ayat penutup pasif
+  const closingPatterns = [
+    /[,;]?\s*(Adakah anda (ingin|mahu|nak)[^.!?\n]*\??)\s*$/i,
+    /[,;]?\s*(Sila (beritahu|maklumkan) jika[^.!?\n]*[.!?]?)\s*$/i,
+    /[,;]?\s*(Semoga (maklumat|bantuan)[^.!?\n]*[.!?]?)\s*$/i,
+    /[,;]?\s*(Terima kasih kerana[^.!?\n]*[.!?]?)\s*$/i,
+    /[,;]?\s*(Jangan ragu[^.!?\n]*[.!?]?)\s*$/i,
+    /[,;]?\s*(Kesemua akaun ini memerlukan semakan segera[^.!?\n]*[.!?]?)\s*$/i,
+    /[,;]?\s*(Let me know if[^.!?\n]*[.!?]?)\s*$/i,
+    /[,;]?\s*(Hope this helps[^.!?\n]*[.!?]?)\s*$/i,
+    /[,;]?\s*(Do you want me to[^.!?\n]*\??)\s*$/i,
+  ]
+  for (const pattern of closingPatterns) {
+    cleaned = cleaned.replace(pattern, '')
+  }
+
+  // 6b. Buang kata defensif orphan (Sebenarnya/Jujurnya/Sejujurnya) di hujung ayat
+  cleaned = cleaned.replace(/\s+(Sebenarnya|Sejujurnya|Jujurnya|Pada hakikatnya)[.,]?\s*$/i, '')
+
+  // 7. Handling Heading Markdown:
+  //    Jika BUKAN isStructuredRequest, buang markdown headings (##, ###) untuk elak jawapan pendek ada tajuk pelik
+  if (!isStructuredRequest) {
+    cleaned = cleaned.replace(/^#{1,6}\s+/gm, '')
+  }
+
+  // 8. Trim whitespace berlebihan
   cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim()
 
-  // 10. Buang koma/semicolon/titik tersasar di hujung (sisa dari replace dash)
-  cleaned = cleaned.replace(/[,;]\s*$/, '')
-  cleaned = cleaned.replace(/\s+([.!?])$/, '$1')
+  // 9. Pastikan huruf pertama capital selepas cleaning
+  if (cleaned.length > 0) {
+    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+  }
 
-  // Pastikan huruf pertama capital lepas semua cleaning
-  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
-
-  // Kalau semua content tertanggal (reply cuma frasa penutup), kembalikan teks asal
+  // Fallback jika semua kandungan terpadam
   if (!cleaned) return text.trim()
 
   return cleaned

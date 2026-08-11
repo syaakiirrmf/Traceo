@@ -17,6 +17,25 @@ export async function GET(
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('id, peranan')
+      .eq('auth_id', authUser.id)
+      .single()
+
+    if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
+
+    // Pegawai Susulan assignment check
+    if (userProfile.peranan === 'pegawai_susulan') {
+      const { data: assignment } = await supabase
+        .from('fasiliti_pegawai')
+        .select('fasiliti_id')
+        .eq('fasiliti_id', id)
+        .eq('user_id', userProfile.id)
+        .maybeSingle()
+      if (!assignment) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const [{ data: fasiliti }, { data: susulan }] = await Promise.all([
       supabase.from('fasiliti').select('*').eq('id', id).single(),
       supabase.from('susulan')
@@ -36,12 +55,6 @@ export async function GET(
     const filename = `KRONOLOGI_${kod}_${today}.pdf`
 
     // Audit log
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('id')
-      .eq('auth_id', authUser.id)
-      .single()
-
     if (userProfile) {
       await supabase.from('log_audit').insert({
         user_id: userProfile.id,

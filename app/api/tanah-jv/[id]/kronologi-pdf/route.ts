@@ -17,6 +17,18 @@ export async function GET(
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('id, peranan')
+      .eq('auth_id', authUser.id)
+      .single()
+
+    if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
+
+    if (!['admin', 'pengurus'].includes(userProfile.peranan)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const [{ data: tanah }, { data: susulan }] = await Promise.all([
       supabase.from('tanah_jv').select('*').eq('id', id).single(),
       supabase.from('susulan')
@@ -36,12 +48,6 @@ export async function GET(
     const filename = `KRONOLOGI_${kod}_${today}.pdf`
 
     // Audit log
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('id')
-      .eq('auth_id', authUser.id)
-      .single()
-
     if (userProfile) {
       await supabase.from('log_audit').insert({
         user_id: userProfile.id,

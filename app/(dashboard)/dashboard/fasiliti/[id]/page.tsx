@@ -66,6 +66,18 @@ export default async function FasilitiDetailPage({
     .single()
   if (!userProfile) redirect('/login')
 
+  // ─── Role-based facility access guard ────────────────────────────────────────
+  // Pegawai Susulan can ONLY access facilities assigned to them
+  if (userProfile.peranan === 'pegawai_susulan') {
+    const { data: assignment } = await supabase
+      .from('fasiliti_pegawai')
+      .select('fasiliti_id')
+      .eq('fasiliti_id', id)
+      .eq('user_id', userProfile.id)
+      .maybeSingle()
+    if (!assignment) redirect('/dashboard/fasiliti')
+  }
+
   // Fetch fasiliti + susulan + pegawai assigned in parallel
   const [{ data: fasiliti }, { data: susulan }, { data: assignedPegawaiRows }] = await Promise.all([
     supabase
