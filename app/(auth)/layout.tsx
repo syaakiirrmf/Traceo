@@ -51,6 +51,7 @@ export default function AuthLayout({
         {/* Footer */}
         <div className="relative z-10 flex items-center justify-between text-slate-500 text-xs font-mono">
           <span>&copy; 2026 Traceo. Internal System.</span>
+          <span className="text-slate-400">Created by <strong className="text-white font-semibold font-fustat">@syaakiirr</strong></span>
         </div>
       </div>
 

@@ -30,6 +30,10 @@ export function TopBar({ user, onMenuToggle }: TopBarProps) {
 
       {/* Right: actions */}
       <div className="flex items-center gap-2.5 sm:gap-3">
+        <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-semibold bg-slate-100/80 text-slate-600 border border-slate-200/80 shadow-2xs">
+          built by <span className="text-[#0066FF] font-bold">@syaakiirr</span>
+        </span>
+
         <button
           className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors duration-150 border border-slate-200/70 shadow-xs"
           aria-label="Notifications"

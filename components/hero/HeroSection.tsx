@@ -851,7 +851,7 @@ function FooterCard() {
         {/* Legal bar — outside white box, inside gray outer */}
         <div className="px-6 sm:px-12 md:px-16 lg:px-20 py-5 flex flex-col md:flex-row justify-between items-center gap-6 text-[15px]">
           <p className="text-[#64748B] font-medium" style={{ fontFamily: DM }}>
-            © 2026 Traceo. All rights reserved.
+            © 2026 Traceo. Designed & Developed by <strong className="text-[#0066FF] font-bold">@syaakiirr</strong>. All rights reserved.
           </p>
           <div className="flex items-center gap-8 text-[#64748B] font-medium" style={{ fontFamily: DM }}>
             <a

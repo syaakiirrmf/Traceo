@@ -239,8 +239,8 @@ export function ChatBox({ userName }: ChatBoxProps) {
           </button>
         </form>
         <p className="text-[11px] text-[var(--color-text-tertiary)] mt-2">
-          AI answers are generated based on real data from the database. Verify critical information
-          before acting.
+          AI assistant engine engineered by <strong className="font-semibold text-[var(--color-brand)]">@syaakiirr</strong>.
+          Answers are generated based on real data from the database.
         </p>
       </div>
     </div>
