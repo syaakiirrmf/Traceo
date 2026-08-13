@@ -154,6 +154,12 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
           <LogOut size={15} className="flex-shrink-0" />
           Sign out
         </button>
+
+        {/* Creator Branding */}
+        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 px-1">
+          <span>System Architect</span>
+          <span className="font-bold text-[#0066FF] tracking-tight">@syaakiirr</span>
+        </div>
       </div>
     </aside>
   )
