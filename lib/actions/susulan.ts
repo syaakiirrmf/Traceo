@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
 import { uploadFile, deleteFile, getFileType, validateFile } from '@/lib/storage/cloudinary'
+import { rateLimitAction } from '@/lib/ratelimit'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -28,6 +29,13 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
 
   if (!hasPermission(userProfile.peranan, 'tambah_susulan')) {
     throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('susulan_tambah', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
   }
 
   const susulanId = crypto.randomUUID()
@@ -86,6 +94,13 @@ export async function editSusulan(
     throw new Error('Access denied')
   }
 
+  const rl = await rateLimitAction('susulan_edit', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
+
   // Ownership check for pegawai_susulan is enforced inside the transaction
   // function via RLS (susulan_update policy). Atomic: update + audit.
   const { error } = await supabase.rpc('traceo_edit_susulan', {
@@ -107,6 +122,13 @@ export async function padamSusulan(susulanId: string, fasilitiId: string) {
 
   if (!hasPermission(userProfile.peranan, 'padam_susulan')) {
     throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('susulan_padam', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
   }
 
   // Atomic: delete susulan (cascades lampiran) + audit in one transaction.

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { hasPermission } from '@/lib/auth/permissions'
+import { rateLimitAction } from '@/lib/ratelimit'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -23,6 +24,13 @@ async function getCurrentUser() {
 export async function tambahUser(formData: FormData) {
   const { supabase, userProfile } = await getCurrentUser()
   if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
+
+  const rl = await rateLimitAction('users_tambah', 10, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
 
   const emel = formData.get('emel') as string
   const nama = formData.get('nama') as string
@@ -64,6 +72,13 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
   const { supabase, userProfile } = await getCurrentUser()
   if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
 
+  const rl = await rateLimitAction('users_status', 30, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
+
   const statusBaharu = statusSemasa === 'aktif' ? 'tidak_aktif' : 'aktif'
 
   // Atomic: update status + audit in a single transaction
@@ -82,6 +97,13 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
 export async function kemaskiniPeranan(userId: string, perananBaharu: string) {
   const { supabase, userProfile } = await getCurrentUser()
   if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
+
+  const rl = await rateLimitAction('users_peranan', 30, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
 
   // Atomic: update role + audit in a single transaction
   const { error } = await supabase.rpc('traceo_kemaskini_peranan', {

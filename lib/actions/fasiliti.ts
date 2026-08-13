@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
+import { rateLimitAction } from '@/lib/ratelimit'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -27,6 +28,13 @@ export async function tambahFasiliti(formData: FormData) {
 
   if (!hasPermission(userProfile.peranan, 'tambah_fasiliti')) {
     throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('fasiliti_tambah', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
   }
 
   const kategori = formData.get('kategori') as string
@@ -102,6 +110,13 @@ export async function editFasiliti(fasilitiId: string, formData: FormData) {
     throw new Error('Access denied')
   }
 
+  const rl = await rateLimitAction('fasiliti_edit', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
+
   const kategori = formData.get('kategori') as string
   const jumlah_pembiayaan = parseFloat(formData.get('jumlah_pembiayaan') as string) || 0
   const perkongsian_keuntungan = parseFloat(formData.get('perkongsian_keuntungan') as string) || 0
@@ -169,6 +184,13 @@ export async function padamFasiliti(fasilitiId: string) {
     throw new Error('Access denied')
   }
 
+  const rl = await rateLimitAction('fasiliti_padam', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
+
   const { error } = await supabase.rpc('traceo_padam_fasiliti', { p_id: fasilitiId })
   if (error) throw new Error(`Failed to delete: ${error.message}`)
 
@@ -183,6 +205,13 @@ export async function kemaskiniPegawaiFasiliti(fasilitiId: string, pegawaiIds: s
 
   if (!hasPermission(userProfile.peranan, 'edit_fasiliti')) {
     throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('fasiliti_pegawai', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
   }
 
   const { error } = await supabase.rpc('traceo_kemaskini_pegawai', {

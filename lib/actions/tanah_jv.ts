@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
+import { rateLimitAction } from '@/lib/ratelimit'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -27,6 +28,13 @@ export async function tambahTanahJV(formData: FormData) {
 
   if (!hasPermission(userProfile.peranan, 'tambah_fasiliti')) {
     throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('tanah_tambah', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
   }
 
   const payload = {
@@ -61,6 +69,13 @@ export async function editTanahJV(tanahId: string, formData: FormData) {
     throw new Error('Access denied')
   }
 
+  const rl = await rateLimitAction('tanah_edit', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
+
   const payload = {
     negeri: formData.get('negeri') as string,
     daerah: formData.get('daerah') as string,
@@ -93,6 +108,13 @@ export async function padamTanahJV(tanahId: string) {
 
   if (!hasPermission(userProfile.peranan, 'padam_fasiliti')) {
     throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('tanah_padam', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
   }
 
   const { error } = await supabase.rpc('traceo_padam_tanah_jv', { p_id: tanahId })
