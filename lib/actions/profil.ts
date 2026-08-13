@@ -4,11 +4,19 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { rateLimitAction } from '@/lib/ratelimit'
 
 export async function kemaskiniProfil(formData: FormData) {
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
   if (!authUser) throw new Error('Not logged in')
+
+  const rl = await rateLimitAction('profil_kemaskini', 10, 60, authUser.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
 
   const nama = formData.get('nama') as string
   if (!nama?.trim()) throw new Error('Name is required')
@@ -30,6 +38,13 @@ export async function tukarKataLaluan(formData: FormData) {
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
   if (!authUser) throw new Error('Not logged in')
+
+  const rl = await rateLimitAction('profil_kata_laluan', 5, 60, authUser.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+    )
+  }
 
   const kataLalauan = formData.get('kata_laluan') as string
   const sahkan = formData.get('sahkan_kata_laluan') as string
