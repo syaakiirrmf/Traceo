@@ -1,0 +1,19 @@
+# Netlify build configuration for Traceo (Next.js)
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Netlify's Next.js runtime is auto-detected; no legacy plugin reference needed.
+
+# Inline security headers applied at the edge before content is served.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+
+# The firewall edge function declares its own path config inline
+# (netlify/edge-functions/firewall.ts), so no [[edge_functions]] entry is required.

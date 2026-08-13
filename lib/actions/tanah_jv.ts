@@ -20,22 +20,6 @@ async function getCurrentUser() {
   return { supabase, userProfile }
 }
 
-async function logAudit(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-  tindakan: string,
-  entiti_id: string,
-  butiran?: Record<string, unknown>
-) {
-  await supabase.from('log_audit').insert({
-    user_id: userId,
-    tindakan,
-    entiti_jenis: 'tanah_jv',
-    entiti_id,
-    butiran: butiran ?? null,
-  })
-}
-
 // ─── Tambah Tanah JV ─────────────────────────────────────────────────────────
 
 export async function tambahTanahJV(formData: FormData) {
@@ -56,21 +40,16 @@ export async function tambahTanahJV(formData: FormData) {
     luas_meter_persegi: parseFloat(formData.get('luas_meter_persegi') as string) || null,
     anggaran_nilaian: parseFloat(formData.get('anggaran_nilaian') as string) || null,
     catatan: (formData.get('catatan') as string) || null,
-    dicipta_oleh: userProfile.id,
   }
 
-  const { data: tanah, error } = await supabase
-    .from('tanah_jv')
-    .insert(payload)
-    .select('id')
-    .single()
+  const { data: id, error } = await supabase.rpc('traceo_tambah_tanah_jv', {
+    p_payload: payload,
+  })
 
   if (error) throw new Error(`Failed to save: ${error.message}`)
 
-  await logAudit(supabase, userProfile.id, 'cipta_tanah_jv', tanah.id, { no_lot: payload.no_lot })
-
   revalidatePath('/dashboard/tanah-jv')
-  redirect(`/dashboard/tanah-jv/${tanah.id}`)
+  redirect(`/dashboard/tanah-jv/${id}`)
 }
 
 // ─── Edit Tanah JV ───────────────────────────────────────────────────────────
@@ -95,14 +74,12 @@ export async function editTanahJV(tanahId: string, formData: FormData) {
     catatan: (formData.get('catatan') as string) || null,
   }
 
-  const { error } = await supabase
-    .from('tanah_jv')
-    .update(payload)
-    .eq('id', tanahId)
+  const { error } = await supabase.rpc('traceo_edit_tanah_jv', {
+    p_id: tanahId,
+    p_payload: payload,
+  })
 
   if (error) throw new Error(`Failed to update: ${error.message}`)
-
-  await logAudit(supabase, userProfile.id, 'edit_tanah_jv', tanahId)
 
   revalidatePath(`/dashboard/tanah-jv/${tanahId}`)
   revalidatePath('/dashboard/tanah-jv')
@@ -118,10 +95,8 @@ export async function padamTanahJV(tanahId: string) {
     throw new Error('Access denied')
   }
 
-  const { error } = await supabase.from('tanah_jv').delete().eq('id', tanahId)
+  const { error } = await supabase.rpc('traceo_padam_tanah_jv', { p_id: tanahId })
   if (error) throw new Error(`Failed to delete: ${error.message}`)
-
-  await logAudit(supabase, userProfile.id, 'padam_tanah_jv', tanahId)
 
   revalidatePath('/dashboard/tanah-jv')
   redirect('/dashboard/tanah-jv')

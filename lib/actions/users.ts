@@ -31,7 +31,7 @@ export async function tambahUser(formData: FormData) {
 
   const adminClient = createAdminClient()
 
-  // Create auth user via admin API (requires service_role key)
+  // Create auth user via admin API (external to the DB transaction)
   const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
     email: emel,
     password: kataLaluan,
@@ -40,24 +40,19 @@ export async function tambahUser(formData: FormData) {
 
   if (authError) throw new Error(`Failed to create account: ${authError.message}`)
 
-  // Insert into users table
-  const { error } = await supabase.from('users').insert({
-    auth_id: authData.user.id,
-    nama,
-    emel,
-    peranan,
-    status: 'aktif',
+  // Atomic: users row + audit in a single transaction
+  const { error } = await supabase.rpc('traceo_cipta_pengguna', {
+    p_auth_id: authData.user.id,
+    p_nama: nama,
+    p_emel: emel,
+    p_peranan: peranan,
   })
 
-  if (error) throw new Error(`Failed to save user: ${error.message}`)
-
-  await supabase.from('log_audit').insert({
-    user_id: userProfile.id,
-    tindakan: 'cipta_pengguna',
-    entiti_jenis: 'user',
-    entiti_id: authData.user.id,
-    butiran: { nama, emel, peranan },
-  })
+  if (error) {
+    // Compensate external side-effect: remove the orphaned auth user
+    await adminClient.auth.admin.deleteUser(authData.user.id)
+    throw new Error(`Failed to save user: ${error.message}`)
+  }
 
   revalidatePath('/dashboard/users')
   return { ok: true as const, id: authData.user.id }
@@ -71,20 +66,13 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
 
   const statusBaharu = statusSemasa === 'aktif' ? 'tidak_aktif' : 'aktif'
 
-  const { error } = await supabase
-    .from('users')
-    .update({ status: statusBaharu })
-    .eq('id', userId)
+  // Atomic: update status + audit in a single transaction
+  const { error } = await supabase.rpc('traceo_kemaskini_status_pengguna', {
+    p_id: userId,
+    p_status: statusBaharu,
+  })
 
   if (error) throw new Error(`Failed to update status: ${error.message}`)
-
-  await supabase.from('log_audit').insert({
-    user_id: userProfile.id,
-    tindakan: 'kemaskini_status_pengguna',
-    entiti_jenis: 'user',
-    entiti_id: userId,
-    butiran: { status_baharu: statusBaharu },
-  })
 
   revalidatePath('/dashboard/users')
 }
@@ -95,20 +83,13 @@ export async function kemaskiniPeranan(userId: string, perananBaharu: string) {
   const { supabase, userProfile } = await getCurrentUser()
   if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
 
-  const { error } = await supabase
-    .from('users')
-    .update({ peranan: perananBaharu })
-    .eq('id', userId)
+  // Atomic: update role + audit in a single transaction
+  const { error } = await supabase.rpc('traceo_kemaskini_peranan', {
+    p_id: userId,
+    p_peranan: perananBaharu,
+  })
 
   if (error) throw new Error(`Failed to update role: ${error.message}`)
-
-  await supabase.from('log_audit').insert({
-    user_id: userProfile.id,
-    tindakan: 'kemaskini_peranan',
-    entiti_jenis: 'user',
-    entiti_id: userId,
-    butiran: { peranan_baharu: perananBaharu },
-  })
 
   revalidatePath('/dashboard/users')
 }
