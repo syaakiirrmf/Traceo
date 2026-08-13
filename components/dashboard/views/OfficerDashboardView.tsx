@@ -57,8 +57,13 @@ export function OfficerDashboardView({
   assignedFasiliti,
   recentSusulan,
 }: OfficerDashboardViewProps) {
-  const overdueCount = assignedFasiliti.filter((f) => f.status_fasiliti === 'tertunggak' || f.status_fasiliti === 'tindakan_guaman').length
-  const totalArrears = assignedFasiliti.reduce((s, f) => s + (Number(f.jumlah_tunggakan_semasa) || 0), 0)
+  const overdueCount = assignedFasiliti.filter(
+    (f) => f.status_fasiliti === 'tertunggak' || f.status_fasiliti === 'tindakan_guaman'
+  ).length
+  const totalArrears = assignedFasiliti.reduce(
+    (s, f) => s + (Number(f.jumlah_tunggakan_semasa) || 0),
+    0
+  )
 
   return (
     <div className="space-y-6 max-w-[1600px] p-6 font-dm">
@@ -75,7 +80,8 @@ export function OfficerDashboardView({
             Officer Workspace
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Selamat datang, <span className="font-semibold text-slate-800">{user.nama}</span>. Berikut adalah senarai fasiliti dan tugasan susulan anda.
+            Selamat datang, <span className="font-semibold text-slate-800">{user.nama}</span>.
+            Berikut adalah senarai fasiliti dan tugasan susulan anda.
           </p>
         </div>
 
@@ -115,9 +121,7 @@ export function OfficerDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {assignedFasiliti.length}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Fasiliti di bawah seliaan anda
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Fasiliti di bawah seliaan anda</p>
         </div>
 
         {/* Needing Follow-up */}
@@ -134,7 +138,8 @@ export function OfficerDashboardView({
             {overdueCount}
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Jumlah tunggakan: <span className="font-bold text-slate-700">{formatCurrency(totalArrears)}</span>
+            Jumlah tunggakan:{' '}
+            <span className="font-bold text-slate-700">{formatCurrency(totalArrears)}</span>
           </p>
         </div>
 
@@ -151,9 +156,7 @@ export function OfficerDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {recentSusulan.length}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Rekod susulan yang baru anda kemaskini
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Rekod susulan yang baru anda kemaskini</p>
         </div>
       </div>
 
@@ -176,8 +179,12 @@ export function OfficerDashboardView({
 
           {assignedFasiliti.length === 0 ? (
             <div className="p-10 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center">
-              <p className="text-sm font-semibold text-slate-600">Tiada fasiliti di-assign kepada anda lagi.</p>
-              <p className="text-xs text-slate-400 mt-1">Sila hubungi Admin atau Pengurus untuk penugasan akaun.</p>
+              <p className="text-sm font-semibold text-slate-600">
+                Tiada fasiliti di-assign kepada anda lagi.
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Sila hubungi Admin atau Pengurus untuk penugasan akaun.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -193,10 +200,12 @@ export function OfficerDashboardView({
                       </span>
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-                          STATUS_STYLES[f.status_fasiliti as keyof typeof STATUS_STYLES] || 'bg-slate-100 text-slate-600'
+                          STATUS_STYLES[f.status_fasiliti as keyof typeof STATUS_STYLES] ||
+                          'bg-slate-100 text-slate-600'
                         }`}
                       >
-                        {STATUS_LABELS[f.status_fasiliti as keyof typeof STATUS_LABELS] || f.status_fasiliti}
+                        {STATUS_LABELS[f.status_fasiliti as keyof typeof STATUS_LABELS] ||
+                          f.status_fasiliti}
                       </span>
                     </div>
 
@@ -204,7 +213,10 @@ export function OfficerDashboardView({
                       {f.nama_peminjam}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1">
-                      Pembiayaan: <span className="font-medium text-slate-700">{formatCurrency(f.jumlah_pembiayaan)}</span>
+                      Pembiayaan:{' '}
+                      <span className="font-medium text-slate-700">
+                        {formatCurrency(f.jumlah_pembiayaan)}
+                      </span>
                     </p>
 
                     {Number(f.jumlah_tunggakan_semasa) > 0 && (
@@ -227,8 +239,7 @@ export function OfficerDashboardView({
                       transitionTypes={['nav-forward']}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-colors shadow-xs"
                     >
-                      <Plus size={13} />
-                      + Catat Susulan
+                      <Plus size={13} />+ Catat Susulan
                     </Link>
                   </div>
                 </div>
@@ -251,9 +262,14 @@ export function OfficerDashboardView({
               </p>
             ) : (
               recentSusulan.map((s) => (
-                <div key={s.id} className="pb-3 border-b border-slate-100 last:border-b-0 last:pb-0 space-y-1">
+                <div
+                  key={s.id}
+                  className="pb-3 border-b border-slate-100 last:border-b-0 last:pb-0 space-y-1"
+                >
                   <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span className="font-mono font-bold text-[#0066FF]">{s.kod_rujukan || 'JV'}</span>
+                    <span className="font-mono font-bold text-[#0066FF]">
+                      {s.kod_rujukan || 'JV'}
+                    </span>
                     <span className="flex items-center gap-1 text-[11px] text-slate-400">
                       <Calendar size={11} /> {s.tarikh_susulan}
                     </span>

@@ -35,7 +35,9 @@ export default function AnimatedBackground() {
     }
 
     return () => {
-      images.forEach(img => { img.onload = null })
+      images.forEach((img) => {
+        img.onload = null
+      })
     }
   }, [])
 
@@ -53,10 +55,7 @@ export default function AnimatedBackground() {
   }, [loaded])
 
   return (
-    <div
-      aria-hidden="true"
-      className="absolute inset-0 w-full h-full overflow-hidden"
-    >
+    <div aria-hidden="true" className="absolute inset-0 w-full h-full overflow-hidden">
       {/* Dark base so the screen-blend black disappears into the dark bg */}
       <div className="absolute inset-0 bg-[#030712]" />
 

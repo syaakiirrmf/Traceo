@@ -5,11 +5,7 @@ export const metadata: Metadata = {
   title: 'Sign In',
 }
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex font-dm">
       {/* Left panel — branding */}
@@ -26,11 +22,13 @@ export default function AuthLayout({
         {/* Main copy */}
         <div className="relative z-10 space-y-4">
           <h1 className="text-white text-3xl font-fustat font-black leading-tight tracking-tight">
-            Facility Records,<br />
+            Facility Records,
+            <br />
             <span className="text-[#0066FF]">Streamlined.</span>
           </h1>
           <p className="text-slate-400 text-sm leading-relaxed max-w-[320px]">
-            Log monitoring visits, track account statuses, and generate reports across all JV categories.
+            Log monitoring visits, track account statuses, and generate reports across all JV
+            categories.
           </p>
 
           {/* Feature list */}
@@ -51,14 +49,14 @@ export default function AuthLayout({
         {/* Footer */}
         <div className="relative z-10 flex items-center justify-between text-slate-500 text-xs font-mono">
           <span>&copy; 2026 Traceo. Internal System.</span>
-          <span className="text-slate-400">Created by <strong className="text-white font-semibold font-fustat">@syaakiirr</strong></span>
+          <span className="text-slate-400">
+            Created by <strong className="text-white font-semibold font-fustat">@syaakiirr</strong>
+          </span>
         </div>
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-[#fafafc]">
-        {children}
-      </div>
+      <div className="flex-1 flex items-center justify-center p-6 bg-[#fafafc]">{children}</div>
     </div>
   )
 }

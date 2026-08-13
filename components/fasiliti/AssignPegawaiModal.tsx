@@ -42,11 +42,17 @@ export function AssignPegawaiModal({
     setLoading(true)
     try {
       await kemaskiniPegawaiFasiliti(fasilitiId, selectedIds)
-      toast.success('Officer assignments updated', `${selectedIds.length} officer(s) assigned to this facility.`)
+      toast.success(
+        'Officer assignments updated',
+        `${selectedIds.length} officer(s) assigned to this facility.`
+      )
       setOpen(false)
       router.refresh()
     } catch (err) {
-      toast.error('Failed to update assignment', err instanceof Error ? err.message : 'Please try again.')
+      toast.error(
+        'Failed to update assignment',
+        err instanceof Error ? err.message : 'Please try again.'
+      )
       setLoading(false)
     }
   }

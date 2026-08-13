@@ -41,8 +41,7 @@ export const toolDeclarations: FunctionDeclaration[] = [
       properties: {
         fasiliti_id: {
           type: SchemaType.STRING,
-          description:
-            'Facility ID (UUID) or reference code such as "JV-007". Required.',
+          description: 'Facility ID (UUID) or reference code such as "JV-007". Required.',
         },
         limit: {
           type: SchemaType.INTEGER,
@@ -61,8 +60,7 @@ export const toolDeclarations: FunctionDeclaration[] = [
       properties: {
         fasiliti_id: {
           type: SchemaType.STRING,
-          description:
-            'Facility ID (UUID) or reference code such as "JV-007". Required.',
+          description: 'Facility ID (UUID) or reference code such as "JV-007". Required.',
         },
       },
       required: ['fasiliti_id'],
@@ -97,7 +95,8 @@ export const AI_ROLE_SCOPE: Record<string, AiRoleScope | null> = {
       // Technical / system queries
       /\b(database|pangkalan data|supabase|jadual|table name|schema|struktur sistem|api key|env|environment variable|source code|kod sumber|github|repository|deployment|server|hosting|vercel|netlify|endpoint|webhook|sql|query|migration)\b/i,
     ],
-    rejectMessage: 'Maklumat ini di luar skop capaian peranan Pengurus. Hubungi Admin sistem untuk soalan berkaitan pengguna atau log audit.',
+    rejectMessage:
+      'Maklumat ini di luar skop capaian peranan Pengurus. Hubungi Admin sistem untuk soalan berkaitan pengguna atau log audit.',
   },
 
   // Follow-up Officer — only their own assigned facilities & follow-up records
@@ -112,7 +111,8 @@ export const AI_ROLE_SCOPE: Record<string, AiRoleScope | null> = {
       // Portfolio-wide stats (they only see their assigned facilities)
       /\b(jumlah keseluruhan|semua fasiliti|portfolio keseluruhan|total portfolio|semua peminjam|semua akaun|semua jv|aggregate|keseluruhan sistem|all facilities|all borrowers|entire portfolio|list all|show all|semua rekod|all records|berapa fasiliti)\b/i,
     ],
-    rejectMessage: 'Anda hanya boleh bertanya mengenai fasiliti yang ditugaskan kepada anda. Soalan ini di luar skop capaian Pegawai Susulan.',
+    rejectMessage:
+      'Anda hanya boleh bertanya mengenai fasiliti yang ditugaskan kepada anda. Soalan ini di luar skop capaian Pegawai Susulan.',
   },
 
   // Viewer — read-only statistics & report downloads only (also blocked at page level)
@@ -127,7 +127,8 @@ export const AI_ROLE_SCOPE: Record<string, AiRoleScope | null> = {
       // Mutation actions (Viewer is read-only)
       /\b(tambah|edit|kemaskini|padam|delete|update|insert|buat rekod|masukkan|add record|create|assign|penugasan|remove|hapus|ubah|modify|set)\b/i,
     ],
-    rejectMessage: 'Peranan Viewer hanya dibenarkan untuk melihat statistik dan muat turun laporan. Soalan ini di luar skop capaian anda.',
+    rejectMessage:
+      'Peranan Viewer hanya dibenarkan untuk melihat statistik dan muat turun laporan. Soalan ini di luar skop capaian anda.',
   },
 }
 

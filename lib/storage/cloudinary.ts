@@ -20,13 +20,10 @@ function uploadBuffer(
   options: Record<string, unknown>
 ): Promise<CloudinaryUploadResult> {
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      options,
-      (error, result) => {
-        if (error) reject(error)
-        else resolve(result as CloudinaryUploadResult)
-      }
-    )
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (error) reject(error)
+      else resolve(result as CloudinaryUploadResult)
+    })
     stream.end(buffer)
   })
 }

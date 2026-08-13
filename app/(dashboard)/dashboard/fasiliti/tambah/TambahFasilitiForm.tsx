@@ -19,7 +19,10 @@ const STATUS_OPTIONS = [
 
 type Kategori = 'jv_syarikat' | 'jv_tanah' | 'pinjaman_individu'
 
-interface PegawaiItem { id: string; nama: string }
+interface PegawaiItem {
+  id: string
+  nama: string
+}
 
 export function TambahFasilitiForm({
   pegawaiList,
@@ -51,7 +54,9 @@ export function TambahFasilitiForm({
               className="w-full h-10 px-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
             >
               {KATEGORI_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </div>
@@ -66,7 +71,9 @@ export function TambahFasilitiForm({
               className="w-full h-10 px-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
             >
               {STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </div>
@@ -124,7 +131,9 @@ export function TambahFasilitiForm({
               <input
                 type="text"
                 name="kadar_dividen"
-                placeholder={isJV1 ? "e.g. AZRIN - 3,375/month · HAFIZ - 500/month" : "e.g. 3,000/month"}
+                placeholder={
+                  isJV1 ? 'e.g. AZRIN - 3,375/month · HAFIZ - 500/month' : 'e.g. 3,000/month'
+                }
                 className="w-full h-10 px-3.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
               />
             </div>
@@ -164,20 +173,65 @@ export function TambahFasilitiForm({
           <div className="grid grid-cols-3 gap-4">
             {isJV1 && (
               <>
-                <Field label="Dividend Arrears (RM) — B" name="tunggakan_dividen" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Late Charges (RM) — C" name="caj_lewat" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Additional Payment (RM) — D" name="bayaran_tambahan" type="number" placeholder="0.00" step="0.01" min="0" />
+                <Field
+                  label="Dividend Arrears (RM) — B"
+                  name="tunggakan_dividen"
+                  type="number"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                />
+                <Field
+                  label="Late Charges (RM) — C"
+                  name="caj_lewat"
+                  type="number"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                />
+                <Field
+                  label="Additional Payment (RM) — D"
+                  name="bayaran_tambahan"
+                  type="number"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                />
               </>
             )}
             {isJV2 && (
               <>
-                <Field label="Profit Sharing Arrears (RM) — C" name="tunggakan_dividen" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Additional Payment (RM) — D" name="bayaran_tambahan" type="number" placeholder="0.00" step="0.01" min="0" />
-                <Field label="Project Year" name="tahun_projek" type="number" placeholder="e.g. 2023" min="2000" />
+                <Field
+                  label="Profit Sharing Arrears (RM) — C"
+                  name="tunggakan_dividen"
+                  type="number"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                />
+                <Field
+                  label="Additional Payment (RM) — D"
+                  name="bayaran_tambahan"
+                  type="number"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                />
+                <Field
+                  label="Project Year"
+                  name="tahun_projek"
+                  type="number"
+                  placeholder="e.g. 2023"
+                  min="2000"
+                />
               </>
             )}
           </div>
-          <TotalArrears label={isJV3 ? 'Total Arrears (RM) — C (A + B)' : 'Total Arrears (RM) — E (A + B + C + D)'} />
+          <TotalArrears
+            label={
+              isJV3 ? 'Total Arrears (RM) — C (A + B)' : 'Total Arrears (RM) — E (A + B + C + D)'
+            }
+          />
         </Section>
       )}
 
@@ -197,23 +251,44 @@ export function TambahFasilitiForm({
           <textarea
             name="ringkasan_cagaran"
             rows={3}
-            placeholder={isJV2
-              ? "e.g. GM 1837 LOT 1979 MUKIM TUK JAMAL"
-              : "e.g. LAND N9 — VALUATION 1.5 MILLION"}
+            placeholder={
+              isJV2
+                ? 'e.g. GM 1837 LOT 1979 MUKIM TUK JAMAL'
+                : 'e.g. LAND N9 — VALUATION 1.5 MILLION'
+            }
             className="w-full px-3.5 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors resize-none"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Estimated Value (RM)" name="nilai_cagaran" type="number" placeholder="0.00" step="0.01" min="0" />
-          <Field label="Asset Nominee" name="penama_aset" placeholder="e.g. MOHD AZRUL BIN ZAKARIA" />
+          <Field
+            label="Estimated Value (RM)"
+            name="nilai_cagaran"
+            type="number"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+          />
+          <Field
+            label="Asset Nominee"
+            name="penama_aset"
+            placeholder="e.g. MOHD AZRUL BIN ZAKARIA"
+          />
         </div>
 
-        <Field label="Asset Transfer / Sale Status" name="status_pindahmilik" placeholder="e.g. Sold to buyer — Completed" />
+        <Field
+          label="Asset Transfer / Sale Status"
+          name="status_pindahmilik"
+          placeholder="e.g. Sold to buyer — Completed"
+        />
 
         {/* JV2 specific: Harga Jualan */}
         {isJV2 && (
-          <Field label="Sale Price / Type" name="harga_jualan" placeholder="e.g. 400,000 - BUNGALOW" />
+          <Field
+            label="Sale Price / Type"
+            name="harga_jualan"
+            placeholder="e.g. 400,000 - BUNGALOW"
+          />
         )}
       </Section>
 

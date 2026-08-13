@@ -75,22 +75,39 @@ export function Toaster() {
   if (items.length === 0) return null
 
   return (
-    <div className="fixed top-4 right-4 z-[70] flex flex-col gap-2 w-[min(360px,calc(100vw-2rem))]" role="status" aria-live="polite">
+    <div
+      className="fixed top-4 right-4 z-[70] flex flex-col gap-2 w-[min(360px,calc(100vw-2rem))]"
+      role="status"
+      aria-live="polite"
+    >
       {items.map((t) => (
         <div
           key={t.id}
           className={cn(
-            'flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 shadow-[var(--shadow-md)]',
+            'flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 shadow-[var(--shadow-md)]'
           )}
-          style={{ animation: t.leaving ? `toast-out ${EXIT_MS}ms ease-in forwards` : 'toast-in 0.2s ease-out' }}
+          style={{
+            animation: t.leaving
+              ? `toast-out ${EXIT_MS}ms ease-in forwards`
+              : 'toast-in 0.2s ease-out',
+          }}
         >
-          <div className={cn('w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0', ICON_TONES[t.variant])}>
+          <div
+            className={cn(
+              'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
+              ICON_TONES[t.variant]
+            )}
+          >
             {ICONS[t.variant]}
           </div>
           <div className="flex-1 min-w-0 pt-0.5">
-            <p className="text-sm font-semibold text-[var(--color-text-primary)] leading-snug">{t.title}</p>
+            <p className="text-sm font-semibold text-[var(--color-text-primary)] leading-snug">
+              {t.title}
+            </p>
             {t.description && (
-              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">{t.description}</p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                {t.description}
+              </p>
             )}
           </div>
           <button

@@ -23,7 +23,8 @@ export default function GlobalError({
         <div
           className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
           style={{
-            background: 'radial-gradient(circle, rgba(13,148,136,0.18) 0%, rgba(15,118,110,0.05) 50%, transparent 75%)',
+            background:
+              'radial-gradient(circle, rgba(13,148,136,0.18) 0%, rgba(15,118,110,0.05) 50%, transparent 75%)',
             filter: 'blur(60px)',
           }}
         />
@@ -31,7 +32,16 @@ export default function GlobalError({
         <div className="relative z-10 text-center max-w-md px-6 py-10 bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl">
           {/* Warning Icon container */}
           <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6 shadow-inner">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ef4444"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -42,12 +52,11 @@ export default function GlobalError({
             Ralat Global &bull; Critical System Error
           </span>
 
-          <h1 className="text-2xl font-bold tracking-tight text-white mb-2">
-            Ralat Luar Jangkaan
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Ralat Luar Jangkaan</h1>
 
           <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed bg-black/30 border border-white/10 p-3.5 rounded-xl font-mono text-left break-words">
-            {error.message || 'Sistem menghadapi masalah kritikal semasa memproses permintaan anda.'}
+            {error.message ||
+              'Sistem menghadapi masalah kritikal semasa memproses permintaan anda.'}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

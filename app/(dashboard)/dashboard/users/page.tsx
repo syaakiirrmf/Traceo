@@ -9,7 +9,9 @@ export const metadata: Metadata = { title: 'User Management' }
 
 export default async function UsersPage() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -34,7 +36,9 @@ export default async function UsersPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
               Administrative Control
             </span>
-            <span className="text-xs text-[var(--color-text-tertiary)]">• {users?.length ?? 0} Accounts</span>
+            <span className="text-xs text-[var(--color-text-tertiary)]">
+              • {users?.length ?? 0} Accounts
+            </span>
           </div>
           <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
             User Management

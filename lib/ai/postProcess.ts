@@ -3,7 +3,8 @@
  */
 export function detectStructuredRequest(userMessage: string): boolean {
   if (!userMessage) return false
-  const pattern = /\b(laporan|breakdown|senarai|senarai lengkap|ikut kategori|jadual|ringkasan|portfolio|analisis|report|list|category|table|summary|overview)\b/i
+  const pattern =
+    /\b(laporan|breakdown|senarai|senarai lengkap|ikut kategori|jadual|ringkasan|portfolio|analisis|report|list|category|table|summary|overview)\b/i
   return pattern.test(userMessage)
 }
 
@@ -65,7 +66,10 @@ export function cleanAiResponse(text: string, isStructuredRequest: boolean = fal
   cleaned = cleaned.replace(/\*\*\b([A-Z]{2,3}-\d{3,})\b\*\*/gi, '$1')
 
   // 4. Uppercase Kod Fasiliti (contoh jv-007 -> JV-007, pi-001 -> PI-001)
-  cleaned = cleaned.replace(/\b(jv|pi)-(\d{3,})\b/gi, (_, prefix, num) => `${prefix.toUpperCase()}-${num}`)
+  cleaned = cleaned.replace(
+    /\b(jv|pi)-(\d{3,})\b/gi,
+    (_, prefix, num) => `${prefix.toUpperCase()}-${num}`
+  )
 
   // 5. Enforce RM formatting & peratus pada code level
   //    Contoh: "RM 54200.00" / "RM54200.00" -> "RM54,200"

@@ -8,15 +8,13 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Edit Land Parcel' }
 
-export default async function EditTanahJVPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function EditTanahJVPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -29,11 +27,7 @@ export default async function EditTanahJVPage({
     redirect('/dashboard/tanah-jv')
   }
 
-  const { data: tanah } = await supabase
-    .from('tanah_jv')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const { data: tanah } = await supabase.from('tanah_jv').select('*').eq('id', id).single()
 
   if (!tanah) notFound()
 
@@ -51,10 +45,13 @@ export default async function EditTanahJVPage({
           <ArrowLeft size={15} />
         </Link>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">Edit Land Parcel</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+            Edit Land Parcel
+          </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
             <span className="font-mono text-[var(--color-brand)]">{tanah.no_lot}</span>
-            {' · '}{tanah.tempat}
+            {' · '}
+            {tanah.tempat}
           </p>
         </div>
       </div>
@@ -63,25 +60,81 @@ export default async function EditTanahJVPage({
         {/* Tajuk */}
         <Section title="Title — Land Title Information">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="State" name="negeri" required defaultValue={s('negeri')} placeholder="e.g. Negeri Sembilan" />
-            <Field label="District" name="daerah" required defaultValue={s('daerah')} placeholder="e.g. Seremban" />
+            <Field
+              label="State"
+              name="negeri"
+              required
+              defaultValue={s('negeri')}
+              placeholder="e.g. Negeri Sembilan"
+            />
+            <Field
+              label="District"
+              name="daerah"
+              required
+              defaultValue={s('daerah')}
+              placeholder="e.g. Seremban"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Town / Village / Mukim" name="bandar_mukim" required defaultValue={s('bandar_mukim')} placeholder="e.g. Mukim Tuk Jamal" />
-            <Field label="Location" name="tempat" required defaultValue={s('tempat')} placeholder="e.g. Gemencheh" />
+            <Field
+              label="Town / Village / Mukim"
+              name="bandar_mukim"
+              required
+              defaultValue={s('bandar_mukim')}
+              placeholder="e.g. Mukim Tuk Jamal"
+            />
+            <Field
+              label="Location"
+              name="tempat"
+              required
+              defaultValue={s('tempat')}
+              placeholder="e.g. Gemencheh"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="No. Lot" name="no_lot" required defaultValue={s('no_lot')} placeholder="e.g. LOT 1979" />
-            <Field label="Title No." name="no_hak_milik" defaultValue={s('no_hak_milik')} placeholder="e.g. GM 1837" />
+            <Field
+              label="No. Lot"
+              name="no_lot"
+              required
+              defaultValue={s('no_lot')}
+              placeholder="e.g. LOT 1979"
+            />
+            <Field
+              label="Title No."
+              name="no_hak_milik"
+              defaultValue={s('no_hak_milik')}
+              placeholder="e.g. GM 1837"
+            />
           </div>
-          <Field label="Registration Date" name="tarikh_daftar" type="date" defaultValue={s('tarikh_daftar')} />
+          <Field
+            label="Registration Date"
+            name="tarikh_daftar"
+            type="date"
+            defaultValue={s('tarikh_daftar')}
+          />
         </Section>
 
         {/* Luas & Nilaian */}
         <Section title="Area &amp; Valuation">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Area (m²)" name="luas_meter_persegi" type="number" defaultValue={s('luas_meter_persegi')} placeholder="0.0000" step="0.0001" min="0" />
-            <Field label="Collateral Value (RM)" name="anggaran_nilaian" type="number" defaultValue={s('anggaran_nilaian')} placeholder="0.00" step="0.01" min="0" />
+            <Field
+              label="Area (m²)"
+              name="luas_meter_persegi"
+              type="number"
+              defaultValue={s('luas_meter_persegi')}
+              placeholder="0.0000"
+              step="0.0001"
+              min="0"
+            />
+            <Field
+              label="Collateral Value (RM)"
+              name="anggaran_nilaian"
+              type="number"
+              defaultValue={s('anggaran_nilaian')}
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+            />
           </div>
         </Section>
 
@@ -127,8 +180,24 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function Field({ label, name, type = 'text', required, defaultValue, placeholder, step, min }: {
-  label: string; name: string; type?: string; required?: boolean; defaultValue?: string; placeholder?: string; step?: string; min?: string
+function Field({
+  label,
+  name,
+  type = 'text',
+  required,
+  defaultValue,
+  placeholder,
+  step,
+  min,
+}: {
+  label: string
+  name: string
+  type?: string
+  required?: boolean
+  defaultValue?: string
+  placeholder?: string
+  step?: string
+  min?: string
 }) {
   return (
     <div className="space-y-1.5">

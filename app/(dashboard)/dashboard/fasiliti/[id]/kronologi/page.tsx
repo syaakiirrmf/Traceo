@@ -23,21 +23,24 @@ export async function generateMetadata({
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  aktif: 'Active', tertunggak: 'Overdue', tindakan_guaman: 'Legal Action', selesai: 'Completed',
+  aktif: 'Active',
+  tertunggak: 'Overdue',
+  tindakan_guaman: 'Legal Action',
+  selesai: 'Completed',
 }
 const KATEGORI_LABELS: Record<string, string> = {
-  jv_syarikat: 'Corporate JV', jv_tanah: 'Land JV', pinjaman_individu: 'Individual Loan',
+  jv_syarikat: 'Corporate JV',
+  jv_tanah: 'Land JV',
+  pinjaman_individu: 'Individual Loan',
 }
 
-export default async function KronologiPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function KronologiPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -53,7 +56,8 @@ export default async function KronologiPage({
 
   const [{ data: fasiliti }, { data: susulan }] = await Promise.all([
     supabase.from('fasiliti').select('*').eq('id', id).single(),
-    supabase.from('susulan')
+    supabase
+      .from('susulan')
       .select('*, dicatat_oleh_user:users(nama), lampiran(*)')
       .eq('fasiliti_id', id)
       .order('tarikh_susulan', { ascending: true }),
@@ -65,8 +69,10 @@ export default async function KronologiPage({
     <div className="max-w-3xl">
       {/* Header */}
       <div className="flex items-start gap-4 mb-6">
-        <Link href={`/dashboard/fasiliti/${id}`}
-          className="mt-1 w-8 h-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] transition-colors flex-shrink-0">
+        <Link
+          href={`/dashboard/fasiliti/${id}`}
+          className="mt-1 w-8 h-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] transition-colors flex-shrink-0"
+        >
           <ArrowLeft size={15} />
         </Link>
         <div className="flex-1">
@@ -75,7 +81,8 @@ export default async function KronologiPage({
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
             <span className="font-mono text-[var(--color-brand)]">{fasiliti.kod_rujukan}</span>
-            {' · '}{fasiliti.nama_peminjam}
+            {' · '}
+            {fasiliti.nama_peminjam}
           </p>
         </div>
         {/* Export buttons */}
@@ -127,7 +134,9 @@ export default async function KronologiPage({
                 ...(fasiliti.ringkasan_cagaran ? [['Collateral', fasiliti.ringkasan_cagaran]] : []),
               ].map(([label, value]) => (
                 <tr key={label}>
-                  <td className="py-2 pr-4 font-medium text-[var(--color-text-secondary)] w-[40%]">{label}</td>
+                  <td className="py-2 pr-4 font-medium text-[var(--color-text-secondary)] w-[40%]">
+                    {label}
+                  </td>
                   <td className="py-2 text-[var(--color-text-primary)]">{value}</td>
                 </tr>
               ))}
@@ -141,8 +150,10 @@ export default async function KronologiPage({
             Follow-up Chronology ({susulan?.length ?? 0} records)
           </h3>
 
-          {(!susulan || susulan.length === 0) ? (
-            <p className="text-sm text-[var(--color-text-tertiary)] italic">No follow-up records.</p>
+          {!susulan || susulan.length === 0 ? (
+            <p className="text-sm text-[var(--color-text-tertiary)] italic">
+              No follow-up records.
+            </p>
           ) : (
             <div className="space-y-5">
               {susulan.map((s, i) => (
@@ -163,8 +174,13 @@ export default async function KronologiPage({
                     {s.lampiran && s.lampiran.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {s.lampiran.map((l: Lampiran) => (
-                          <a key={l.id} href={l.url_fail} target="_blank" rel="noopener noreferrer"
-                            className="text-xs text-[var(--color-brand)] bg-[var(--color-brand-subtle)] px-2 py-0.5 rounded-full hover:underline">
+                          <a
+                            key={l.id}
+                            href={l.url_fail}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-[var(--color-brand)] bg-[var(--color-brand-subtle)] px-2 py-0.5 rounded-full hover:underline"
+                          >
                             📎 {l.nama_asal}
                           </a>
                         ))}

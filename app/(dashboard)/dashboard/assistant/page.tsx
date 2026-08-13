@@ -34,8 +34,8 @@ export default async function AssistantPage() {
           @syaakiirr
         </h1>
         <p className="text-xs text-[var(--color-text-tertiary)] mt-1">
-          Ask about facilities, arrears and follow-up activity,  answers are generated from
-          real data.
+          Ask about facilities, arrears and follow-up activity, answers are generated from real
+          data.
         </p>
       </div>
 

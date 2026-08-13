@@ -107,7 +107,8 @@ export function ViewerDashboardView({
             {formatCurrency(totalPembiayaan)}
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Nilai cagaran hartanah: <span className="font-bold text-slate-700">{formatCurrency(totalCagaran)}</span>
+            Nilai cagaran hartanah:{' '}
+            <span className="font-bold text-slate-700">{formatCurrency(totalCagaran)}</span>
           </p>
         </div>
 
@@ -142,16 +143,17 @@ export function ViewerDashboardView({
           <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Tunggakan semasa keseluruhan akaun
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Tunggakan semasa keseluruhan akaun</p>
         </div>
       </div>
 
       {/* Category Summary Quick Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {categoryData.map((cat) => (
-          <div key={cat.key} className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+          <div
+            key={cat.key}
+            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs"
+          >
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-fustat font-bold text-sm text-slate-900">{cat.name}</h3>
               <span className="text-xs font-bold text-[#0066FF] bg-[#EBF2FF] px-2.5 py-0.5 rounded-full">
@@ -159,10 +161,12 @@ export function ViewerDashboardView({
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Pembiayaan: <span className="font-semibold text-slate-800">{formatCurrency(cat.pembiayaan)}</span>
+              Pembiayaan:{' '}
+              <span className="font-semibold text-slate-800">{formatCurrency(cat.pembiayaan)}</span>
             </p>
             <p className="text-xs text-slate-500 mt-0.5">
-              Tunggakan: <span className="font-semibold text-rose-600">{formatCurrency(cat.tunggakan)}</span>
+              Tunggakan:{' '}
+              <span className="font-semibold text-rose-600">{formatCurrency(cat.tunggakan)}</span>
             </p>
             <Link
               href={cat.href}
@@ -178,7 +182,12 @@ export function ViewerDashboardView({
       {/* Read-Only Charts & Read-Only Directory */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <DashboardCharts categories={categoryData} statuses={statusData} totalCagaran={totalCagaran} overdueList={[]} />
+          <DashboardCharts
+            categories={categoryData}
+            statuses={statusData}
+            totalCagaran={totalCagaran}
+            overdueList={[]}
+          />
         </div>
 
         {/* Quick Report Download Center Card */}
@@ -190,7 +199,8 @@ export function ViewerDashboardView({
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3">
             <p className="text-xs text-slate-500 leading-relaxed">
-              Jana dan muat turun laporan kronologi penuh berformat PDF dan Word (.docx) mengikut kategori:
+              Jana dan muat turun laporan kronologi penuh berformat PDF dan Word (.docx) mengikut
+              kategori:
             </p>
 
             <Link
@@ -199,7 +209,9 @@ export function ViewerDashboardView({
             >
               <div className="flex items-center gap-2.5">
                 <Building2 size={16} className="text-[#0066FF]" />
-                <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">Laporan Summary JV 1</span>
+                <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">
+                  Laporan Summary JV 1
+                </span>
               </div>
               <Download size={14} className="text-slate-400 group-hover:text-[#0066FF]" />
             </Link>
@@ -210,7 +222,9 @@ export function ViewerDashboardView({
             >
               <div className="flex items-center gap-2.5">
                 <Landmark size={16} className="text-[#0066FF]" />
-                <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">Laporan Land JV</span>
+                <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">
+                  Laporan Land JV
+                </span>
               </div>
               <Download size={14} className="text-slate-400 group-hover:text-[#0066FF]" />
             </Link>
@@ -221,7 +235,9 @@ export function ViewerDashboardView({
             >
               <div className="flex items-center gap-2.5">
                 <UserRound size={16} className="text-[#0066FF]" />
-                <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">Laporan Personal Loan</span>
+                <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">
+                  Laporan Personal Loan
+                </span>
               </div>
               <Download size={14} className="text-slate-400 group-hover:text-[#0066FF]" />
             </Link>

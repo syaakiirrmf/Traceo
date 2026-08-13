@@ -8,15 +8,13 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Edit Facility' }
 
-export default async function EditFasilitiPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function EditFasilitiPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -29,11 +27,7 @@ export default async function EditFasilitiPage({
     redirect('/dashboard/fasiliti')
   }
 
-  const { data: fasiliti } = await supabase
-    .from('fasiliti')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const { data: fasiliti } = await supabase.from('fasiliti').select('*').eq('id', id).single()
 
   if (!fasiliti) notFound()
 
@@ -52,7 +46,8 @@ export default async function EditFasilitiPage({
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
             <span className="font-mono text-[var(--color-brand)]">{fasiliti.kod_rujukan}</span>
-            {' · '}{fasiliti.nama_peminjam}
+            {' · '}
+            {fasiliti.nama_peminjam}
           </p>
         </div>
       </div>

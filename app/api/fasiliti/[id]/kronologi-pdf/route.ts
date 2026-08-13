@@ -6,14 +6,13 @@ import { KronologiPDF } from '@/lib/pdf/KronologiPDF'
 import { format } from 'date-fns'
 import type { DocumentProps } from '@react-pdf/renderer'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
@@ -38,7 +37,8 @@ export async function GET(
 
     const [{ data: fasiliti }, { data: susulan }] = await Promise.all([
       supabase.from('fasiliti').select('*').eq('id', id).single(),
-      supabase.from('susulan')
+      supabase
+        .from('susulan')
         .select('*, dicatat_oleh_user:users(nama), lampiran(*)')
         .eq('fasiliti_id', id)
         .order('tarikh_susulan', { ascending: true }),
@@ -47,7 +47,10 @@ export async function GET(
     if (!fasiliti) return NextResponse.json({ error: 'Facility not found' }, { status: 404 })
 
     const buffer = await renderToBuffer(
-      createElement(KronologiPDF, { fasiliti, susulan: susulan ?? [] }) as ReactElement<DocumentProps>
+      createElement(KronologiPDF, {
+        fasiliti,
+        susulan: susulan ?? [],
+      }) as ReactElement<DocumentProps>
     )
 
     const today = format(new Date(), 'ddMMyyyy')

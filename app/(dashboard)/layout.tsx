@@ -4,14 +4,12 @@ import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import { Toaster } from '@/components/ui/toast'
 import type { User } from '@/types'
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -29,9 +27,7 @@ export default async function DashboardLayout({
 
   return (
     <>
-      <DashboardShell user={currentUser}>
-        {children}
-      </DashboardShell>
+      <DashboardShell user={currentUser}>{children}</DashboardShell>
       <Toaster />
     </>
   )

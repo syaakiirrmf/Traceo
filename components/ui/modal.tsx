@@ -120,7 +120,9 @@ export function Modal({
                 </h2>
               )}
               {description && (
-                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">{description}</p>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                  {description}
+                </p>
               )}
             </div>
             <button

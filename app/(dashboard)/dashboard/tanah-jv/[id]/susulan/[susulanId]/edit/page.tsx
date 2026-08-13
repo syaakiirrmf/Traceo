@@ -15,7 +15,9 @@ export default async function EditSusulanTanahPage({
   const { id, susulanId } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -35,10 +37,7 @@ export default async function EditSusulanTanahPage({
   if (!susulan) notFound()
 
   // Pegawai susulan only allowed to edit their own records
-  if (
-    userProfile.peranan === 'pegawai_susulan' &&
-    susulan.dicatat_oleh !== userProfile.id
-  ) {
+  if (userProfile.peranan === 'pegawai_susulan' && susulan.dicatat_oleh !== userProfile.id) {
     redirect(`/dashboard/tanah-jv/${id}`)
   }
 
@@ -65,7 +64,8 @@ export default async function EditSusulanTanahPage({
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
             <span className="font-mono text-[var(--color-brand)]">Tanah MD</span>
-            {' · '}{tanah?.no_lot}
+            {' · '}
+            {tanah?.no_lot}
           </p>
         </div>
       </div>

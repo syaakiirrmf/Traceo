@@ -81,7 +81,9 @@ export function ManagerDashboardView({
   overdueList,
 }: ManagerDashboardViewProps) {
   const activeCount = fasilitiList.filter((f) => f.status_fasiliti === 'aktif').length
-  const overdueCount = fasilitiList.filter((f) => f.status_fasiliti === 'tertunggak' || f.status_fasiliti === 'tindakan_guaman').length
+  const overdueCount = fasilitiList.filter(
+    (f) => f.status_fasiliti === 'tertunggak' || f.status_fasiliti === 'tindakan_guaman'
+  ).length
 
   return (
     <div className="space-y-6 max-w-[1600px] p-6 font-dm">
@@ -117,8 +119,7 @@ export function ManagerDashboardView({
             transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat"
           >
-            <Plus size={14} />
-            + Add Facility
+            <Plus size={14} />+ Add Facility
           </Link>
         </div>
       </div>
@@ -139,7 +140,8 @@ export function ManagerDashboardView({
             {activeCount}
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Jumlah pembiayaan: <span className="font-semibold text-slate-700">{formatCurrency(totalPembiayaan)}</span>
+            Jumlah pembiayaan:{' '}
+            <span className="font-semibold text-slate-700">{formatCurrency(totalPembiayaan)}</span>
           </p>
         </div>
 
@@ -156,9 +158,7 @@ export function ManagerDashboardView({
           <p className="text-3xl font-fustat font-black text-amber-600 tracking-tight">
             {overdueCount}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Memerlukan penugasan &amp; tindak susulan
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Memerlukan penugasan &amp; tindak susulan</p>
         </div>
 
         {/* Total Arrears */}
@@ -174,9 +174,7 @@ export function ManagerDashboardView({
           <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Sasaran kutipan pengurus
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Sasaran kutipan pengurus</p>
         </div>
 
         {/* Collateral Value */}
@@ -192,16 +190,19 @@ export function ManagerDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {formatCurrency(totalCagaran)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Liputan cagaran hartanah
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Liputan cagaran hartanah</p>
         </div>
       </div>
 
       {/* Category Breakdown & Operations Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <DashboardCharts categories={categoryData} statuses={statusData} totalCagaran={totalCagaran} overdueList={overdueList} />
+          <DashboardCharts
+            categories={categoryData}
+            statuses={statusData}
+            totalCagaran={totalCagaran}
+            overdueList={overdueList}
+          />
         </div>
 
         {/* Actionable Overdue Accounts List */}
@@ -218,16 +219,26 @@ export function ManagerDashboardView({
               </p>
             ) : (
               overdueList.map((item) => (
-                <div key={item.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3">
+                <div
+                  key={item.id}
+                  className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3"
+                >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold text-[#0066FF]">{item.kod_rujukan}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${STATUS_STYLES[item.status_fasiliti as keyof typeof STATUS_STYLES]}`}>
-                        {STATUS_LABELS[item.status_fasiliti as keyof typeof STATUS_LABELS] || item.status_fasiliti}
+                      <span className="font-mono text-[11px] font-bold text-[#0066FF]">
+                        {item.kod_rujukan}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${STATUS_STYLES[item.status_fasiliti as keyof typeof STATUS_STYLES]}`}
+                      >
+                        {STATUS_LABELS[item.status_fasiliti as keyof typeof STATUS_LABELS] ||
+                          item.status_fasiliti}
                       </span>
                     </div>
                     <p className="text-xs font-bold text-slate-900 mt-1">{item.nama_peminjam}</p>
-                    <p className="text-xs font-bold text-rose-600 mt-0.5">{formatCurrency(item.jumlah_tunggakan_semasa)}</p>
+                    <p className="text-xs font-bold text-rose-600 mt-0.5">
+                      {formatCurrency(item.jumlah_tunggakan_semasa)}
+                    </p>
                   </div>
 
                   <Link

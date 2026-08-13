@@ -73,8 +73,20 @@ export function TambahUserModal() {
       >
         <form id="tambah-user-form" action={handleSubmit} className="space-y-4">
           <Field label="Full Name" name="nama" required placeholder="John Doe" />
-          <Field label="Email Address" name="emel" type="email" required placeholder="john@company.com" />
-          <Field label="Password" name="kata_laluan" type="password" required placeholder="Minimum 8 characters" />
+          <Field
+            label="Email Address"
+            name="emel"
+            type="email"
+            required
+            placeholder="john@company.com"
+          />
+          <Field
+            label="Password"
+            name="kata_laluan"
+            type="password"
+            required
+            placeholder="Minimum 8 characters"
+          />
 
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-[var(--color-text-primary)]">
@@ -87,7 +99,9 @@ export function TambahUserModal() {
               className="w-full h-10 px-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
             >
               {PERANAN_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </div>
@@ -97,8 +111,18 @@ export function TambahUserModal() {
   )
 }
 
-function Field({ label, name, type = 'text', required, placeholder }: {
-  label: string; name: string; type?: string; required?: boolean; placeholder?: string
+function Field({
+  label,
+  name,
+  type = 'text',
+  required,
+  placeholder,
+}: {
+  label: string
+  name: string
+  type?: string
+  required?: boolean
+  placeholder?: string
 }) {
   return (
     <div className="space-y-1.5">

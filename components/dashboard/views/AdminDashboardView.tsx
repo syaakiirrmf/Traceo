@@ -115,8 +115,7 @@ export function AdminDashboardView({
             transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat px-4"
           >
-            <Plus size={14} />
-            + Add Facility
+            <Plus size={14} />+ Add Facility
           </Link>
         </div>
       </div>
@@ -136,9 +135,7 @@ export function AdminDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {formatCurrency(totalPembiayaan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            {fasilitiList.length} fasiliti didaftarkan
-          </p>
+          <p className="text-xs text-slate-500 mt-1">{fasilitiList.length} fasiliti didaftarkan</p>
         </div>
 
         {/* Total Arrears */}
@@ -154,9 +151,7 @@ export function AdminDashboardView({
           <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Tunggakan semasa keseluruhan
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Tunggakan semasa keseluruhan</p>
         </div>
 
         {/* Land Collateral */}
@@ -172,9 +167,7 @@ export function AdminDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {formatCurrency(totalCagaran)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">
-            Nilai cagaran hartanah didaftarkan
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Nilai cagaran hartanah didaftarkan</p>
         </div>
 
         {/* System & Users Status */}
@@ -197,7 +190,12 @@ export function AdminDashboardView({
       </div>
 
       {/* Admin Charts Section */}
-      <DashboardCharts categories={categoryData} statuses={statusData} totalCagaran={totalCagaran} overdueList={overdueList} />
+      <DashboardCharts
+        categories={categoryData}
+        statuses={statusData}
+        totalCagaran={totalCagaran}
+        overdueList={overdueList}
+      />
     </div>
   )
 }

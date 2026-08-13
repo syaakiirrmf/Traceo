@@ -11,14 +11,22 @@ export const metadata: Metadata = { title: 'Tanah MD (JV) — Land Registry' }
 
 export default async function TanahMDPage() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
-  const { data: userProfile } = await supabase.from('users').select('id, peranan').eq('auth_id', authUser.id).single()
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('id, peranan')
+    .eq('auth_id', authUser.id)
+    .single()
   if (!userProfile) redirect('/login')
 
   const { data: tanah } = await supabase
     .from('tanah_jv')
-    .select('id, negeri, daerah, bandar_mukim, tempat, no_lot, tarikh_daftar, no_hak_milik, luas_meter_persegi, anggaran_nilaian, catatan, dikemaskini_pada')
+    .select(
+      'id, negeri, daerah, bandar_mukim, tempat, no_lot, tarikh_daftar, no_hak_milik, luas_meter_persegi, anggaran_nilaian, catatan, dikemaskini_pada'
+    )
     .order('dicipta_pada', { ascending: true })
 
   const rows = tanah ?? []
@@ -40,9 +48,11 @@ export default async function TanahMDPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-Land Registration
-                </span>
-                <span className="text-xs text-[var(--color-text-tertiary)]">• {rows.length} Lots</span>
+                Land Registration
+              </span>
+              <span className="text-xs text-[var(--color-text-tertiary)]">
+                • {rows.length} Lots
+              </span>
             </div>
             <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
               Tanah MD (JV)
@@ -54,13 +64,21 @@ Land Registration
           {/* Summary Metric Band */}
           <div className="hidden md:flex items-center gap-5 text-xs bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-1.5 rounded-lg shadow-xs">
             <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Total Area</p>
-              <p className="font-mono font-bold text-[var(--color-text-primary)]">{formatArea(totalLuas)}</p>
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">
+                Total Area
+              </p>
+              <p className="font-mono font-bold text-[var(--color-text-primary)]">
+                {formatArea(totalLuas)}
+              </p>
             </div>
             <div className="h-6 w-px bg-[var(--color-border)]" />
             <div>
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">Collateral Value</p>
-              <p className="font-mono font-bold text-[var(--color-text-primary)]">{formatRM(totalNilaian)}</p>
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider">
+                Collateral Value
+              </p>
+              <p className="font-mono font-bold text-[var(--color-text-primary)]">
+                {formatRM(totalNilaian)}
+              </p>
             </div>
           </div>
 
@@ -69,8 +87,7 @@ Land Registration
               href="/dashboard/tanah-jv/tambah"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs whitespace-nowrap"
             >
-              <Plus size={14} />
-              + Add Land (JV)
+              <Plus size={14} />+ Add Land (JV)
             </Link>
           )}
         </div>

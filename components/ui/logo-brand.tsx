@@ -43,7 +43,8 @@ export function LogoBrand({
     default: 'text-[var(--color-text-primary)]',
     dark: 'text-slate-900',
     light: 'text-white',
-    gradient: 'bg-gradient-to-r from-[#0066FF] via-slate-800 to-slate-900 bg-clip-text text-transparent',
+    gradient:
+      'bg-gradient-to-r from-[#0066FF] via-slate-800 to-slate-900 bg-clip-text text-transparent',
   }
 
   const currentSize = sizeMap[size] || sizeMap.md
@@ -65,9 +66,22 @@ export function LogoBrand({
           {/* T-Stem Cutout */}
           <path d="M256 220 V380" stroke="#0066FF" strokeWidth="26" strokeLinecap="round" />
           {/* T-Crossbar Facet Cuts */}
-          <path d="M178 260 L256 304 L334 260" stroke="#0066FF" strokeWidth="26" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <path
+            d="M178 260 L256 304 L334 260"
+            stroke="#0066FF"
+            strokeWidth="26"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
           {/* Top Bar Accent */}
-          <path d="M190 176 H322" stroke="#0066FF" strokeWidth="22" strokeLinecap="round" fill="none" />
+          <path
+            d="M190 176 H322"
+            stroke="#0066FF"
+            strokeWidth="22"
+            strokeLinecap="round"
+            fill="none"
+          />
         </svg>
       </div>
       {showText && (

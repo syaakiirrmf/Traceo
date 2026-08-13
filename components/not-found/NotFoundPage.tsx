@@ -18,38 +18,58 @@ export default function NotFoundPage() {
     if (!menuOpen) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
+    return () => {
+      document.body.style.overflow = prev
+    }
   }, [menuOpen])
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col relative font-dm" style={{ background: '#060618' }}>
-
+    <div
+      className="w-full h-screen overflow-hidden flex flex-col relative font-dm"
+      style={{ background: '#060618' }}
+    >
       {/* ─────────────────────────────────────────────────────
           LAYER 1 — Ambient glow atmosphere (z-0)
       ───────────────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
         {/* centre glow */}
-        <div style={{
-          position: 'absolute', top: '15%', left: '50%',
-          transform: 'translateX(-50%)',
-          width: 700, height: 600,
-          background: 'radial-gradient(ellipse, rgba(0,102,255,0.22) 0%, rgba(96,177,255,0.06) 45%, transparent 72%)',
-          filter: 'blur(72px)',
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            top: '15%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 700,
+            height: 600,
+            background:
+              'radial-gradient(ellipse, rgba(0,102,255,0.22) 0%, rgba(96,177,255,0.06) 45%, transparent 72%)',
+            filter: 'blur(72px)',
+          }}
+        />
         {/* top-left leak */}
-        <div style={{
-          position: 'absolute', top: '-8%', left: '-4%',
-          width: 420, height: 380,
-          background: 'radial-gradient(ellipse, rgba(0,102,255,0.18) 0%, transparent 66%)',
-          filter: 'blur(56px)',
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            top: '-8%',
+            left: '-4%',
+            width: 420,
+            height: 380,
+            background: 'radial-gradient(ellipse, rgba(0,102,255,0.18) 0%, transparent 66%)',
+            filter: 'blur(56px)',
+          }}
+        />
         {/* bottom-right accent */}
-        <div style={{
-          position: 'absolute', bottom: '-6%', right: '-4%',
-          width: 460, height: 400,
-          background: 'radial-gradient(ellipse, rgba(96,177,255,0.12) 0%, transparent 60%)',
-          filter: 'blur(60px)',
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-6%',
+            right: '-4%',
+            width: 460,
+            height: 400,
+            background: 'radial-gradient(ellipse, rgba(96,177,255,0.12) 0%, transparent 60%)',
+            filter: 'blur(60px)',
+          }}
+        />
       </div>
 
       {/* ─────────────────────────────────────────────────────
@@ -113,14 +133,26 @@ export default function NotFoundPage() {
       ───────────────────────────────────────────────────── */}
       <nav className="relative z-30 flex items-center justify-between px-5 sm:px-8 md:px-14 py-4 sm:py-5 flex-shrink-0">
         {/* Logo */}
-        <Link href="/" transitionTypes={['nav-back']} className="flex items-center gap-2.5" style={{ textDecoration: 'none' }}>
+        <Link
+          href="/"
+          transitionTypes={['nav-back']}
+          className="flex items-center gap-2.5"
+          style={{ textDecoration: 'none' }}
+        >
           <div className="w-8 h-8 rounded-lg bg-[#0066FF] flex items-center justify-center shadow-[inset_0px_2px_4px_rgba(255,255,255,0.35),0_2px_8px_rgba(0,102,255,0.3)]">
             <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
               <path d="M7 1L1.5 4.5v5L7 13l5.5-3.5v-5L7 1z" fill="rgba(255,255,255,0.95)" />
-              <path d="M7 4.5v5M4.5 6L7 7.5 9.5 6" stroke="rgba(0,102,255,0.8)" strokeWidth="1.2" strokeLinecap="round" />
+              <path
+                d="M7 4.5v5M4.5 6L7 7.5 9.5 6"
+                stroke="rgba(0,102,255,0.8)"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
-          <span className="text-white font-fustat font-bold text-[15px] tracking-tight">Traceo</span>
+          <span className="text-white font-fustat font-bold text-[15px] tracking-tight">
+            Traceo
+          </span>
         </Link>
 
         {/* Desktop nav pills */}
@@ -189,7 +221,10 @@ export default function NotFoundPage() {
       {/* ─────────────────────────────────────────────────────
           LAYER 6 — Mobile menu drawer (z-50)
       ───────────────────────────────────────────────────── */}
-      <div className={`fixed inset-0 z-50 ${menuOpen ? '' : 'pointer-events-none'}`} aria-hidden={!menuOpen}>
+      <div
+        className={`fixed inset-0 z-50 ${menuOpen ? '' : 'pointer-events-none'}`}
+        aria-hidden={!menuOpen}
+      >
         {/* Backdrop */}
         <div
           onClick={() => setMenuOpen(false)}
@@ -201,16 +236,37 @@ export default function NotFoundPage() {
           style={{ background: 'linear-gradient(160deg, #102F2B 0%, #0a1a14 100%)' }}
         >
           {/* Drawer glow */}
-          <div className="pointer-events-none absolute inset-0" style={{
-            background: 'radial-gradient(ellipse at 80% 0%, rgba(13,148,136,0.18) 0%, transparent 55%)',
-          }} />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse at 80% 0%, rgba(13,148,136,0.18) 0%, transparent 55%)',
+            }}
+          />
 
           {/* Drawer header */}
           <div className="relative flex items-center justify-between px-6 py-5 border-b border-white/8">
-            <Link href="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)} style={{ textDecoration: 'none' }}>
+            <Link
+              href="/"
+              className="flex items-center gap-2.5"
+              onClick={() => setMenuOpen(false)}
+              style={{ textDecoration: 'none' }}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M12 2L3 7v10l9 5 9-5V7L12 2z" stroke="#0d9488" strokeWidth="1.6" strokeLinejoin="round" fill="rgba(13,148,136,0.15)" />
-                <path d="M12 7v10M7 9.5l5 2.5 5-2.5" stroke="#0d9488" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M12 2L3 7v10l9 5 9-5V7L12 2z"
+                  stroke="#0d9488"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                  fill="rgba(13,148,136,0.15)"
+                />
+                <path
+                  d="M12 7v10M7 9.5l5 2.5 5-2.5"
+                  stroke="#0d9488"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
               <span className="text-white font-bold text-base">Traceo</span>
             </Link>
@@ -225,7 +281,9 @@ export default function NotFoundPage() {
 
           {/* Drawer links */}
           <div className="relative flex flex-col gap-1.5 px-5 pt-5">
-            <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">Navigasi</p>
+            <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+              Navigasi
+            </p>
             {NAV_LINKS.map((link, i) => (
               <Link
                 key={link.label}
@@ -253,7 +311,6 @@ export default function NotFoundPage() {
           </div>
         </div>
       </div>
-
     </div>
   )
 }

@@ -41,9 +41,7 @@ export async function rateLimitAction(
 ): Promise<RateLimitResult> {
   const hdrs = await headers()
   const ip =
-    hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    hdrs.get('x-real-ip') ??
-    'unknown'
+    hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? hdrs.get('x-real-ip') ?? 'unknown'
   const bucket = userId ? `${scope}:${ip}:${userId}` : `${scope}:${ip}`
   return rateLimit(bucket, limit, windowSeconds)
 }

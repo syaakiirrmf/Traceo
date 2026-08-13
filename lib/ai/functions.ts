@@ -54,17 +54,13 @@ function safeNumber(v: unknown): number {
   return Number.isFinite(n) ? n : 0
 }
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /**
  * Terima sama ada UUID atau kod rujukan (cth "JV-007") dan pulangkan UUID.
  * Jika input bukan UUID, cari dalam jadual fasiliti melalui kod_rujukan.
  */
-async function resolveFasilitiId(
-  supabase: SupabaseClient,
-  input: string
-): Promise<string | null> {
+async function resolveFasilitiId(supabase: SupabaseClient, input: string): Promise<string | null> {
   if (UUID_RE.test(input)) return input
 
   const { data } = await supabase
@@ -111,9 +107,7 @@ export async function getFasilitiSummary(
     )
   }
 
-  const { data, error } = await query
-    .order('dicipta_pada', { ascending: false })
-    .limit(limit)
+  const { data, error } = await query.order('dicipta_pada', { ascending: false }).limit(limit)
 
   if (error) return { error: error.message }
 
@@ -177,7 +171,11 @@ export async function getSusulanTerkini(
 
   return {
     fasiliti: fasiliti
-      ? { kod_rujukan: fasiliti.kod_rujukan, nama_peminjam: fasiliti.nama_peminjam, status: fasiliti.status_fasiliti }
+      ? {
+          kod_rujukan: fasiliti.kod_rujukan,
+          nama_peminjam: fasiliti.nama_peminjam,
+          status: fasiliti.status_fasiliti,
+        }
       : null,
     susulan,
     jumlah: susulan.length,
