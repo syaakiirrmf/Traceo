@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI, type Content } from '@google/generative-ai'
 import { createClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/ratelimit'
 import { toolDeclarations, SYSTEM_PROMPT, AI_ROLE_SCOPE } from '@/lib/ai/tools'
 import { dispatchAiTool, type AiUserContext } from '@/lib/ai/functions'
 import { cleanAiResponse, detectStructuredRequest } from '@/lib/ai/postProcess'
@@ -37,6 +38,17 @@ export async function POST(request: NextRequest) {
     .single()
   if (!profile) {
     return NextResponse.json({ error: 'User profile not found' }, { status: 401 })
+  }
+
+  // ─── Rate limit: cap AI spend per user (Gemini is metered) ────────────────
+  const rl = await rateLimit(`chat:${profile.id}`, 30, 60)
+  if (!rl.ok) {
+    return NextResponse.json(
+      {
+        error: `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`,
+      },
+      { status: 429 }
+    )
   }
 
   let body: { messages?: ChatMessage[] }

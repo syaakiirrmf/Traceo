@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { hasPermission } from '@/lib/auth/permissions'
 import { TambahUserModal } from './TambahUserModal'
 import { UsersTable } from './UsersTable'
 import type { Metadata } from 'next'
@@ -17,7 +18,7 @@ export default async function UsersPage() {
     .eq('auth_id', authUser.id)
     .single()
 
-  if (!userProfile || userProfile.peranan !== 'admin') redirect('/dashboard')
+  if (!userProfile || !hasPermission(userProfile.peranan, 'urus_pengguna')) redirect('/dashboard')
 
   const { data: users } = await supabase
     .from('users')

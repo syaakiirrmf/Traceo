@@ -30,45 +30,44 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
     throw new Error('Access denied')
   }
 
-  const { data: susulan, error } = await supabase
-    .from('susulan')
-    .insert({
-      fasiliti_id: fasilitiId,
-      tarikh_susulan: formData.get('tarikh_susulan') as string,
-      catatan: formData.get('catatan') as string,
-      dicatat_oleh: userProfile.id,
-    })
-    .select('id')
-    .single()
+  const susulanId = crypto.randomUUID()
 
-  if (error) throw new Error(`Failed to save follow-up: ${error.message}`)
-
-  // Handle file uploads → Cloudinary
+  // Upload files to Cloudinary first (external side-effect — cannot be part of
+  // the DB transaction). If the DB transaction fails we compensate by deleting
+  // the uploaded files.
   const files = formData.getAll('lampiran') as File[]
+  const lampiran: { url_fail: string; jenis_fail: string; nama_asal: string }[] = []
   for (const file of files) {
     if (!file || file.size === 0) continue
 
     const validation = validateFile(file)
     if (!validation.valid) continue // skip invalid files
 
-    const uploaded = await uploadFile(file, `susulan/${susulan.id}`)
-    if (!uploaded) continue // skip failed uploads, don't abort susulan
-
-    await supabase.from('lampiran').insert({
-      susulan_id: susulan.id,
-      url_fail: uploaded.url,
-      jenis_fail: getFileType(file),
-      nama_asal: file.name,
-    })
+    const uploaded = await uploadFile(file, `susulan/${susulanId}`)
+    if (uploaded) {
+      lampiran.push({
+        url_fail: uploaded.url,
+        jenis_fail: getFileType(file),
+        nama_asal: file.name,
+      })
+    }
   }
 
-  // Audit log
-  await supabase.from('log_audit').insert({
-    user_id: userProfile.id,
-    tindakan: 'cipta_susulan',
-    entiti_jenis: 'susulan',
-    entiti_id: susulan.id,
+  // Atomic: susulan + lampiran + audit in a single transaction
+  const { error } = await supabase.rpc('traceo_tambah_susulan', {
+    p_id: susulanId,
+    p_fasiliti_id: fasilitiId,
+    p_tanah_id: null,
+    p_tarikh_susulan: formData.get('tarikh_susulan') as string,
+    p_catatan: formData.get('catatan') as string,
+    p_lampiran: lampiran.length > 0 ? lampiran : [],
   })
+
+  if (error) {
+    // Compensate external side-effect: remove uploaded files
+    await Promise.all(lampiran.map((l) => deleteFile(l.url_fail)))
+    throw new Error(`Failed to save follow-up: ${error.message}`)
+  }
 
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
   redirect(`/dashboard/fasiliti/${fasilitiId}`)
@@ -87,35 +86,15 @@ export async function editSusulan(
     throw new Error('Access denied')
   }
 
-  // Pegawai susulan only allowed to edit their own records
-  if (userProfile.peranan === 'pegawai_susulan') {
-    const { data: existing } = await supabase
-      .from('susulan')
-      .select('dicatat_oleh')
-      .eq('id', susulanId)
-      .single()
-
-    if (existing?.dicatat_oleh !== userProfile.id) {
-      throw new Error('Access denied: not your record')
-    }
-  }
-
-  const { error } = await supabase
-    .from('susulan')
-    .update({
-      tarikh_susulan: formData.get('tarikh_susulan') as string,
-      catatan: formData.get('catatan') as string,
-    })
-    .eq('id', susulanId)
+  // Ownership check for pegawai_susulan is enforced inside the transaction
+  // function via RLS (susulan_update policy). Atomic: update + audit.
+  const { error } = await supabase.rpc('traceo_edit_susulan', {
+    p_id: susulanId,
+    p_tarikh_susulan: formData.get('tarikh_susulan') as string,
+    p_catatan: formData.get('catatan') as string,
+  })
 
   if (error) throw new Error(`Failed to update: ${error.message}`)
-
-  await supabase.from('log_audit').insert({
-    user_id: userProfile.id,
-    tindakan: 'edit_susulan',
-    entiti_jenis: 'susulan',
-    entiti_id: susulanId,
-  })
 
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
   redirect(`/dashboard/fasiliti/${fasilitiId}`)
@@ -130,38 +109,16 @@ export async function padamSusulan(susulanId: string, fasilitiId: string) {
     throw new Error('Access denied')
   }
 
-  // Pegawai susulan only allowed to delete their own records
-  if (userProfile.peranan === 'pegawai_susulan') {
-    const { data: existing } = await supabase
-      .from('susulan')
-      .select('dicatat_oleh')
-      .eq('id', susulanId)
-      .single()
-
-    if (existing?.dicatat_oleh !== userProfile.id) {
-      throw new Error('Access denied: not your record')
-    }
-  }
-
-  // Delete associated lampiran from Cloudinary first
-  const { data: lampiranList } = await supabase
-    .from('lampiran')
-    .select('url_fail')
-    .eq('susulan_id', susulanId)
-
-  if (lampiranList?.length) {
-    await Promise.all(lampiranList.map((l) => deleteFile(l.url_fail)))
-  }
-
-  const { error } = await supabase.from('susulan').delete().eq('id', susulanId)
+  // Atomic: delete susulan (cascades lampiran) + audit in one transaction.
+  // Ownership for pegawai_susulan enforced via RLS inside the function.
+  const { data: lampiranUrls, error } = await supabase.rpc('traceo_padam_susulan', {
+    p_id: susulanId,
+  })
   if (error) throw new Error(`Failed to delete: ${error.message}`)
 
-  await supabase.from('log_audit').insert({
-    user_id: userProfile.id,
-    tindakan: 'padam_susulan',
-    entiti_jenis: 'susulan',
-    entiti_id: susulanId,
-  })
+  // Compensate external side-effect: remove Cloudinary files after commit
+  const urls: string[] = Array.isArray(lampiranUrls) ? lampiranUrls : []
+  await Promise.all(urls.map((u) => deleteFile(u)))
 
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
   return { ok: true as const }

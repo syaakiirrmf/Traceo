@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { hasPermission } from '@/lib/auth/permissions'
 import { AuditTable } from './AuditTable'
 import type { Metadata } from 'next'
 
@@ -16,7 +17,7 @@ export default async function AuditPage() {
     .eq('auth_id', authUser.id)
     .single()
 
-  if (!userProfile || userProfile.peranan !== 'admin') redirect('/dashboard')
+  if (!userProfile || !hasPermission(userProfile.peranan, 'lihat_audit_log')) redirect('/dashboard')
 
   const { data: logs } = await supabase
     .from('log_audit')

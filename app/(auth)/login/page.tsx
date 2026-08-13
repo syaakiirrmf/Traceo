@@ -2,12 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { LogoBrand } from '@/components/ui/logo-brand'
 
 export default function LoginPage() {
   const router = useRouter()
-  const supabase = createClient()
 
   const [emel, setEmel] = useState('')
   const [kataLaluan, setKataLaluan] = useState('')
@@ -19,13 +17,21 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: emel,
-      password: kataLaluan,
-    })
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emel, password: kataLaluan }),
+      })
 
-    if (error) {
-      setError('Invalid email or password. Please try again.')
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: 'Invalid email or password. Please try again.' }))
+        setError(data.error ?? 'Invalid email or password. Please try again.')
+        setLoading(false)
+        return
+      }
+    } catch {
+      setError('Network error. Please try again.')
       setLoading(false)
       return
     }

@@ -13,10 +13,12 @@ export async function kemaskiniProfil(formData: FormData) {
   const nama = formData.get('nama') as string
   if (!nama?.trim()) throw new Error('Name is required')
 
-  const { error } = await supabase
-    .from('users')
-    .update({ nama: nama.trim() })
-    .eq('auth_id', authUser.id)
+  // Route through SECURITY DEFINER function scoped to auth.uid().
+  // The plain users table only allows admin updates via RLS, so this
+  // dedicated function lets a user update their own profile safely.
+  const { error } = await supabase.rpc('traceo_kemaskini_profil', {
+    p_nama: nama,
+  })
 
   if (error) throw new Error(`Failed to update profile: ${error.message}`)
 

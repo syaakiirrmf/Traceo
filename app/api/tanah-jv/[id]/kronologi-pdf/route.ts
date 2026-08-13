@@ -25,7 +25,7 @@ export async function GET(
 
     if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
 
-    if (!['admin', 'pengurus'].includes(userProfile.peranan)) {
+    if (!['admin', 'pengurus', 'viewer'].includes(userProfile.peranan)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
