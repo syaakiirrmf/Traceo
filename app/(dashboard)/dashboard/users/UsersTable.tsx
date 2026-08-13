@@ -9,10 +9,14 @@ import { UserCheck, UserX } from 'lucide-react'
 import type { User } from '@/types'
 
 const ROLE_STYLES: Record<string, string> = {
-  admin: 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
-  pengurus: 'bg-[var(--color-brand-subtle)] text-[var(--color-brand)] border-[var(--color-brand-muted)]',
-  pegawai_susulan: 'bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border-[var(--color-border)]',
-  viewer: 'bg-[var(--color-surface-raised)] text-[var(--color-text-tertiary)] border-[var(--color-border)]',
+  admin:
+    'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
+  pengurus:
+    'bg-[var(--color-brand-subtle)] text-[var(--color-brand)] border-[var(--color-brand-muted)]',
+  pegawai_susulan:
+    'bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border-[var(--color-border)]',
+  viewer:
+    'bg-[var(--color-surface-raised)] text-[var(--color-text-tertiary)] border-[var(--color-border)]',
 }
 
 export function UsersTable({ users }: { users: User[] }) {
@@ -75,7 +79,10 @@ export function UsersTable({ users }: { users: User[] }) {
                 </tr>
               ) : (
                 visibleUsers.map((u: User) => (
-                  <tr key={u.id} className="hover:bg-[var(--color-surface-raised)]/50 transition-colors group">
+                  <tr
+                    key={u.id}
+                    className="hover:bg-[var(--color-surface-raised)]/50 transition-colors group"
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-[var(--color-brand-subtle)] flex items-center justify-center flex-shrink-0">
@@ -84,18 +91,24 @@ export function UsersTable({ users }: { users: User[] }) {
                           </span>
                         </div>
                         <div>
-                          <p className="font-semibold text-[var(--color-text-primary)] leading-snug">{u.nama}</p>
+                          <p className="font-semibold text-[var(--color-text-primary)] leading-snug">
+                            {u.nama}
+                          </p>
                           <p className="text-[11px] text-[var(--color-text-tertiary)]">{u.emel}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${ROLE_STYLES[u.peranan] ?? ''}`}>
+                      <span
+                        className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${ROLE_STYLES[u.peranan] ?? ''}`}
+                      >
                         {getRoleLabel(u.peranan)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${u.status === 'aktif' ? 'bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border-[var(--color-border)]' : 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30'}`}>
+                      <span
+                        className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${u.status === 'aktif' ? 'bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border-[var(--color-border)]' : 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30'}`}
+                      >
                         {u.status === 'aktif' ? 'Active' : 'Inactive'}
                       </span>
                     </td>

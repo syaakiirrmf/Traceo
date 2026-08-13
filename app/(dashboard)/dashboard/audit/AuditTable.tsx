@@ -87,7 +87,10 @@ export function AuditTable({ logs }: { logs: LogAudit[] }) {
                 </tr>
               ) : (
                 visibleLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-[var(--color-surface-raised)]/50 transition-colors group">
+                  <tr
+                    key={log.id}
+                    className="hover:bg-[var(--color-surface-raised)]/50 transition-colors group"
+                  >
                     <td className="px-4 py-3 text-[var(--color-text-tertiary)] whitespace-nowrap font-mono">
                       {formatDate(log.tarikh, 'dd/MM/yy HH:mm')}
                     </td>
@@ -105,7 +108,9 @@ export function AuditTable({ logs }: { logs: LogAudit[] }) {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                      <span className="font-mono text-xs font-semibold text-[var(--color-text-primary)]">{log.entiti_jenis}</span>
+                      <span className="font-mono text-xs font-semibold text-[var(--color-text-primary)]">
+                        {log.entiti_jenis}
+                      </span>
                       {log.butiran && (
                         <p className="text-[11px] mt-0.5 text-[var(--color-text-tertiary)] font-mono truncate max-w-xs">
                           {JSON.stringify(log.butiran)}

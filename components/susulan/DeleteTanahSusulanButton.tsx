@@ -13,7 +13,11 @@ interface DeleteTanahSusulanButtonProps {
   tarikh: string
 }
 
-export function DeleteTanahSusulanButton({ susulanId, tanahId, tarikh }: DeleteTanahSusulanButtonProps) {
+export function DeleteTanahSusulanButton({
+  susulanId,
+  tanahId,
+  tarikh,
+}: DeleteTanahSusulanButtonProps) {
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
@@ -27,7 +31,10 @@ export function DeleteTanahSusulanButton({ susulanId, tanahId, tarikh }: DeleteT
         router.refresh()
       } catch (err) {
         setOpen(false)
-        toast.error('Failed to delete follow-up', err instanceof Error ? err.message : 'Please try again.')
+        toast.error(
+          'Failed to delete follow-up',
+          err instanceof Error ? err.message : 'Please try again.'
+        )
       }
     })
   }

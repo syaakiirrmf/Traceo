@@ -16,7 +16,9 @@ const ROLE_DASHBOARD_CONFIG: Record<UserRole, { tabTitle: string }> = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) return { title: 'Dashboard' }
 
   const { data: userProfile } = await supabase
@@ -33,7 +35,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -50,10 +54,10 @@ export default async function DashboardPage() {
   const [{ data: allFasiliti }, { data: allTanah }] = await Promise.all([
     supabase
       .from('fasiliti')
-      .select('id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, jumlah_tunggakan_semasa, status_fasiliti, dicipta_pada'),
-    supabase
-      .from('tanah_jv')
-      .select('id, anggaran_nilaian'),
+      .select(
+        'id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, jumlah_tunggakan_semasa, status_fasiliti, dicipta_pada'
+      ),
+    supabase.from('tanah_jv').select('id, anggaran_nilaian'),
   ])
 
   const fasilitiList = (allFasiliti ?? []).map((f) => ({
@@ -116,9 +120,24 @@ export default async function DashboardPage() {
 
   const statusData = [
     { label: 'Active', key: 'aktif', count: statusCounts.aktif, color: 'var(--color-brand)' },
-    { label: 'Overdue', key: 'tertunggak', count: statusCounts.tertunggak, color: 'var(--color-warning)' },
-    { label: 'Legal Action', key: 'tindakan_guaman', count: statusCounts.tindakan_guaman, color: 'var(--color-danger)' },
-    { label: 'Completed', key: 'selesai', count: statusCounts.selesai, color: 'var(--color-text-tertiary)' },
+    {
+      label: 'Overdue',
+      key: 'tertunggak',
+      count: statusCounts.tertunggak,
+      color: 'var(--color-warning)',
+    },
+    {
+      label: 'Legal Action',
+      key: 'tindakan_guaman',
+      count: statusCounts.tindakan_guaman,
+      color: 'var(--color-danger)',
+    },
+    {
+      label: 'Completed',
+      key: 'selesai',
+      count: statusCounts.selesai,
+      color: 'var(--color-text-tertiary)',
+    },
   ]
 
   // Overdue list
@@ -130,10 +149,7 @@ export default async function DashboardPage() {
   // ─── 1. OFFICER DASHBOARD VIEW ──────────────────────────────────────────────
   if (userRole === 'pegawai_susulan') {
     const [{ data: assignedRows }, { data: officerSusulan }] = await Promise.all([
-      supabase
-        .from('fasiliti_pegawai')
-        .select('fasiliti_id')
-        .eq('user_id', currentUser.id),
+      supabase.from('fasiliti_pegawai').select('fasiliti_id').eq('user_id', currentUser.id),
       supabase
         .from('susulan')
         .select('id, fasiliti_id, tarikh_susulan, catatan')

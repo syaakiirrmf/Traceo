@@ -9,7 +9,9 @@ import { rateLimitAction } from '@/lib/ratelimit'
 
 async function getCurrentUser() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) throw new Error('Not logged in')
 
   const { data: userProfile } = await supabase
@@ -83,11 +85,7 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
 
 // ─── Edit Susulan ────────────────────────────────────────────────────────────
 
-export async function editSusulan(
-  susulanId: string,
-  fasilitiId: string,
-  formData: FormData
-) {
+export async function editSusulan(susulanId: string, fasilitiId: string, formData: FormData) {
   const { supabase, userProfile } = await getCurrentUser()
 
   if (!hasPermission(userProfile.peranan, 'edit_susulan_sendiri')) {

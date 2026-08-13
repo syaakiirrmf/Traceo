@@ -15,7 +15,9 @@ export default async function TambahFasilitiPage({
 }) {
   const { kategori } = await searchParams
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -54,7 +56,12 @@ export default async function TambahFasilitiPage({
         </div>
       </div>
 
-      <TambahFasilitiForm pegawaiList={pegawaiList ?? []} defaultKategori={(kategori as 'jv_syarikat' | 'jv_tanah' | 'pinjaman_individu') || 'jv_syarikat'} />
+      <TambahFasilitiForm
+        pegawaiList={pegawaiList ?? []}
+        defaultKategori={
+          (kategori as 'jv_syarikat' | 'jv_tanah' | 'pinjaman_individu') || 'jv_syarikat'
+        }
+      />
     </div>
   )
 }

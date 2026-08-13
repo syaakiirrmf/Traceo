@@ -27,7 +27,10 @@ export function DeleteSusulanButton({ susulanId, fasilitiId, tarikh }: DeleteSus
         router.refresh()
       } catch (err) {
         setOpen(false)
-        toast.error('Failed to delete follow-up', err instanceof Error ? err.message : 'Please try again.')
+        toast.error(
+          'Failed to delete follow-up',
+          err instanceof Error ? err.message : 'Please try again.'
+        )
       }
     })
   }

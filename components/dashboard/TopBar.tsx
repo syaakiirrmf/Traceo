@@ -24,7 +24,10 @@ export function TopBar({ user, onMenuToggle }: TopBarProps) {
           </button>
         )}
         <div id="topbar-title" className="text-sm font-medium text-slate-600 truncate">
-          Welcome, <span className="font-fustat font-extrabold text-slate-900">{user.nama.split(' ')[0]}</span>
+          Welcome,{' '}
+          <span className="font-fustat font-extrabold text-slate-900">
+            {user.nama.split(' ')[0]}
+          </span>
         </div>
       </div>
 

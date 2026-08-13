@@ -15,7 +15,9 @@ export default async function EditSusulanPage({
   const { id, susulanId } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -35,10 +37,7 @@ export default async function EditSusulanPage({
   if (!susulan) notFound()
 
   // Pegawai susulan only allowed to edit their own records
-  if (
-    userProfile.peranan === 'pegawai_susulan' &&
-    susulan.dicatat_oleh !== userProfile.id
-  ) {
+  if (userProfile.peranan === 'pegawai_susulan' && susulan.dicatat_oleh !== userProfile.id) {
     redirect(`/dashboard/fasiliti/${id}`)
   }
 
@@ -65,7 +64,8 @@ export default async function EditSusulanPage({
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
             <span className="font-mono text-[var(--color-brand)]">{fasiliti?.kod_rujukan}</span>
-            {' · '}{fasiliti?.nama_peminjam}
+            {' · '}
+            {fasiliti?.nama_peminjam}
           </p>
         </div>
       </div>

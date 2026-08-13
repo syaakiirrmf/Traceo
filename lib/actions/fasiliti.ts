@@ -8,7 +8,9 @@ import { rateLimitAction } from '@/lib/ratelimit'
 
 async function getCurrentUser() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) throw new Error('Not logged in')
 
   const { data: userProfile } = await supabase
@@ -57,7 +59,8 @@ export async function tambahFasiliti(formData: FormData) {
     jumlah_tunggakan_semasa = jumlah_pembiayaan + bayaran_tambahan
   } else if (kategori === 'jv_tanah') {
     // JV2: E = A + B + C + D (A=modal, B=perkongsian_keuntungan, C=tunggakan_dividen, D=bayaran_tambahan)
-    jumlah_tunggakan_semasa = jumlah_pembiayaan + perkongsian_keuntungan + tunggakan_dividen + bayaran_tambahan
+    jumlah_tunggakan_semasa =
+      jumlah_pembiayaan + perkongsian_keuntungan + tunggakan_dividen + bayaran_tambahan
   } else {
     // JV1: E = A + B + C + D (A=modal, B=tunggakan_dividen, C=caj_lewat, D=bayaran_tambahan)
     jumlah_tunggakan_semasa = jumlah_pembiayaan + tunggakan_dividen + caj_lewat + bayaran_tambahan
@@ -131,7 +134,8 @@ export async function editFasiliti(fasilitiId: string, formData: FormData) {
   } else if (kategori === 'pinjaman_individu') {
     jumlah_tunggakan_semasa = jumlah_pembiayaan + bayaran_tambahan
   } else if (kategori === 'jv_tanah') {
-    jumlah_tunggakan_semasa = jumlah_pembiayaan + perkongsian_keuntungan + tunggakan_dividen + bayaran_tambahan
+    jumlah_tunggakan_semasa =
+      jumlah_pembiayaan + perkongsian_keuntungan + tunggakan_dividen + bayaran_tambahan
   } else {
     jumlah_tunggakan_semasa = jumlah_pembiayaan + tunggakan_dividen + caj_lewat + bayaran_tambahan
   }

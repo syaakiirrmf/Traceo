@@ -137,20 +137,27 @@ const styles = StyleSheet.create({
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(d: string, fmt = 'dd MMMM yyyy') {
-  try { return format(parseISO(d), fmt) }
-  catch { return d }
+  try {
+    return format(parseISO(d), fmt)
+  } catch {
+    return d
+  }
 }
 
 function fmtCurrency(n: number) {
   return new Intl.NumberFormat('ms-MY', { style: 'currency', currency: 'MYR' }).format(n)
 }
 
-
 const KATEGORI: Record<string, string> = {
-  jv_syarikat: 'Corporate JV', jv_tanah: 'Land JV', pinjaman_individu: 'Individual Loan',
+  jv_syarikat: 'Corporate JV',
+  jv_tanah: 'Land JV',
+  pinjaman_individu: 'Individual Loan',
 }
 const STATUS: Record<string, string> = {
-  aktif: 'Active', tertunggak: 'Overdue', tindakan_guaman: 'Legal Action', selesai: 'Completed',
+  aktif: 'Active',
+  tertunggak: 'Overdue',
+  tindakan_guaman: 'Legal Action',
+  selesai: 'Completed',
 }
 
 // ─── PDF Document Component ───────────────────────────────────────────────────
@@ -177,14 +184,14 @@ interface FasilitiData {
   nilai_cagaran?: number | null
   // ─── Excel Fields ───────────────────────────────────
   kadar_dividen?: string | null
-  perkongsian_keuntungan?: number      // B for JV2
+  perkongsian_keuntungan?: number // B for JV2
   tunggakan_dividen?: number
   caj_lewat?: number
   bayaran_tambahan?: number
   penama_aset?: string | null
   status_pindahmilik?: string | null
   nama_kontraktor?: string | null
-  harga_jualan?: string | null         // text e.g. "400,000 - BUNGALOW"
+  harga_jualan?: string | null // text e.g. "400,000 - BUNGALOW"
   tahun_projek?: number | null
 }
 
@@ -206,27 +213,72 @@ export function KronologiPDF({ fasiliti, susulan }: KronologiPDFProps) {
     { label: 'Category', value: KATEGORI[fasiliti.kategori] ?? fasiliti.kategori },
     { label: 'Status', value: STATUS[fasiliti.status_fasiliti] ?? fasiliti.status_fasiliti },
     { label: 'Start Date', value: fmtDate(fasiliti.tarikh_mula) },
-    ...(fasiliti.tarikh_tamat ? [{ label: 'End Date', value: fmtDate(fasiliti.tarikh_tamat) }] : []),
+    ...(fasiliti.tarikh_tamat
+      ? [{ label: 'End Date', value: fmtDate(fasiliti.tarikh_tamat) }]
+      : []),
     // Maklumat Pembiayaan Modal
     { label: 'Total Capital Financing (RM) — A', value: fmtCurrency(fasiliti.jumlah_pembiayaan) },
-    ...(isJV1 && fasiliti.kadar_dividen ? [{ label: 'Profit Share Dividends', value: fasiliti.kadar_dividen }] : []),
-    ...(isJV3 && fasiliti.kadar_dividen ? [{ label: 'Profit Sharing', value: fasiliti.kadar_dividen }] : []),
-    ...(isJV2 && (fasiliti.perkongsian_keuntungan ?? 0) > 0 ? [{ label: 'Profit Sharing (RM) — B', value: fmtCurrency(fasiliti.perkongsian_keuntungan!) }] : []),
-    ...(isJV3 && (fasiliti.bayaran_tambahan ?? 0) > 0 ? [{ label: 'Additional Payment (RM) — B', value: fmtCurrency(fasiliti.bayaran_tambahan!) }] : []),
+    ...(isJV1 && fasiliti.kadar_dividen
+      ? [{ label: 'Profit Share Dividends', value: fasiliti.kadar_dividen }]
+      : []),
+    ...(isJV3 && fasiliti.kadar_dividen
+      ? [{ label: 'Profit Sharing', value: fasiliti.kadar_dividen }]
+      : []),
+    ...(isJV2 && (fasiliti.perkongsian_keuntungan ?? 0) > 0
+      ? [{ label: 'Profit Sharing (RM) — B', value: fmtCurrency(fasiliti.perkongsian_keuntungan!) }]
+      : []),
+    ...(isJV3 && (fasiliti.bayaran_tambahan ?? 0) > 0
+      ? [{ label: 'Additional Payment (RM) — B', value: fmtCurrency(fasiliti.bayaran_tambahan!) }]
+      : []),
     // Maklumat Tunggakan & Bayaran
-    ...(isJV1 && (fasiliti.tunggakan_dividen ?? 0) > 0 ? [{ label: 'Dividend Arrears (RM) — B', value: fmtCurrency(fasiliti.tunggakan_dividen!) }] : []),
-    ...(isJV1 && (fasiliti.caj_lewat ?? 0) > 0 ? [{ label: 'Late Charge (RM) — C', value: fmtCurrency(fasiliti.caj_lewat!) }] : []),
-    ...(isJV1 && (fasiliti.bayaran_tambahan ?? 0) > 0 ? [{ label: 'Additional Payment (RM) — D', value: fmtCurrency(fasiliti.bayaran_tambahan!) }] : []),
-    ...(isJV2 && (fasiliti.tunggakan_dividen ?? 0) > 0 ? [{ label: 'Profit Sharing Arrears (RM) — C', value: fmtCurrency(fasiliti.tunggakan_dividen!) }] : []),
-    ...(isJV2 && (fasiliti.bayaran_tambahan ?? 0) > 0 ? [{ label: 'Additional Payment (RM) — D', value: fmtCurrency(fasiliti.bayaran_tambahan!) }] : []),
-    ...(isJV2 && fasiliti.tahun_projek ? [{ label: 'Project Year', value: String(fasiliti.tahun_projek) }] : []),
-    { label: isJV3 ? 'Total Arrears (RM) — C (A + B)' : 'Total Arrears (RM) — E', value: fmtCurrency(fasiliti.jumlah_tunggakan_semasa) },
+    ...(isJV1 && (fasiliti.tunggakan_dividen ?? 0) > 0
+      ? [{ label: 'Dividend Arrears (RM) — B', value: fmtCurrency(fasiliti.tunggakan_dividen!) }]
+      : []),
+    ...(isJV1 && (fasiliti.caj_lewat ?? 0) > 0
+      ? [{ label: 'Late Charge (RM) — C', value: fmtCurrency(fasiliti.caj_lewat!) }]
+      : []),
+    ...(isJV1 && (fasiliti.bayaran_tambahan ?? 0) > 0
+      ? [{ label: 'Additional Payment (RM) — D', value: fmtCurrency(fasiliti.bayaran_tambahan!) }]
+      : []),
+    ...(isJV2 && (fasiliti.tunggakan_dividen ?? 0) > 0
+      ? [
+          {
+            label: 'Profit Sharing Arrears (RM) — C',
+            value: fmtCurrency(fasiliti.tunggakan_dividen!),
+          },
+        ]
+      : []),
+    ...(isJV2 && (fasiliti.bayaran_tambahan ?? 0) > 0
+      ? [{ label: 'Additional Payment (RM) — D', value: fmtCurrency(fasiliti.bayaran_tambahan!) }]
+      : []),
+    ...(isJV2 && fasiliti.tahun_projek
+      ? [{ label: 'Project Year', value: String(fasiliti.tahun_projek) }]
+      : []),
+    {
+      label: isJV3 ? 'Total Arrears (RM) — C (A + B)' : 'Total Arrears (RM) — E',
+      value: fmtCurrency(fasiliti.jumlah_tunggakan_semasa),
+    },
     // Collateral / Hartanah
-    ...(fasiliti.ringkasan_cagaran ? [{ label: isJV2 ? 'Type / Location (Property)' : 'Type / Location / Collateral Asset Value', value: fasiliti.ringkasan_cagaran }] : []),
-    ...(fasiliti.nilai_cagaran ? [{ label: 'Estimated Value (RM)', value: fmtCurrency(fasiliti.nilai_cagaran) }] : []),
+    ...(fasiliti.ringkasan_cagaran
+      ? [
+          {
+            label: isJV2
+              ? 'Type / Location (Property)'
+              : 'Type / Location / Collateral Asset Value',
+            value: fasiliti.ringkasan_cagaran,
+          },
+        ]
+      : []),
+    ...(fasiliti.nilai_cagaran
+      ? [{ label: 'Estimated Value (RM)', value: fmtCurrency(fasiliti.nilai_cagaran) }]
+      : []),
     ...(fasiliti.penama_aset ? [{ label: 'Asset Nominee', value: fasiliti.penama_aset }] : []),
-    ...(fasiliti.status_pindahmilik ? [{ label: 'Transfer / Asset Sale Status', value: fasiliti.status_pindahmilik }] : []),
-    ...(isJV2 && fasiliti.harga_jualan ? [{ label: 'Sale Price / Type', value: fasiliti.harga_jualan }] : []),
+    ...(fasiliti.status_pindahmilik
+      ? [{ label: 'Transfer / Asset Sale Status', value: fasiliti.status_pindahmilik }]
+      : []),
+    ...(isJV2 && fasiliti.harga_jualan
+      ? [{ label: 'Sale Price / Type', value: fasiliti.harga_jualan }]
+      : []),
   ]
 
   return (
@@ -255,9 +307,7 @@ export function KronologiPDF({ fasiliti, susulan }: KronologiPDFProps) {
         </View>
 
         {/* Susulan entries */}
-        <Text style={styles.sectionTitle}>
-          Follow-up Chronology ({susulan.length} records)
-        </Text>
+        <Text style={styles.sectionTitle}>Follow-up Chronology ({susulan.length} records)</Text>
 
         {susulan.length === 0 ? (
           <Text style={styles.noData}>No follow-up records.</Text>
@@ -265,7 +315,7 @@ export function KronologiPDF({ fasiliti, susulan }: KronologiPDFProps) {
           susulan.map((s, i) => (
             <View key={s.id} style={styles.timelineItem}>
               <Text style={styles.timelineDate}>
-                {i + 1}.  {fmtDate(s.tarikh_susulan)}
+                {i + 1}. {fmtDate(s.tarikh_susulan)}
               </Text>
               <Text style={styles.timelineCatatan}>{s.catatan}</Text>
               {s.lampiran?.map((l) =>
@@ -278,9 +328,7 @@ export function KronologiPDF({ fasiliti, susulan }: KronologiPDFProps) {
                   </Text>
                 )
               )}
-              <Text style={styles.timelineBy}>
-                Recorded by: {s.dicatat_oleh_user?.nama ?? '—'}
-              </Text>
+              <Text style={styles.timelineBy}>Recorded by: {s.dicatat_oleh_user?.nama ?? '—'}</Text>
             </View>
           ))
         )}

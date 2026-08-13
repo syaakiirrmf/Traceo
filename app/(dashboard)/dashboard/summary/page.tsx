@@ -10,7 +10,9 @@ export const metadata: Metadata = { title: 'Summary — JV' }
 export default async function SummaryIndexPage() {
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -35,9 +37,7 @@ export default async function SummaryIndexPage() {
         .from('fasiliti')
         .select('id, jumlah_pembiayaan, jumlah_tunggakan_semasa')
         .eq('kategori', 'pinjaman_individu'),
-      supabase
-        .from('tanah_jv')
-        .select('id, anggaran_nilaian, luas_meter_persegi'),
+      supabase.from('tanah_jv').select('id, anggaran_nilaian, luas_meter_persegi'),
     ])
 
   const jv1 = jv1Data ?? []
@@ -58,7 +58,11 @@ export default async function SummaryIndexPage() {
       hasArrears: sum(jv1, 'jumlah_tunggakan_semasa') > 0,
       stats: [
         { label: 'Total Financing', value: formatCurrency(sum(jv1, 'jumlah_pembiayaan')) },
-        { label: 'Total Arrears', value: formatCurrency(sum(jv1, 'jumlah_tunggakan_semasa')), isArrears: sum(jv1, 'jumlah_tunggakan_semasa') > 0 },
+        {
+          label: 'Total Arrears',
+          value: formatCurrency(sum(jv1, 'jumlah_tunggakan_semasa')),
+          isArrears: sum(jv1, 'jumlah_tunggakan_semasa') > 0,
+        },
       ],
     },
     {
@@ -70,7 +74,11 @@ export default async function SummaryIndexPage() {
       hasArrears: sum(jv2, 'jumlah_tunggakan_semasa') > 0,
       stats: [
         { label: 'Total Financing', value: formatCurrency(sum(jv2, 'jumlah_pembiayaan')) },
-        { label: 'Total Arrears', value: formatCurrency(sum(jv2, 'jumlah_tunggakan_semasa')), isArrears: sum(jv2, 'jumlah_tunggakan_semasa') > 0 },
+        {
+          label: 'Total Arrears',
+          value: formatCurrency(sum(jv2, 'jumlah_tunggakan_semasa')),
+          isArrears: sum(jv2, 'jumlah_tunggakan_semasa') > 0,
+        },
       ],
     },
     {
@@ -82,7 +90,11 @@ export default async function SummaryIndexPage() {
       hasArrears: sum(jv3, 'jumlah_tunggakan_semasa') > 0,
       stats: [
         { label: 'Total Financing', value: formatCurrency(sum(jv3, 'jumlah_pembiayaan')) },
-        { label: 'Total Arrears', value: formatCurrency(sum(jv3, 'jumlah_tunggakan_semasa')), isArrears: sum(jv3, 'jumlah_tunggakan_semasa') > 0 },
+        {
+          label: 'Total Arrears',
+          value: formatCurrency(sum(jv3, 'jumlah_tunggakan_semasa')),
+          isArrears: sum(jv3, 'jumlah_tunggakan_semasa') > 0,
+        },
       ],
     },
     {
@@ -111,9 +123,7 @@ export default async function SummaryIndexPage() {
         <h1 className="text-2xl font-fustat font-black tracking-tight text-slate-900">
           JV &amp; Land Financing Summary
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Select a table category to view full details.
-        </p>
+        <p className="text-xs text-slate-500 mt-1">Select a table category to view full details.</p>
       </div>
 
       {/* Modern Typography-First Cards Grid */}
@@ -141,19 +151,25 @@ export default async function SummaryIndexPage() {
             <div className="space-y-1">
               <h2 className="text-lg font-fustat font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors flex items-center justify-between">
                 <span>{card.title}</span>
-                <ArrowRight size={15} className="text-slate-400 group-hover:text-[#0066FF] group-hover:translate-x-1 transition-all" />
+                <ArrowRight
+                  size={15}
+                  className="text-slate-400 group-hover:text-[#0066FF] group-hover:translate-x-1 transition-all"
+                />
               </h2>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                {card.description}
-              </p>
+              <p className="text-xs text-slate-500 leading-relaxed">{card.description}</p>
             </div>
 
             {/* Minimal Stat Band */}
             <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-xs">
               {card.stats.map((s) => (
                 <div key={s.label} className="min-w-0">
-                  <p className="text-[10px] uppercase font-bold text-slate-400 truncate">{s.label}</p>
-                  <p className={`font-fustat font-bold truncate text-sm mt-0.5 ${s.isArrears ? 'text-red-600' : 'text-slate-900'}`} title={s.value}>
+                  <p className="text-[10px] uppercase font-bold text-slate-400 truncate">
+                    {s.label}
+                  </p>
+                  <p
+                    className={`font-fustat font-bold truncate text-sm mt-0.5 ${s.isArrears ? 'text-red-600' : 'text-slate-900'}`}
+                    title={s.value}
+                  >
                     {s.value}
                   </p>
                 </div>
@@ -170,24 +186,51 @@ export default async function SummaryIndexPage() {
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Total Facilities</p>
-            <p className="font-mono font-bold text-[var(--color-text-primary)] truncate">{jv1.length + jv2.length + jv3.length} Records</p>
-          </div>
-          <div className="min-w-0">
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Total Financing</p>
-            <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatCurrency(sum(jv1, 'jumlah_pembiayaan') + sum(jv2, 'jumlah_pembiayaan') + sum(jv3, 'jumlah_pembiayaan'))}>
-              {formatCurrency(sum(jv1, 'jumlah_pembiayaan') + sum(jv2, 'jumlah_pembiayaan') + sum(jv3, 'jumlah_pembiayaan'))}
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">
+              Total Facilities
+            </p>
+            <p className="font-mono font-bold text-[var(--color-text-primary)] truncate">
+              {jv1.length + jv2.length + jv3.length} Records
             </p>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Total Arrears</p>
-            <p className={`font-mono font-bold truncate ${totalTunggakanKeseluruhan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`} title={formatCurrency(totalTunggakanKeseluruhan)}>
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">
+              Total Financing
+            </p>
+            <p
+              className="font-mono font-bold text-[var(--color-text-primary)] truncate"
+              title={formatCurrency(
+                sum(jv1, 'jumlah_pembiayaan') +
+                  sum(jv2, 'jumlah_pembiayaan') +
+                  sum(jv3, 'jumlah_pembiayaan')
+              )}
+            >
+              {formatCurrency(
+                sum(jv1, 'jumlah_pembiayaan') +
+                  sum(jv2, 'jumlah_pembiayaan') +
+                  sum(jv3, 'jumlah_pembiayaan')
+              )}
+            </p>
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">
+              Total Arrears
+            </p>
+            <p
+              className={`font-mono font-bold truncate ${totalTunggakanKeseluruhan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}
+              title={formatCurrency(totalTunggakanKeseluruhan)}
+            >
               {formatCurrency(totalTunggakanKeseluruhan)}
             </p>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">Collateral Value (Land)</p>
-            <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatCurrency(sum(tanah, 'anggaran_nilaian'))}>
+            <p className="text-[10px] uppercase text-[var(--color-text-tertiary)] truncate">
+              Collateral Value (Land)
+            </p>
+            <p
+              className="font-mono font-bold text-[var(--color-text-primary)] truncate"
+              title={formatCurrency(sum(tanah, 'anggaran_nilaian'))}
+            >
               {formatCurrency(sum(tanah, 'anggaran_nilaian'))}
             </p>
           </div>

@@ -25,7 +25,9 @@ export default function LoginPage() {
       })
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: 'Invalid email or password. Please try again.' }))
+        const data = await res
+          .json()
+          .catch(() => ({ error: 'Invalid email or password. Please try again.' }))
         setError(data.error ?? 'Invalid email or password. Please try again.')
         setLoading(false)
         return
@@ -49,12 +51,8 @@ export default function LoginPage() {
 
       {/* Header */}
       <div className="space-y-1.5">
-        <h2 className="text-2xl font-fustat font-black tracking-tight text-slate-900">
-          Sign in
-        </h2>
-        <p className="text-sm text-slate-500 font-dm">
-          Enter your credentials to continue
-        </p>
+        <h2 className="text-2xl font-fustat font-black tracking-tight text-slate-900">Sign in</h2>
+        <p className="text-sm text-slate-500 font-dm">Enter your credentials to continue</p>
       </div>
 
       {/* Form */}
@@ -112,8 +110,13 @@ export default function LoginPage() {
               fill="none"
               className="flex-shrink-0 mt-[1px]"
             >
-              <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M8 5v3.5M8 11h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+              <path
+                d="M8 5v3.5M8 11h.01"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
             {error}
           </div>
@@ -127,13 +130,7 @@ export default function LoginPage() {
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
-              <svg
-                className="animate-spin"
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-              >
+              <svg className="animate-spin" width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <circle
                   cx="7"
                   cy="7"

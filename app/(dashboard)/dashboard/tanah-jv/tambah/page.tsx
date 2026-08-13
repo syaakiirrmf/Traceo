@@ -10,7 +10,9 @@ export const metadata: Metadata = { title: 'Add Land Parcel' }
 
 export default async function TambahTanahJVPage() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -50,7 +52,12 @@ export default async function TambahTanahJVPage() {
             <Field label="District" name="daerah" required placeholder="e.g. Seremban" />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Town / Village / Mukim" name="bandar_mukim" required placeholder="e.g. Mukim Tuk Jamal" />
+            <Field
+              label="Town / Village / Mukim"
+              name="bandar_mukim"
+              required
+              placeholder="e.g. Mukim Tuk Jamal"
+            />
             <Field label="Location" name="tempat" required placeholder="e.g. Gemencheh" />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -63,8 +70,22 @@ export default async function TambahTanahJVPage() {
         {/* Luas & Nilaian */}
         <Section title="Area &amp; Valuation">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Area (m²)" name="luas_meter_persegi" type="number" placeholder="0.0000" step="0.0001" min="0" />
-            <Field label="Collateral Value (RM)" name="anggaran_nilaian" type="number" placeholder="0.00" step="0.01" min="0" />
+            <Field
+              label="Area (m²)"
+              name="luas_meter_persegi"
+              type="number"
+              placeholder="0.0000"
+              step="0.0001"
+              min="0"
+            />
+            <Field
+              label="Collateral Value (RM)"
+              name="anggaran_nilaian"
+              type="number"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+            />
           </div>
         </Section>
 
@@ -109,8 +130,22 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function Field({ label, name, type = 'text', required, placeholder, step, min }: {
-  label: string; name: string; type?: string; required?: boolean; placeholder?: string; step?: string; min?: string
+function Field({
+  label,
+  name,
+  type = 'text',
+  required,
+  placeholder,
+  step,
+  min,
+}: {
+  label: string
+  name: string
+  type?: string
+  required?: boolean
+  placeholder?: string
+  step?: string
+  min?: string
 }) {
   return (
     <div className="space-y-1.5">

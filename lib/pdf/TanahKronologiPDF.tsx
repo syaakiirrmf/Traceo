@@ -124,8 +124,11 @@ const styles = StyleSheet.create({
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(d: string, fmt = 'dd MMMM yyyy') {
-  try { return format(parseISO(d), fmt) }
-  catch { return d }
+  try {
+    return format(parseISO(d), fmt)
+  } catch {
+    return d
+  }
 }
 
 function fmtCurrency(n: number | null | undefined) {
@@ -188,7 +191,8 @@ export function TanahKronologiPDF({ tanah, susulan }: TanahKronologiPDFProps) {
           <Text style={styles.confidential}>Strictly Confidential</Text>
           <Text style={styles.title}>FOLLOW-UP CHRONOLOGY</Text>
           <Text style={styles.subtitle}>
-            No. Lot {tanah.no_lot} — {[tanah.bandar_mukim, tanah.daerah, tanah.negeri].filter(Boolean).join(', ')}
+            No. Lot {tanah.no_lot} —{' '}
+            {[tanah.bandar_mukim, tanah.daerah, tanah.negeri].filter(Boolean).join(', ')}
           </Text>
         </View>
 
@@ -211,9 +215,7 @@ export function TanahKronologiPDF({ tanah, susulan }: TanahKronologiPDFProps) {
           </View>
         )}
 
-        <Text style={styles.sectionTitle}>
-          Follow-up Chronology ({susulan.length} records)
-        </Text>
+        <Text style={styles.sectionTitle}>Follow-up Chronology ({susulan.length} records)</Text>
 
         {susulan.length === 0 ? (
           <Text style={styles.noData}>No follow-up records.</Text>
@@ -221,7 +223,7 @@ export function TanahKronologiPDF({ tanah, susulan }: TanahKronologiPDFProps) {
           susulan.map((s, i) => (
             <View key={s.id} style={styles.timelineItem}>
               <Text style={styles.timelineDate}>
-                {i + 1}.  {fmtDate(s.tarikh_susulan)}
+                {i + 1}. {fmtDate(s.tarikh_susulan)}
               </Text>
               <Text style={styles.timelineCatatan}>{s.catatan}</Text>
               {s.lampiran?.map((l) =>
@@ -234,9 +236,7 @@ export function TanahKronologiPDF({ tanah, susulan }: TanahKronologiPDFProps) {
                   </Text>
                 )
               )}
-              <Text style={styles.timelineBy}>
-                Recorded by: {s.dicatat_oleh_user?.nama ?? '—'}
-              </Text>
+              <Text style={styles.timelineBy}>Recorded by: {s.dicatat_oleh_user?.nama ?? '—'}</Text>
             </View>
           ))
         )}

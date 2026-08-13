@@ -2,8 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 import {
-  Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell,
-  HeadingLevel, AlignmentType, WidthType,
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  ImageRun,
+  Table,
+  TableRow,
+  TableCell,
+  HeadingLevel,
+  AlignmentType,
+  WidthType,
 } from 'docx'
 import sharp from 'sharp'
 import { format, parseISO } from 'date-fns'
@@ -12,8 +21,11 @@ import { enGB } from 'date-fns/locale'
 const MAX_IMAGE_WIDTH = 460 // px — fits A4 width minus margins/indent
 
 function fmtDate(d: string) {
-  try { return format(parseISO(d), 'dd MMMM yyyy', { locale: enGB }) }
-  catch { return d }
+  try {
+    return format(parseISO(d), 'dd MMMM yyyy', { locale: enGB })
+  } catch {
+    return d
+  }
 }
 
 function fmtCurrency(n: number) {
@@ -21,10 +33,15 @@ function fmtCurrency(n: number) {
 }
 
 const KATEGORI: Record<string, string> = {
-  jv_syarikat: 'Corporate JV', jv_tanah: 'Land JV', pinjaman_individu: 'Individual Loan',
+  jv_syarikat: 'Corporate JV',
+  jv_tanah: 'Land JV',
+  pinjaman_individu: 'Individual Loan',
 }
 const STATUS: Record<string, string> = {
-  aktif: 'Active', tertunggak: 'Overdue', tindakan_guaman: 'Legal Action', selesai: 'Completed',
+  aktif: 'Active',
+  tertunggak: 'Overdue',
+  tindakan_guaman: 'Legal Action',
+  selesai: 'Completed',
 }
 
 async function imageParagraph(url: string): Promise<Paragraph | null> {
@@ -44,16 +61,13 @@ async function imageParagraph(url: string): Promise<Paragraph | null> {
     const isPng = meta.format === 'png'
     const isGif = meta.format === 'gif'
 
-    const data = isJpeg || isPng || isGif
-      ? buffer
-      : await sharp(buffer).resize(w, h).png().toBuffer()
+    const data =
+      isJpeg || isPng || isGif ? buffer : await sharp(buffer).resize(w, h).png().toBuffer()
 
     const type: 'jpg' | 'png' | 'gif' = isJpeg ? 'jpg' : isPng ? 'png' : isGif ? 'gif' : 'png'
 
     return new Paragraph({
-      children: [
-        new ImageRun({ type, data, transformation: { width: w, height: h } }),
-      ],
+      children: [new ImageRun({ type, data, transformation: { width: w, height: h } })],
       indent: { left: 360 },
       spacing: { after: 120 },
       alignment: AlignmentType.CENTER,
@@ -69,7 +83,8 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
 
   const [{ data: fasiliti }, { data: susulan }] = await Promise.all([
     supabase.from('fasiliti').select('*').eq('id', fasilitiId).single(),
-    supabase.from('susulan')
+    supabase
+      .from('susulan')
       .select('*, dicatat_oleh_user:users(nama), lampiran(*)')
       .eq('fasiliti_id', fasilitiId)
       .order('tarikh_susulan', { ascending: true }),
@@ -80,9 +95,7 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
   const today = format(new Date(), 'dd/MM/yyyy')
 
   const titlePara = new Paragraph({
-    children: [
-      new TextRun({ text: 'FOLLOW-UP CHRONOLOGY', bold: true, size: 28, font: 'Arial' }),
-    ],
+    children: [new TextRun({ text: 'FOLLOW-UP CHRONOLOGY', bold: true, size: 28, font: 'Arial' })],
     heading: HeadingLevel.HEADING_1,
     alignment: AlignmentType.CENTER,
     spacing: { after: 200 },
@@ -90,7 +103,11 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
 
   const subtitlePara = new Paragraph({
     children: [
-      new TextRun({ text: `${fasiliti.kod_rujukan} — ${fasiliti.nama_peminjam}`, size: 24, font: 'Arial' }),
+      new TextRun({
+        text: `${fasiliti.kod_rujukan} — ${fasiliti.nama_peminjam}`,
+        size: 24,
+        font: 'Arial',
+      }),
     ],
     alignment: AlignmentType.CENTER,
     spacing: { after: 400 },
@@ -100,11 +117,17 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
     new TableRow({
       children: [
         new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20, font: 'Arial' })] })],
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: label, bold: true, size: 20, font: 'Arial' })],
+            }),
+          ],
           width: { size: 35, type: WidthType.PERCENTAGE },
         }),
         new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: value, size: 20, font: 'Arial' })] })],
+          children: [
+            new Paragraph({ children: [new TextRun({ text: value, size: 20, font: 'Arial' })] }),
+          ],
           width: { size: 65, type: WidthType.PERCENTAGE },
         }),
       ],
@@ -126,26 +149,62 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
       // ─── Maklumat Pembiayaan Modal ────────────────────────────────────────
       makeInfoRow('Total Capital Financing (RM) — A', fmtCurrency(fasiliti.jumlah_pembiayaan)),
       // JV1/JV3: text description
-      ...(isJV1 && fasiliti.kadar_dividen ? [makeInfoRow('Profit Share Dividends', fasiliti.kadar_dividen)] : []),
-      ...(isJV3 && fasiliti.kadar_dividen ? [makeInfoRow('Profit Sharing', fasiliti.kadar_dividen)] : []),
+      ...(isJV1 && fasiliti.kadar_dividen
+        ? [makeInfoRow('Profit Share Dividends', fasiliti.kadar_dividen)]
+        : []),
+      ...(isJV3 && fasiliti.kadar_dividen
+        ? [makeInfoRow('Profit Sharing', fasiliti.kadar_dividen)]
+        : []),
       // JV2: numeric B
-      ...(isJV2 && fasiliti.perkongsian_keuntungan > 0 ? [makeInfoRow('Profit Sharing (RM) — B', fmtCurrency(fasiliti.perkongsian_keuntungan))] : []),
+      ...(isJV2 && fasiliti.perkongsian_keuntungan > 0
+        ? [makeInfoRow('Profit Sharing (RM) — B', fmtCurrency(fasiliti.perkongsian_keuntungan))]
+        : []),
       // JV3: Bayaran Tambahan as B
-      ...(isJV3 && fasiliti.bayaran_tambahan > 0 ? [makeInfoRow('Additional Payment (RM) — B', fmtCurrency(fasiliti.bayaran_tambahan))] : []),
+      ...(isJV3 && fasiliti.bayaran_tambahan > 0
+        ? [makeInfoRow('Additional Payment (RM) — B', fmtCurrency(fasiliti.bayaran_tambahan))]
+        : []),
       // ─── Maklumat Tunggakan & Bayaran ─────────────────────────────────────
-      ...(isJV1 && fasiliti.tunggakan_dividen > 0 ? [makeInfoRow('Dividend Arrears (RM) — B', fmtCurrency(fasiliti.tunggakan_dividen))] : []),
-      ...(isJV1 && fasiliti.caj_lewat > 0 ? [makeInfoRow('Late Charge (RM) — C', fmtCurrency(fasiliti.caj_lewat))] : []),
-      ...(isJV1 && fasiliti.bayaran_tambahan > 0 ? [makeInfoRow('Additional Payment (RM) — D', fmtCurrency(fasiliti.bayaran_tambahan))] : []),
-      ...(isJV2 && fasiliti.tunggakan_dividen > 0 ? [makeInfoRow('Profit Sharing Arrears (RM) — C', fmtCurrency(fasiliti.tunggakan_dividen))] : []),
-      ...(isJV2 && fasiliti.bayaran_tambahan > 0 ? [makeInfoRow('Additional Payment (RM) — D', fmtCurrency(fasiliti.bayaran_tambahan))] : []),
-      ...(isJV2 && fasiliti.tahun_projek ? [makeInfoRow('Project Year', String(fasiliti.tahun_projek))] : []),
-      makeInfoRow(isJV3 ? 'Total Arrears (RM) — C (A + B)' : 'Total Arrears (RM) — E', fmtCurrency(fasiliti.jumlah_tunggakan_semasa)),
+      ...(isJV1 && fasiliti.tunggakan_dividen > 0
+        ? [makeInfoRow('Dividend Arrears (RM) — B', fmtCurrency(fasiliti.tunggakan_dividen))]
+        : []),
+      ...(isJV1 && fasiliti.caj_lewat > 0
+        ? [makeInfoRow('Late Charge (RM) — C', fmtCurrency(fasiliti.caj_lewat))]
+        : []),
+      ...(isJV1 && fasiliti.bayaran_tambahan > 0
+        ? [makeInfoRow('Additional Payment (RM) — D', fmtCurrency(fasiliti.bayaran_tambahan))]
+        : []),
+      ...(isJV2 && fasiliti.tunggakan_dividen > 0
+        ? [makeInfoRow('Profit Sharing Arrears (RM) — C', fmtCurrency(fasiliti.tunggakan_dividen))]
+        : []),
+      ...(isJV2 && fasiliti.bayaran_tambahan > 0
+        ? [makeInfoRow('Additional Payment (RM) — D', fmtCurrency(fasiliti.bayaran_tambahan))]
+        : []),
+      ...(isJV2 && fasiliti.tahun_projek
+        ? [makeInfoRow('Project Year', String(fasiliti.tahun_projek))]
+        : []),
+      makeInfoRow(
+        isJV3 ? 'Total Arrears (RM) — C (A + B)' : 'Total Arrears (RM) — E',
+        fmtCurrency(fasiliti.jumlah_tunggakan_semasa)
+      ),
       // ─── Collateral / Hartanah ────────────────────────────────────────────
-      ...(fasiliti.ringkasan_cagaran ? [makeInfoRow(isJV2 ? 'Type / Location (Property)' : 'Type / Location / Collateral Asset Value', fasiliti.ringkasan_cagaran)] : []),
-      ...(fasiliti.nilai_cagaran ? [makeInfoRow('Estimated Value (RM)', fmtCurrency(fasiliti.nilai_cagaran))] : []),
+      ...(fasiliti.ringkasan_cagaran
+        ? [
+            makeInfoRow(
+              isJV2 ? 'Type / Location (Property)' : 'Type / Location / Collateral Asset Value',
+              fasiliti.ringkasan_cagaran
+            ),
+          ]
+        : []),
+      ...(fasiliti.nilai_cagaran
+        ? [makeInfoRow('Estimated Value (RM)', fmtCurrency(fasiliti.nilai_cagaran))]
+        : []),
       ...(fasiliti.penama_aset ? [makeInfoRow('Asset Nominee', fasiliti.penama_aset)] : []),
-      ...(fasiliti.status_pindahmilik ? [makeInfoRow('Transfer / Asset Sale Status', fasiliti.status_pindahmilik)] : []),
-      ...(isJV2 && fasiliti.harga_jualan ? [makeInfoRow('Sale Price / Type', fasiliti.harga_jualan)] : []),
+      ...(fasiliti.status_pindahmilik
+        ? [makeInfoRow('Transfer / Asset Sale Status', fasiliti.status_pindahmilik)]
+        : []),
+      ...(isJV2 && fasiliti.harga_jualan
+        ? [makeInfoRow('Sale Price / Type', fasiliti.harga_jualan)]
+        : []),
     ],
     width: { size: 100, type: WidthType.PERCENTAGE },
   })
@@ -162,7 +221,12 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
     susulanRows.push(
       new Paragraph({
         children: [
-          new TextRun({ text: `${i + 1}.  ${fmtDate(s.tarikh_susulan)}`, bold: true, size: 20, font: 'Arial' }),
+          new TextRun({
+            text: `${i + 1}.  ${fmtDate(s.tarikh_susulan)}`,
+            bold: true,
+            size: 20,
+            font: 'Arial',
+          }),
         ],
         spacing: { before: 200, after: 80 },
       }),
@@ -170,10 +234,12 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
         children: [new TextRun({ text: s.catatan, size: 20, font: 'Arial' })],
         indent: { left: 360 },
         spacing: { after: 80 },
-      }),
+      })
     )
 
-    const lampiran = (s as { lampiran?: Array<{ url_fail: string; jenis_fail: string; nama_asal: string }> }).lampiran
+    const lampiran = (
+      s as { lampiran?: Array<{ url_fail: string; jenis_fail: string; nama_asal: string }> }
+    ).lampiran
     for (const l of lampiran ?? []) {
       if (l.jenis_fail === 'imej') {
         const img = await imageParagraph(l.url_fail)
@@ -181,7 +247,15 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
       } else {
         susulanRows.push(
           new Paragraph({
-            children: [new TextRun({ text: `Attachment: ${l.nama_asal}`, italics: true, size: 18, color: '666666', font: 'Arial' })],
+            children: [
+              new TextRun({
+                text: `Attachment: ${l.nama_asal}`,
+                italics: true,
+                size: 18,
+                color: '666666',
+                font: 'Arial',
+              }),
+            ],
             indent: { left: 360 },
             spacing: { after: 120 },
           })
@@ -191,7 +265,15 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
 
     susulanRows.push(
       new Paragraph({
-        children: [new TextRun({ text: `Recorded by: ${s.dicatat_oleh_user?.nama ?? '—'}`, italics: true, size: 18, color: '666666', font: 'Arial' })],
+        children: [
+          new TextRun({
+            text: `Recorded by: ${s.dicatat_oleh_user?.nama ?? '—'}`,
+            italics: true,
+            size: 18,
+            color: '666666',
+            font: 'Arial',
+          }),
+        ],
         indent: { left: 360 },
         spacing: { after: 200 },
       })
@@ -199,22 +281,30 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
   }
 
   if ((susulan ?? []).length === 0) {
-    susulanRows.push(new Paragraph({
-      children: [new TextRun({ text: 'No follow-up records.', italics: true, size: 20, font: 'Arial' })],
-    }))
+    susulanRows.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: 'No follow-up records.', italics: true, size: 20, font: 'Arial' }),
+        ],
+      })
+    )
   }
 
   const footerPara = new Paragraph({
-    children: [new TextRun({ text: `Generated on: ${today}`, size: 18, color: '999999', font: 'Arial' })],
+    children: [
+      new TextRun({ text: `Generated on: ${today}`, size: 18, color: '999999', font: 'Arial' }),
+    ],
     alignment: AlignmentType.RIGHT,
     spacing: { before: 400 },
   })
 
   const doc = new Document({
-    sections: [{
-      properties: {},
-      children: [titlePara, subtitlePara, infoTable, kronologiHeader, ...susulanRows, footerPara],
-    }],
+    sections: [
+      {
+        properties: {},
+        children: [titlePara, subtitlePara, infoTable, kronologiHeader, ...susulanRows, footerPara],
+      },
+    ],
   })
 
   return await Packer.toBuffer(doc)

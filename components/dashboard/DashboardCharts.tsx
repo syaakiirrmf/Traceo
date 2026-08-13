@@ -89,12 +89,20 @@ export function DashboardCharts({
                   onMouseLeave={() => setActiveBar(null)}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-xs">
-                    <Link href={cat.href} transitionTypes={['nav-forward']} className="font-bold text-slate-900 hover:text-[#0066FF] flex items-center gap-1.5 min-w-0 truncate">
+                    <Link
+                      href={cat.href}
+                      transitionTypes={['nav-forward']}
+                      className="font-bold text-slate-900 hover:text-[#0066FF] flex items-center gap-1.5 min-w-0 truncate"
+                    >
                       <span className="truncate">{cat.name}</span>
-                      <span className="text-[10px] text-slate-400 font-normal shrink-0">({cat.count} records)</span>
+                      <span className="text-[10px] text-slate-400 font-normal shrink-0">
+                        ({cat.count} records)
+                      </span>
                     </Link>
                     <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs flex-wrap sm:flex-nowrap shrink-0">
-                      <span className="text-slate-900 font-bold tabular-nums">{formatRM(cat.pembiayaan)}</span>
+                      <span className="text-slate-900 font-bold tabular-nums">
+                        {formatRM(cat.pembiayaan)}
+                      </span>
                       {cat.tunggakan > 0 && (
                         <span className="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded-full text-[11px] border border-red-200 tabular-nums shrink-0">
                           Arrears: {formatRM(cat.tunggakan)}
@@ -131,9 +139,7 @@ export function DashboardCharts({
         {/* Chart 2: Status Distribution */}
         <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs flex flex-col justify-between space-y-4">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
-              Overall Facility Status
-            </h2>
+            <h2 className="text-base font-bold text-slate-900">Overall Facility Status</h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Breakdown of active records ({totalCount} Facilities)
             </p>
@@ -149,7 +155,10 @@ export function DashboardCharts({
                 return (
                   <div
                     key={st.key}
-                    style={{ width: `${pct}%`, backgroundColor: st.color === 'var(--color-brand)' ? '#0066FF' : st.color }}
+                    style={{
+                      width: `${pct}%`,
+                      backgroundColor: st.color === 'var(--color-brand)' ? '#0066FF' : st.color,
+                    }}
                     className="h-full border-r border-white last:border-0"
                     title={`${st.label}: ${st.count} (${pct.toFixed(0)}%)`}
                   />
@@ -163,9 +172,15 @@ export function DashboardCharts({
                 const pct = totalCount > 0 ? ((st.count / totalCount) * 100).toFixed(0) : '0'
                 const displayColor = st.color === 'var(--color-brand)' ? '#0066FF' : st.color
                 return (
-                  <div key={st.key} className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0">
+                  <div
+                    key={st.key}
+                    className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0"
+                  >
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: displayColor }} />
+                      <span
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: displayColor }}
+                      />
                       <span className="text-slate-700 font-semibold">{st.label}</span>
                     </div>
                     <div className="flex items-center gap-2 font-mono">
@@ -180,10 +195,14 @@ export function DashboardCharts({
 
           {/* Collateral Overview Strip */}
           <div className="p-3.5 rounded-xl bg-[#EBF2FF]/80 border border-[#0066FF]/20 text-xs space-y-1">
-            <p className="text-[10px] uppercase font-bold text-[#0066FF] tracking-wider">Collateral Coverage (LTV Ratio)</p>
+            <p className="text-[10px] uppercase font-bold text-[#0066FF] tracking-wider">
+              Collateral Coverage (LTV Ratio)
+            </p>
             <div className="flex items-center justify-between">
               <span className="text-slate-600 font-medium">Land Collateral Value:</span>
-              <span className="font-mono font-extrabold text-[#0066FF]">{formatRM(totalCagaran)}</span>
+              <span className="font-mono font-extrabold text-[#0066FF]">
+                {formatRM(totalCagaran)}
+              </span>
             </div>
           </div>
         </div>
@@ -200,7 +219,11 @@ export function DashboardCharts({
               Priority follow-up list for high-risk records
             </p>
           </div>
-          <Link href="/dashboard/fasiliti?status=tertunggak" transitionTypes={['nav-forward']} className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1">
+          <Link
+            href="/dashboard/fasiliti?status=tertunggak"
+            transitionTypes={['nav-forward']}
+            className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1"
+          >
             View All Overdue
             <ArrowUpRight size={14} />
           </Link>
@@ -230,12 +253,8 @@ export function DashboardCharts({
                     <td className="px-4 py-3 font-mono font-bold text-[#0066FF]">
                       {item.kod_rujukan}
                     </td>
-                    <td className="px-4 py-3 font-bold text-slate-900">
-                      {item.nama_peminjam}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {item.pembiaya_modal}
-                    </td>
+                    <td className="px-4 py-3 font-bold text-slate-900">{item.nama_peminjam}</td>
+                    <td className="px-4 py-3 text-slate-600">{item.pembiaya_modal}</td>
                     <td className="px-4 py-3 text-right font-mono font-medium text-slate-900">
                       {formatRM(item.jumlah_pembiayaan)}
                     </td>
@@ -248,7 +267,11 @@ export function DashboardCharts({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <Link href={`/dashboard/fasiliti/${item.id}`} transitionTypes={['nav-forward']} className="text-[12px] font-bold text-[#0066FF] hover:underline">
+                      <Link
+                        href={`/dashboard/fasiliti/${item.id}`}
+                        transitionTypes={['nav-forward']}
+                        className="text-[12px] font-bold text-[#0066FF] hover:underline"
+                      >
                         Open &rarr;
                       </Link>
                     </td>

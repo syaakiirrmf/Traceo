@@ -18,10 +18,14 @@ const STATUS_LABELS = {
 } as const
 
 const STATUS_STYLES = {
-  aktif: 'bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border-[var(--color-border)]',
-  tertunggak: 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
-  tindakan_guaman: 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
-  selesai: 'bg-[var(--color-surface-raised)] text-[var(--color-text-tertiary)] border-[var(--color-border)]',
+  aktif:
+    'bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border-[var(--color-border)]',
+  tertunggak:
+    'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
+  tindakan_guaman:
+    'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
+  selesai:
+    'bg-[var(--color-surface-raised)] text-[var(--color-text-tertiary)] border-[var(--color-border)]',
 } as const
 
 const KATEGORI_LABELS = {
@@ -44,7 +48,9 @@ export default async function FasilitiPage({
   const supabase = await createClient()
   const params = await searchParams
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -71,7 +77,9 @@ export default async function FasilitiPage({
 
   let query = supabase
     .from('fasiliti')
-    .select('id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, status_fasiliti, tarikh_mula, jumlah_tunggakan_semasa')
+    .select(
+      'id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, status_fasiliti, tarikh_mula, jumlah_tunggakan_semasa'
+    )
     .order('dicipta_pada', { ascending: false })
 
   // Scope query to assigned facilities for pegawai
@@ -80,7 +88,9 @@ export default async function FasilitiPage({
   if (params.status) query = query.eq('status_fasiliti', params.status)
   if (params.kategori) query = query.eq('kategori', params.kategori)
   if (params.q) {
-    query = query.or(`nama_peminjam.ilike.%${params.q}%,pembiaya_modal.ilike.%${params.q}%,kod_rujukan.ilike.%${params.q}%`)
+    query = query.or(
+      `nama_peminjam.ilike.%${params.q}%,pembiaya_modal.ilike.%${params.q}%,kod_rujukan.ilike.%${params.q}%`
+    )
   }
 
   const { data: fasiliti } = await query
@@ -95,7 +105,9 @@ export default async function FasilitiPage({
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
               Facility Management
             </span>
-            <span className="text-xs text-[var(--color-text-tertiary)]">• {fasiliti?.length ?? 0} Records</span>
+            <span className="text-xs text-[var(--color-text-tertiary)]">
+              • {fasiliti?.length ?? 0} Records
+            </span>
           </div>
           <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
             All Financing Facilities
@@ -107,19 +119,20 @@ export default async function FasilitiPage({
             href="/dashboard/fasiliti/tambah"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs"
           >
-            <Plus size={14} />
-            + Add Facility
+            <Plus size={14} />+ Add Facility
           </Link>
         )}
       </div>
 
       {/* Filters */}
-      <Suspense fallback={
-        <div className="flex gap-3">
-          <div className="h-9 w-72 rounded-lg bg-[var(--color-surface-raised)] animate-pulse" />
-          <div className="h-9 w-36 rounded-lg bg-[var(--color-surface-raised)] animate-pulse" />
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className="flex gap-3">
+            <div className="h-9 w-72 rounded-lg bg-[var(--color-surface-raised)] animate-pulse" />
+            <div className="h-9 w-36 rounded-lg bg-[var(--color-surface-raised)] animate-pulse" />
+          </div>
+        }
+      >
         <FasilitiFilter
           defaultQ={params.q}
           defaultStatus={params.status}
@@ -129,12 +142,14 @@ export default async function FasilitiPage({
 
       {/* High-End Clean Table */}
       <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden">
-        {(!fasiliti || fasiliti.length === 0) ? (
+        {!fasiliti || fasiliti.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
             <div className="w-10 h-10 rounded-lg bg-[var(--color-surface-raised)] flex items-center justify-center">
               <Search size={18} className="text-[var(--color-text-tertiary)]" />
             </div>
-            <p className="text-xs font-medium text-[var(--color-text-secondary)]">No facility records found</p>
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">
+              No facility records found
+            </p>
             {canAdd && (
               <Link
                 href="/dashboard/fasiliti/tambah"
@@ -172,8 +187,12 @@ export default async function FasilitiPage({
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="font-semibold text-[var(--color-text-primary)] leading-snug">{f.nama_peminjam}</p>
-                        <p className="text-[11px] text-[var(--color-text-tertiary)] mt-0.5">{f.pembiaya_modal}</p>
+                        <p className="font-semibold text-[var(--color-text-primary)] leading-snug">
+                          {f.nama_peminjam}
+                        </p>
+                        <p className="text-[11px] text-[var(--color-text-tertiary)] mt-0.5">
+                          {f.pembiaya_modal}
+                        </p>
                       </td>
                       <td className="px-4 py-3 text-[var(--color-text-secondary)]">
                         {KATEGORI_LABELS[f.kategori as keyof typeof KATEGORI_LABELS]}
@@ -181,11 +200,15 @@ export default async function FasilitiPage({
                       <td className="px-4 py-3 text-right font-mono font-semibold text-[var(--color-text-primary)] tabular-nums">
                         {formatCurrency(f.jumlah_pembiayaan)}
                       </td>
-                      <td className={`px-4 py-3 text-right font-mono tabular-nums ${hasArrears ? 'text-[var(--color-danger)] font-bold bg-[var(--color-danger-subtle)]/30' : 'text-[var(--color-text-tertiary)]'}`}>
+                      <td
+                        className={`px-4 py-3 text-right font-mono tabular-nums ${hasArrears ? 'text-[var(--color-danger)] font-bold bg-[var(--color-danger-subtle)]/30' : 'text-[var(--color-text-tertiary)]'}`}
+                      >
                         {formatCurrency(f.jumlah_tunggakan_semasa)}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${STATUS_STYLES[f.status_fasiliti as keyof typeof STATUS_STYLES]}`}>
+                        <span
+                          className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${STATUS_STYLES[f.status_fasiliti as keyof typeof STATUS_STYLES]}`}
+                        >
                           {STATUS_LABELS[f.status_fasiliti as keyof typeof STATUS_LABELS]}
                         </span>
                       </td>

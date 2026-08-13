@@ -8,7 +8,9 @@ export const metadata: Metadata = { title: 'Audit Log System' }
 
 export default async function AuditPage() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -32,9 +34,11 @@ export default async function AuditPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-Security &amp; Activity Trail
+              Security &amp; Activity Trail
             </span>
-            <span className="text-xs text-[var(--color-text-tertiary)]">• {logs?.length ?? 0} Recent Logs</span>
+            <span className="text-xs text-[var(--color-text-tertiary)]">
+              • {logs?.length ?? 0} Recent Logs
+            </span>
           </div>
           <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
             System Audit Log

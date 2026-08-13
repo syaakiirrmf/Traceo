@@ -8,7 +8,9 @@ import { rateLimitAction } from '@/lib/ratelimit'
 
 async function getCurrentUser() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) throw new Error('Not logged in')
   const { data: userProfile } = await supabase
     .from('users')

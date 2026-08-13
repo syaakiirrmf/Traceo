@@ -16,7 +16,9 @@ export default async function ProfilPage({
   const supabase = await createClient()
   const params = await searchParams
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -29,8 +31,12 @@ export default async function ProfilPage({
   return (
     <div className="max-w-lg space-y-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">My Profile</h1>
-        <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">Update account information and password</p>
+        <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+          My Profile
+        </h1>
+        <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
+          Update account information and password
+        </p>
       </div>
 
       {/* Success toast */}
@@ -39,7 +45,9 @@ export default async function ProfilPage({
       {/* Avatar + role */}
       <div className="flex items-center gap-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5 shadow-[var(--shadow-sm)]">
         <div className="w-14 h-14 rounded-full bg-[var(--color-brand-subtle)] flex items-center justify-center flex-shrink-0">
-          <span className="text-lg font-bold text-[var(--color-brand)]">{getInitials(userProfile.nama)}</span>
+          <span className="text-lg font-bold text-[var(--color-brand)]">
+            {getInitials(userProfile.nama)}
+          </span>
         </div>
         <div>
           <p className="font-semibold text-[var(--color-text-primary)]">{userProfile.nama}</p>
@@ -69,7 +77,9 @@ export default async function ProfilPage({
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-[var(--color-text-primary)]">Email</label>
+            <label className="block text-sm font-medium text-[var(--color-text-primary)]">
+              Email
+            </label>
             <input
               type="email"
               value={userProfile.emel}

@@ -14,11 +14,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase
-    .from('tanah_jv')
-    .select('no_lot')
-    .eq('id', id)
-    .single()
+  const { data } = await supabase.from('tanah_jv').select('no_lot').eq('id', id).single()
   return { title: data ? `Chronology ${data.no_lot}` : 'Chronology' }
 }
 
@@ -32,15 +28,13 @@ function fmtCurrency(n: number | null) {
   return new Intl.NumberFormat('ms-MY', { style: 'currency', currency: 'MYR' }).format(n)
 }
 
-export default async function TanahKronologiPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function TanahKronologiPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -56,7 +50,8 @@ export default async function TanahKronologiPage({
 
   const [{ data: tanah }, { data: susulan }] = await Promise.all([
     supabase.from('tanah_jv').select('*').eq('id', id).single(),
-    supabase.from('susulan')
+    supabase
+      .from('susulan')
       .select('*, dicatat_oleh_user:users(nama), lampiran(*)')
       .eq('tanah_id', id)
       .order('tarikh_susulan', { ascending: true }),
@@ -68,8 +63,10 @@ export default async function TanahKronologiPage({
     <div className="max-w-3xl">
       {/* Header */}
       <div className="flex items-start gap-4 mb-6">
-        <Link href={`/dashboard/tanah-jv/${id}`}
-          className="mt-1 w-8 h-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] transition-colors flex-shrink-0">
+        <Link
+          href={`/dashboard/tanah-jv/${id}`}
+          className="mt-1 w-8 h-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] transition-colors flex-shrink-0"
+        >
           <ArrowLeft size={15} />
         </Link>
         <div className="flex-1">
@@ -78,7 +75,8 @@ export default async function TanahKronologiPage({
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
             <span className="font-mono text-[var(--color-brand)]">No. Lot {tanah.no_lot}</span>
-            {' · '}{[tanah.bandar_mukim, tanah.daerah, tanah.negeri].filter(Boolean).join(' · ')}
+            {' · '}
+            {[tanah.bandar_mukim, tanah.daerah, tanah.negeri].filter(Boolean).join(' · ')}
           </p>
         </div>
         {/* Export buttons */}
@@ -111,7 +109,8 @@ export default async function TanahKronologiPage({
             FOLLOW-UP CHRONOLOGY
           </h2>
           <p className="text-base font-medium text-[var(--color-text-secondary)] mt-1">
-            No. Lot {tanah.no_lot} — {[tanah.bandar_mukim, tanah.daerah, tanah.negeri].filter(Boolean).join(', ')}
+            No. Lot {tanah.no_lot} —{' '}
+            {[tanah.bandar_mukim, tanah.daerah, tanah.negeri].filter(Boolean).join(', ')}
           </p>
         </div>
 
@@ -126,12 +125,16 @@ export default async function TanahKronologiPage({
                 ['Location', tanah.tempat],
                 ['No. Lot', tanah.no_lot],
                 ...(tanah.no_hak_milik ? [['Title No.', tanah.no_hak_milik]] : []),
-                ...(tanah.tarikh_daftar ? [['Registered On', formatDate(tanah.tarikh_daftar)]] : []),
+                ...(tanah.tarikh_daftar
+                  ? [['Registered On', formatDate(tanah.tarikh_daftar)]]
+                  : []),
                 ['Area (m²)', fmtArea(tanah.luas_meter_persegi)],
                 ['Estimated Value (RM)', fmtCurrency(tanah.anggaran_nilaian)],
               ].map(([label, value]) => (
                 <tr key={label}>
-                  <td className="py-2 pr-4 font-medium text-[var(--color-text-secondary)] w-[40%]">{label}</td>
+                  <td className="py-2 pr-4 font-medium text-[var(--color-text-secondary)] w-[40%]">
+                    {label}
+                  </td>
                   <td className="py-2 text-[var(--color-text-primary)]">{value}</td>
                 </tr>
               ))}
@@ -145,7 +148,9 @@ export default async function TanahKronologiPage({
             <h3 className="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wider mb-2">
               Notes
             </h3>
-            <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">{tanah.catatan}</p>
+            <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">
+              {tanah.catatan}
+            </p>
           </div>
         )}
 
@@ -155,8 +160,10 @@ export default async function TanahKronologiPage({
             Follow-up Chronology ({susulan?.length ?? 0} records)
           </h3>
 
-          {(!susulan || susulan.length === 0) ? (
-            <p className="text-sm text-[var(--color-text-tertiary)] italic">No follow-up records.</p>
+          {!susulan || susulan.length === 0 ? (
+            <p className="text-sm text-[var(--color-text-tertiary)] italic">
+              No follow-up records.
+            </p>
           ) : (
             <div className="space-y-5">
               {susulan.map((s, i) => (
@@ -177,8 +184,13 @@ export default async function TanahKronologiPage({
                     {s.lampiran && s.lampiran.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {s.lampiran.map((l: Lampiran) => (
-                          <a key={l.id} href={l.url_fail} target="_blank" rel="noopener noreferrer"
-                            className="text-xs text-[var(--color-brand)] bg-[var(--color-brand-subtle)] px-2 py-0.5 rounded-full hover:underline">
+                          <a
+                            key={l.id}
+                            href={l.url_fail}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-[var(--color-brand)] bg-[var(--color-brand-subtle)] px-2 py-0.5 rounded-full hover:underline"
+                          >
                             📎 {l.nama_asal}
                           </a>
                         ))}

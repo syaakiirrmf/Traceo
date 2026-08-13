@@ -15,7 +15,9 @@ export default async function TambahSusulanTanahPage({
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: tanah } = await supabase
@@ -46,7 +48,8 @@ export default async function TambahSusulanTanahPage({
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
             <span className="font-mono text-[var(--color-brand)]">Tanah MD</span>
-            {' · '}{tanah.no_lot}
+            {' · '}
+            {tanah.no_lot}
           </p>
         </div>
       </div>
@@ -89,7 +92,10 @@ export default async function TambahSusulanTanahPage({
         {/* Lampiran */}
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 shadow-[var(--shadow-sm)] space-y-3">
           <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">
-            Attachments <span className="text-xs font-normal text-[var(--color-text-tertiary)]">(optional)</span>
+            Attachments{' '}
+            <span className="text-xs font-normal text-[var(--color-text-tertiary)]">
+              (optional)
+            </span>
           </h2>
 
           <label

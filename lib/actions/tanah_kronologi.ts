@@ -2,8 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 import {
-  Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell,
-  HeadingLevel, AlignmentType, WidthType,
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  ImageRun,
+  Table,
+  TableRow,
+  TableCell,
+  HeadingLevel,
+  AlignmentType,
+  WidthType,
 } from 'docx'
 import sharp from 'sharp'
 import { format, parseISO } from 'date-fns'
@@ -12,8 +21,11 @@ import { enGB } from 'date-fns/locale'
 const MAX_IMAGE_WIDTH = 460 // px — fits A4 width minus margins/indent
 
 function fmtDate(d: string) {
-  try { return format(parseISO(d), 'dd MMMM yyyy', { locale: enGB }) }
-  catch { return d }
+  try {
+    return format(parseISO(d), 'dd MMMM yyyy', { locale: enGB })
+  } catch {
+    return d
+  }
 }
 
 function fmtCurrency(n: number | null | undefined) {
@@ -43,16 +55,13 @@ async function imageParagraph(url: string): Promise<Paragraph | null> {
     const isPng = meta.format === 'png'
     const isGif = meta.format === 'gif'
 
-    const data = isJpeg || isPng || isGif
-      ? buffer
-      : await sharp(buffer).resize(w, h).png().toBuffer()
+    const data =
+      isJpeg || isPng || isGif ? buffer : await sharp(buffer).resize(w, h).png().toBuffer()
 
     const type: 'jpg' | 'png' | 'gif' = isJpeg ? 'jpg' : isPng ? 'png' : isGif ? 'gif' : 'png'
 
     return new Paragraph({
-      children: [
-        new ImageRun({ type, data, transformation: { width: w, height: h } }),
-      ],
+      children: [new ImageRun({ type, data, transformation: { width: w, height: h } })],
       indent: { left: 360 },
       spacing: { after: 120 },
       alignment: AlignmentType.CENTER,
@@ -68,7 +77,8 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
 
   const [{ data: tanah }, { data: susulan }] = await Promise.all([
     supabase.from('tanah_jv').select('*').eq('id', tanahId).single(),
-    supabase.from('susulan')
+    supabase
+      .from('susulan')
       .select('*, dicatat_oleh_user:users(nama), lampiran(*)')
       .eq('tanah_id', tanahId)
       .order('tarikh_susulan', { ascending: true }),
@@ -79,9 +89,7 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
   const today = format(new Date(), 'dd/MM/yyyy')
 
   const titlePara = new Paragraph({
-    children: [
-      new TextRun({ text: 'FOLLOW-UP CHRONOLOGY', bold: true, size: 28, font: 'Arial' }),
-    ],
+    children: [new TextRun({ text: 'FOLLOW-UP CHRONOLOGY', bold: true, size: 28, font: 'Arial' })],
     heading: HeadingLevel.HEADING_1,
     alignment: AlignmentType.CENTER,
     spacing: { after: 200 },
@@ -103,11 +111,17 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
     new TableRow({
       children: [
         new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20, font: 'Arial' })] })],
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: label, bold: true, size: 20, font: 'Arial' })],
+            }),
+          ],
           width: { size: 35, type: WidthType.PERCENTAGE },
         }),
         new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: value, size: 20, font: 'Arial' })] })],
+          children: [
+            new Paragraph({ children: [new TextRun({ text: value, size: 20, font: 'Arial' })] }),
+          ],
           width: { size: 65, type: WidthType.PERCENTAGE },
         }),
       ],
@@ -129,14 +143,17 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
   })
 
   const catatanPara = tanah.catatan
-    ? [new Paragraph({
-        children: [new TextRun({ text: 'NOTES', bold: true, size: 22, font: 'Arial' })],
-        heading: HeadingLevel.HEADING_2,
-        spacing: { before: 200, after: 120 },
-      }), new Paragraph({
-        children: [new TextRun({ text: tanah.catatan, size: 20, font: 'Arial' })],
-        spacing: { after: 120 },
-      })]
+    ? [
+        new Paragraph({
+          children: [new TextRun({ text: 'NOTES', bold: true, size: 22, font: 'Arial' })],
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 200, after: 120 },
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: tanah.catatan, size: 20, font: 'Arial' })],
+          spacing: { after: 120 },
+        }),
+      ]
     : []
 
   const kronologiHeader = new Paragraph({
@@ -151,7 +168,12 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
     susulanRows.push(
       new Paragraph({
         children: [
-          new TextRun({ text: `${i + 1}.  ${fmtDate(s.tarikh_susulan)}`, bold: true, size: 20, font: 'Arial' }),
+          new TextRun({
+            text: `${i + 1}.  ${fmtDate(s.tarikh_susulan)}`,
+            bold: true,
+            size: 20,
+            font: 'Arial',
+          }),
         ],
         spacing: { before: 200, after: 80 },
       }),
@@ -159,10 +181,12 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
         children: [new TextRun({ text: s.catatan, size: 20, font: 'Arial' })],
         indent: { left: 360 },
         spacing: { after: 80 },
-      }),
+      })
     )
 
-    const lampiran = (s as { lampiran?: Array<{ url_fail: string; jenis_fail: string; nama_asal: string }> }).lampiran
+    const lampiran = (
+      s as { lampiran?: Array<{ url_fail: string; jenis_fail: string; nama_asal: string }> }
+    ).lampiran
     for (const l of lampiran ?? []) {
       if (l.jenis_fail === 'imej') {
         const img = await imageParagraph(l.url_fail)
@@ -170,7 +194,15 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
       } else {
         susulanRows.push(
           new Paragraph({
-            children: [new TextRun({ text: `Attachment: ${l.nama_asal}`, italics: true, size: 18, color: '666666', font: 'Arial' })],
+            children: [
+              new TextRun({
+                text: `Attachment: ${l.nama_asal}`,
+                italics: true,
+                size: 18,
+                color: '666666',
+                font: 'Arial',
+              }),
+            ],
             indent: { left: 360 },
             spacing: { after: 120 },
           })
@@ -180,7 +212,15 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
 
     susulanRows.push(
       new Paragraph({
-        children: [new TextRun({ text: `Recorded by: ${s.dicatat_oleh_user?.nama ?? '—'}`, italics: true, size: 18, color: '666666', font: 'Arial' })],
+        children: [
+          new TextRun({
+            text: `Recorded by: ${s.dicatat_oleh_user?.nama ?? '—'}`,
+            italics: true,
+            size: 18,
+            color: '666666',
+            font: 'Arial',
+          }),
+        ],
         indent: { left: 360 },
         spacing: { after: 200 },
       })
@@ -188,22 +228,38 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
   }
 
   if ((susulan ?? []).length === 0) {
-    susulanRows.push(new Paragraph({
-      children: [new TextRun({ text: 'No follow-up records.', italics: true, size: 20, font: 'Arial' })],
-    }))
+    susulanRows.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: 'No follow-up records.', italics: true, size: 20, font: 'Arial' }),
+        ],
+      })
+    )
   }
 
   const footerPara = new Paragraph({
-    children: [new TextRun({ text: `Generated on: ${today}`, size: 18, color: '999999', font: 'Arial' })],
+    children: [
+      new TextRun({ text: `Generated on: ${today}`, size: 18, color: '999999', font: 'Arial' }),
+    ],
     alignment: AlignmentType.RIGHT,
     spacing: { before: 400 },
   })
 
   const doc = new Document({
-    sections: [{
-      properties: {},
-      children: [titlePara, subtitlePara, infoTable, ...catatanPara, kronologiHeader, ...susulanRows, footerPara],
-    }],
+    sections: [
+      {
+        properties: {},
+        children: [
+          titlePara,
+          subtitlePara,
+          infoTable,
+          ...catatanPara,
+          kronologiHeader,
+          ...susulanRows,
+          footerPara,
+        ],
+      },
+    ],
   })
 
   return await Packer.toBuffer(doc)

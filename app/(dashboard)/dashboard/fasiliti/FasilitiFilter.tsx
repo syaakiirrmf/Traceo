@@ -48,7 +48,10 @@ export function FasilitiFilter({
     <div className="flex flex-wrap gap-3">
       {/* Search */}
       <div className="relative flex-1 min-w-[200px] max-w-[320px]">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] pointer-events-none" />
+        <Search
+          size={14}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] pointer-events-none"
+        />
         <input
           type="search"
           defaultValue={defaultQ}
@@ -70,7 +73,9 @@ export function FasilitiFilter({
         className="h-9 px-3 pr-7 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] transition-colors appearance-none"
       >
         {STATUS_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
         ))}
       </select>
 
@@ -81,7 +86,9 @@ export function FasilitiFilter({
         className="h-9 px-3 pr-7 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] transition-colors appearance-none"
       >
         {KATEGORI_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
         ))}
       </select>
     </div>

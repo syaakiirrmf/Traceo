@@ -8,7 +8,9 @@ import { rateLimitAction } from '@/lib/ratelimit'
 
 export async function kemaskiniProfil(formData: FormData) {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) throw new Error('Not logged in')
 
   const rl = await rateLimitAction('profil_kemaskini', 10, 60, authUser.id)
@@ -36,7 +38,9 @@ export async function kemaskiniProfil(formData: FormData) {
 
 export async function tukarKataLaluan(formData: FormData) {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) throw new Error('Not logged in')
 
   const rl = await rateLimitAction('profil_kata_laluan', 5, 60, authUser.id)

@@ -11,14 +11,22 @@ export const metadata: Metadata = { title: 'Personal Loan — Individual Loan' }
 
 export default async function SummaryJV3Page() {
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
-  const { data: userProfile } = await supabase.from('users').select('id, peranan').eq('auth_id', authUser.id).single()
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('id, peranan')
+    .eq('auth_id', authUser.id)
+    .single()
   if (!userProfile) redirect('/login')
 
   const { data: fasiliti } = await supabase
     .from('fasiliti')
-    .select('id, kod_rujukan, pembiaya_modal, nama_peminjam, jumlah_pembiayaan, kadar_dividen, bayaran_tambahan, jumlah_tunggakan_semasa, ringkasan_cagaran, penama_aset, status_pindahmilik, status_fasiliti, catatan_am, dikemaskini_pada')
+    .select(
+      'id, kod_rujukan, pembiaya_modal, nama_peminjam, jumlah_pembiayaan, kadar_dividen, bayaran_tambahan, jumlah_tunggakan_semasa, ringkasan_cagaran, penama_aset, status_pindahmilik, status_fasiliti, catatan_am, dikemaskini_pada'
+    )
     .eq('kategori', 'pinjaman_individu')
     .order('dicipta_pada', { ascending: true })
 
@@ -43,8 +51,10 @@ export default async function SummaryJV3Page() {
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
                 Individual Loan
-                </span>
-                <span className="text-xs text-[var(--color-text-tertiary)]">• {rows.length} Records</span>
+              </span>
+              <span className="text-xs text-[var(--color-text-tertiary)]">
+                • {rows.length} Records
+              </span>
             </div>
             <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
               Personal Loan
@@ -56,13 +66,25 @@ export default async function SummaryJV3Page() {
           {/* Summary Metric Band */}
           <div className="hidden md:flex items-center gap-4 lg:gap-5 text-xs bg-[var(--color-surface)] border border-[var(--color-border)] px-3.5 py-1.5 rounded-lg shadow-xs min-w-0">
             <div className="min-w-0">
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">Capital Financing</p>
-              <p className="font-mono font-bold text-[var(--color-text-primary)] truncate" title={formatRM(totalPembiayaan)}>{formatRM(totalPembiayaan)}</p>
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">
+                Capital Financing
+              </p>
+              <p
+                className="font-mono font-bold text-[var(--color-text-primary)] truncate"
+                title={formatRM(totalPembiayaan)}
+              >
+                {formatRM(totalPembiayaan)}
+              </p>
             </div>
             <div className="h-6 w-px bg-[var(--color-border)] shrink-0" />
             <div className="min-w-0">
-              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">Total Arrears</p>
-              <p className={`font-mono font-bold truncate ${totalTunggakan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`} title={formatRM(totalTunggakan)}>
+              <p className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider truncate">
+                Total Arrears
+              </p>
+              <p
+                className={`font-mono font-bold truncate ${totalTunggakan > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-text-primary)]'}`}
+                title={formatRM(totalTunggakan)}
+              >
                 {formatRM(totalTunggakan)}
               </p>
             </div>
@@ -73,8 +95,7 @@ export default async function SummaryJV3Page() {
               href="/dashboard/fasiliti/tambah?kategori=pinjaman_individu"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs whitespace-nowrap"
             >
-              <Plus size={14} />
-              + Add Record (Personal Loan)
+              <Plus size={14} />+ Add Record (Personal Loan)
             </Link>
           )}
         </div>

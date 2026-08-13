@@ -20,15 +20,13 @@ function formatCurrency(n: number | null) {
   return new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' }).format(n)
 }
 
-export default async function TanahJVDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function TanahJVDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
   if (!authUser) redirect('/login')
 
   const { data: userProfile } = await supabase
@@ -38,17 +36,13 @@ export default async function TanahJVDetailPage({
     .single()
   if (!userProfile) redirect('/login')
 
-  const [{data:tanah}, {data:susulan}] = await Promise.all ([
+  const [{ data: tanah }, { data: susulan }] = await Promise.all([
+    supabase.from('tanah_jv').select('*').eq('id', id).single(),
     supabase
-    .from('tanah_jv')
-    .select('*')
-    .eq ('id',id)
-    .single(),
-    supabase
-    .from ('susulan')
-    .select ('*,lampiran(*),dicatat_oleh_user:users(nama)')
-    .eq('tanah_id',id)
-    .order('tarikh_susulan', {ascending: true}),
+      .from('susulan')
+      .select('*,lampiran(*),dicatat_oleh_user:users(nama)')
+      .eq('tanah_id', id)
+      .order('tarikh_susulan', { ascending: true }),
   ])
 
   if (!tanah) notFound()
@@ -75,7 +69,9 @@ export default async function TanahJVDetailPage({
             {tanah.no_lot}
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
-            {[tanah.tempat, tanah.bandar_mukim, tanah.daerah, tanah.negeri].filter(Boolean).join(' · ')}
+            {[tanah.tempat, tanah.bandar_mukim, tanah.daerah, tanah.negeri]
+              .filter(Boolean)
+              .join(' · ')}
           </p>
         </div>
         {canExport && (
@@ -103,12 +99,20 @@ export default async function TanahJVDetailPage({
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
-          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">Area</p>
-          <p className="text-base font-semibold tabular-nums text-[var(--color-text-primary)]">{formatArea(tanah.luas_meter_persegi)}</p>
+          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">
+            Area
+          </p>
+          <p className="text-base font-semibold tabular-nums text-[var(--color-text-primary)]">
+            {formatArea(tanah.luas_meter_persegi)}
+          </p>
         </div>
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
-          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">Collateral Value</p>
-          <p className="text-base font-semibold tabular-nums text-[var(--color-brand)]">{formatCurrency(tanah.anggaran_nilaian)}</p>
+          <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">
+            Collateral Value
+          </p>
+          <p className="text-base font-semibold tabular-nums text-[var(--color-brand)]">
+            {formatCurrency(tanah.anggaran_nilaian)}
+          </p>
         </div>
       </div>
 
@@ -123,24 +127,31 @@ export default async function TanahJVDetailPage({
         <InfoRow label="Location" value={tanah.tempat} />
         <InfoRow label="No. Lot" value={tanah.no_lot} />
         {tanah.no_hak_milik && <InfoRow label="Title No." value={tanah.no_hak_milik} />}
-        {tanah.tarikh_daftar && <InfoRow label="Registered On" value={formatDate(tanah.tarikh_daftar)} />}
+        {tanah.tarikh_daftar && (
+          <InfoRow label="Registered On" value={formatDate(tanah.tarikh_daftar)} />
+        )}
       </div>
 
       {/* Catatan */}
       {tanah.catatan && (
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-2">Notes</p>
-          <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">{tanah.catatan}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-2">
+            Notes
+          </p>
+          <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">
+            {tanah.catatan}
+          </p>
         </div>
       )}
 
       {/* Meta */}
       <p className="text-xs text-[var(--color-text-tertiary)]">
         Registered {formatDate(tanah.dicipta_pada, 'dd/MM/yyyy HH:mm')}
-        {tanah.dikemaskini_pada !== tanah.dicipta_pada && ` · Updated ${formatDate(tanah.dikemaskini_pada, 'dd/MM/yyyy HH:mm')}`}
+        {tanah.dikemaskini_pada !== tanah.dicipta_pada &&
+          ` · Updated ${formatDate(tanah.dikemaskini_pada, 'dd/MM/yyyy HH:mm')}`}
       </p>
 
-   {/* Susulan section */}
+      {/* Susulan section */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
@@ -160,7 +171,7 @@ export default async function TanahJVDetailPage({
           )}
         </div>
 
-        {(!susulan || susulan.length === 0) ? (
+        {!susulan || susulan.length === 0 ? (
           <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] border-dashed p-10 text-center">
             <p className="text-sm text-[var(--color-text-secondary)]">No follow-up records yet</p>
             {canAddSusulan && (
@@ -181,7 +192,9 @@ export default async function TanahJVDetailPage({
               <div key={s.id} className="relative pl-10 pb-6 last:pb-0">
                 {/* Timeline dot */}
                 <div className="absolute left-0 top-1.5 w-[30px] h-[30px] rounded-full bg-[var(--color-surface)] border-2 border-[var(--color-brand-muted)] flex items-center justify-center">
-                  <span className="text-[10px] font-semibold text-[var(--color-brand)]">{i + 1}</span>
+                  <span className="text-[10px] font-semibold text-[var(--color-brand)]">
+                    {i + 1}
+                  </span>
                 </div>
 
                 <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4 shadow-[var(--shadow-sm)]">
@@ -243,16 +256,15 @@ export default async function TanahJVDetailPage({
         )}
       </div>
     </div>
-
-    
-    
   )
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 py-0.5">
-      <span className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wide flex-shrink-0 w-48">{label}</span>
+      <span className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wide flex-shrink-0 w-48">
+        {label}
+      </span>
       <span className="text-sm text-[var(--color-text-primary)] text-right">{value}</span>
     </div>
   )

@@ -33,11 +33,26 @@ const navItems: NavItem[] = [
   { href: '/dashboard/summary/jv1', label: 'Summary JV 1', icon: Building2 },
   { href: '/dashboard/summary/jv2', label: 'Land JV', icon: LayoutList },
   { href: '/dashboard/summary/jv3', label: 'Personal Loan', icon: LayoutList },
-  { href: '/dashboard/tanah-jv', label: 'Tanah MD (JV)', icon: MapPin, permission: 'tambah_fasiliti' },
+  {
+    href: '/dashboard/tanah-jv',
+    label: 'Tanah MD (JV)',
+    icon: MapPin,
+    permission: 'tambah_fasiliti',
+  },
   { href: '/dashboard/fasiliti', label: 'Facilities (All)', icon: Building2 },
-  { href: '/dashboard/assistant', label: '@syaakiirr', icon: Sparkles, permission: 'tambah_susulan' },
+  {
+    href: '/dashboard/assistant',
+    label: '@syaakiirr',
+    icon: Sparkles,
+    permission: 'tambah_susulan',
+  },
   { href: '/dashboard/users', label: 'Users', icon: Users, permission: 'urus_pengguna' },
-  { href: '/dashboard/audit', label: 'Audit Log', icon: ClipboardList, permission: 'lihat_audit_log' },
+  {
+    href: '/dashboard/audit',
+    label: 'Audit Log',
+    icon: ClipboardList,
+    permission: 'lihat_audit_log',
+  },
 ]
 
 interface SidebarProps {
@@ -69,7 +84,12 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
     })
 
   return (
-    <aside className={cn("w-[240px] flex-shrink-0 flex flex-col border-r border-slate-200/70 bg-white/90 backdrop-blur-md h-full font-dm", className)}>
+    <aside
+      className={cn(
+        'w-[240px] flex-shrink-0 flex flex-col border-r border-slate-200/70 bg-white/90 backdrop-blur-md h-full font-dm',
+        className
+      )}
+    >
       {/* Logo */}
       <div className="flex items-center justify-between px-5 h-[68px] border-b border-slate-200/70 bg-white">
         <Link href="/" transitionTypes={['nav-back']}>
@@ -90,9 +110,8 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
       <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {visibleNav.map((item) => {
           const Icon = item.icon
-          const isActive = item.href === '/dashboard'
-            ? pathname === '/dashboard'
-            : pathname.startsWith(item.href)
+          const isActive =
+            item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href)
 
           return (
             <Link
@@ -115,9 +134,7 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
                 )}
               />
               <span className="flex-1">{item.label}</span>
-              {isActive && (
-                <ChevronRight size={13} className="text-[#0066FF] opacity-80" />
-              )}
+              {isActive && <ChevronRight size={13} className="text-[#0066FF] opacity-80" />}
             </Link>
           )
         })}
@@ -132,9 +149,7 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
         >
           {/* Avatar */}
           <div className="w-8 h-8 rounded-full bg-[#EBF2FF] border border-[#0066FF]/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-[11px] font-bold text-[#0066FF]">
-              {getInitials(user.nama)}
-            </span>
+            <span className="text-[11px] font-bold text-[#0066FF]">{getInitials(user.nama)}</span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-900 truncate leading-tight">
@@ -144,7 +159,10 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
               {getRoleLabel(user.peranan)}
             </p>
           </div>
-          <UserCircle2 size={14} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <UserCircle2
+            size={14}
+            className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
+          />
         </Link>
 
         <button

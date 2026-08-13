@@ -48,7 +48,8 @@ export default function DashboardError({
 
         {/* Error message */}
         <p className="text-xs sm:text-sm text-slate-600 mb-6 leading-relaxed bg-slate-50 border border-slate-200/60 p-3.5 rounded-xl font-mono text-left break-words max-h-32 overflow-y-auto">
-          {error.message || 'Ralat yang tidak dijangka telah berlaku semasa memproses permintaan anda.'}
+          {error.message ||
+            'Ralat yang tidak dijangka telah berlaku semasa memproses permintaan anda.'}
         </p>
 
         {/* Action buttons */}
