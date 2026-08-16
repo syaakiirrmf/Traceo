@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Plus, Search, ArrowUpRight } from 'lucide-react'
 import { Suspense } from 'react'
 import { FasilitiFilter } from './FasilitiFilter'
+import { FasilitiPagination } from './FasilitiPagination'
 import { formatCurrency } from '@/lib/utils'
 import { hasPermission } from '@/lib/auth/permissions'
 import type { Metadata } from 'next'
@@ -38,7 +39,10 @@ interface SearchParams {
   q?: string
   status?: string
   kategori?: string
+  page?: string
 }
+
+const PAGE_SIZE = 10
 
 export default async function FasilitiPage({
   searchParams,
@@ -78,7 +82,8 @@ export default async function FasilitiPage({
   let query = supabase
     .from('fasiliti')
     .select(
-      'id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, status_fasiliti, tarikh_mula, jumlah_tunggakan_semasa'
+      'id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, status_fasiliti, tarikh_mula, jumlah_tunggakan_semasa',
+      { count: 'exact' }
     )
     .order('dicipta_pada', { ascending: false })
 
@@ -93,7 +98,21 @@ export default async function FasilitiPage({
     )
   }
 
-  const { data: fasiliti } = await query
+  const countQuery = supabase.from('fasiliti').select('id', { count: 'exact', head: true })
+  if (assignedIds !== null) countQuery.in('id', assignedIds)
+  if (params.status) countQuery.eq('status_fasiliti', params.status)
+  if (params.kategori) countQuery.eq('kategori', params.kategori)
+  if (params.q) {
+    countQuery.or(
+      `nama_peminjam.ilike.%${params.q}%,pembiaya_modal.ilike.%${params.q}%,kod_rujukan.ilike.%${params.q}%`
+    )
+  }
+  const { count } = await countQuery
+  const totalItems = count ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
+  const page = Math.min(Math.max(1, Number(params.page) || 1), totalPages)
+
+  const { data: fasiliti } = await query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1)
   const canAdd = hasPermission(userProfile.peranan, 'tambah_fasiliti')
 
   return (
@@ -227,6 +246,15 @@ export default async function FasilitiPage({
               </tbody>
             </table>
           </div>
+        )}
+
+        {fasiliti && fasiliti.length > 0 && (
+          <FasilitiPagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={PAGE_SIZE}
+          />
         )}
       </div>
     </div>
