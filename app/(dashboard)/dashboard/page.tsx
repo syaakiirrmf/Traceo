@@ -146,6 +146,31 @@ export default async function DashboardPage() {
     .sort((a, b) => b.jumlah_tunggakan_semasa - a.jumlah_tunggakan_semasa)
     .slice(0, 5)
 
+  // ─── KPI (derived metrics) ──────────────────────────────────────────────────
+  const arrearsRatio = totalPembiayaan > 0 ? (totalTunggakan / totalPembiayaan) * 100 : 0
+  const collectionRate = totalPembiayaan > 0 ? (1 - totalTunggakan / totalPembiayaan) * 100 : 0
+  const activeCount = statusCounts.aktif
+  const overdueCount = statusCounts.tertunggak
+  const legalCount = statusCounts.tindakan_guaman
+  const avgFinancing = fasilitiList.length > 0 ? totalPembiayaan / fasilitiList.length : 0
+
+  const financierMap = new Map<
+    string,
+    { nama: string; count: number; pembiayaan: number; tunggakan: number }
+  >()
+  for (const f of fasilitiList) {
+    const nama = f.pembiaya_modal?.trim() || 'Tidak Dinyatakan'
+    const cur = financierMap.get(nama) ?? { nama, count: 0, pembiayaan: 0, tunggakan: 0 }
+    cur.count += 1
+    cur.pembiayaan += f.jumlah_pembiayaan
+    cur.tunggakan += f.jumlah_tunggakan_semasa
+    financierMap.set(nama, cur)
+  }
+  const topFinanciers = [...financierMap.values()]
+    .sort((a, b) => b.pembiayaan - a.pembiayaan)
+    .slice(0, 5)
+  const maxFinancierExposure = topFinanciers[0]?.pembiayaan || 1
+
   // ─── 1. OFFICER DASHBOARD VIEW ──────────────────────────────────────────────
   if (userRole === 'pegawai_susulan') {
     const [{ data: assignedRows }, { data: officerSusulan }] = await Promise.all([
@@ -225,6 +250,16 @@ export default async function DashboardPage() {
       categoryData={categoryData}
       statusData={statusData}
       overdueList={overdueList}
+      kpi={{
+        arrearsRatio,
+        collectionRate,
+        activeCount,
+        overdueCount,
+        legalCount,
+        avgFinancing,
+      }}
+      topFinanciers={topFinanciers}
+      maxFinancierExposure={maxFinancierExposure}
     />
   )
 }
