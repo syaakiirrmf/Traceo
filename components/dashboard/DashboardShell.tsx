@@ -4,14 +4,16 @@ import React, { useState } from 'react'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { TopBar } from '@/components/dashboard/TopBar'
 import { PageTransitionShell } from '@/components/dashboard/PageTransitionShell'
+import type { SusulanNotification } from '@/lib/notifications'
 import type { User } from '@/types'
 
 interface DashboardShellProps {
   user: User
   children: React.ReactNode
+  notifications?: SusulanNotification[]
 }
 
-export function DashboardShell({ user, children }: DashboardShellProps) {
+export function DashboardShell({ user, children, notifications = [] }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -38,7 +40,11 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
 
       {/* Main Content Viewport */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <TopBar user={user} onMenuToggle={() => setMobileOpen(true)} />
+        <TopBar
+          user={user}
+          notifications={notifications}
+          onMenuToggle={() => setMobileOpen(true)}
+        />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <PageTransitionShell>{children}</PageTransitionShell>
         </main>
