@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { renderToBuffer } from '@react-pdf/renderer'
-import { createElement, type ReactElement } from 'react'
-import { TanahKronologiPDF } from '@/lib/pdf/TanahKronologiPDF'
+import { generateTanahKronologiPdf } from '@/lib/pdf/tanahKronologiPdfme'
 import { format } from 'date-fns'
-import type { DocumentProps } from '@react-pdf/renderer'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -39,12 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (!tanah) return NextResponse.json({ error: 'Land not found' }, { status: 404 })
 
-    const buffer = await renderToBuffer(
-      createElement(TanahKronologiPDF, {
-        tanah,
-        susulan: susulan ?? [],
-      }) as ReactElement<DocumentProps>
-    )
+    const buffer = await generateTanahKronologiPdf(tanah, susulan ?? [])
 
     const today = format(new Date(), 'ddMMyyyy')
     const kod = (tanah.no_lot ?? 'TANAH').replace(/[^a-zA-Z0-9]/g, '')

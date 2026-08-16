@@ -12,6 +12,27 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
   const [showExtra, setShowExtra] = useState(false)
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [sortKey, setSortKey] = useState<string | null>(null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+
+  function handleSort(key: string) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  function SortIcon({ colKey }: { colKey: string }) {
+    if (sortKey !== colKey)
+      return <span className="ml-1 text-[var(--color-text-tertiary)] opacity-40">⇅</span>
+    return (
+      <span className="ml-1 text-[var(--color-brand)]">
+        {sortDir === 'asc' ? '↑' : '↓'}
+      </span>
+    )
+  }
 
   const STATUS_FILTER_OPTIONS = [
     { value: '', label: 'All Statuses' },
@@ -20,7 +41,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
 
   const q = query.trim().toLowerCase()
   const visibleRows = useMemo(() => {
-    return rows.filter((f) => {
+    const filtered = rows.filter((f) => {
       if (statusFilter) {
         const effective =
           f.status_fasiliti || ((f.jumlah_tunggakan_semasa ?? 0) > 0 ? 'tertunggak' : 'aktif')
@@ -31,7 +52,24 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
         matchesQuery(v, q)
       )
     })
-  }, [rows, q, statusFilter])
+
+    if (!sortKey) return filtered
+
+    return [...filtered].sort((a, b) => {
+      let av: number | string = 0
+      let bv: number | string = 0
+      if (sortKey === 'nama_peminjam') {
+        av = (a.nama_peminjam ?? '').toLowerCase()
+        bv = (b.nama_peminjam ?? '').toLowerCase()
+      } else {
+        av = (a[sortKey as keyof typeof a] as number) ?? 0
+        bv = (b[sortKey as keyof typeof b] as number) ?? 0
+      }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1
+      if (av > bv) return sortDir === 'asc' ? 1 : -1
+      return 0
+    })
+  }, [rows, q, statusFilter, sortKey, sortDir])
 
   const totalPembiayaan = visibleRows.reduce((s, f) => s + (f.jumlah_pembiayaan ?? 0), 0)
   const totalTunggakanDiv = visibleRows.reduce((s, f) => s + (f.tunggakan_dividen ?? 0), 0)
@@ -80,9 +118,12 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 </th>
                 <th
                   rowSpan={2}
-                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px] sticky left-12 z-40 bg-[var(--color-surface-raised)]"
+                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px] sticky left-12 z-40 bg-[var(--color-surface-raised)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => handleSort('nama_peminjam')}
                 >
-                  Borrower Name &amp; Code
+                  <span className="flex items-center">
+                    Borrower Name &amp; Code <SortIcon colKey="nama_peminjam" />
+                  </span>
                 </th>
                 <th
                   colSpan={3}
@@ -120,29 +161,56 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
                   Capital Financier
                 </th>
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">
-                  Total Financing (RM){' '}
-                  <span className="font-semibold text-[var(--color-text-primary)]">(A)</span>
+                <th
+                  className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => handleSort('jumlah_pembiayaan')}
+                >
+                  <span className="flex items-center justify-end">
+                    Total Financing (RM) <span className="font-semibold text-[var(--color-text-primary)]">(A)</span>
+                    <SortIcon colKey="jumlah_pembiayaan" />
+                  </span>
                 </th>
                 <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
                   Dividend Sharing
                 </th>
 
                 {/* Tunggakan Sub-fields */}
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">
-                  Dividend Arrears (RM) <span>(B)</span>
+                <th
+                  className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => handleSort('tunggakan_dividen')}
+                >
+                  <span className="flex items-center justify-end">
+                    Dividend Arrears (RM) <span>(B)</span>
+                    <SortIcon colKey="tunggakan_dividen" />
+                  </span>
                 </th>
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">
-                  Late Charges (RM) <span>(C)</span>
+                <th
+                  className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => handleSort('caj_lewat')}
+                >
+                  <span className="flex items-center justify-end">
+                    Late Charges (RM) <span>(C)</span>
+                    <SortIcon colKey="caj_lewat" />
+                  </span>
                 </th>
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">
-                  Additional Payments (RM) <span>(D)</span>
+                <th
+                  className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => handleSort('bayaran_tambahan')}
+                >
+                  <span className="flex items-center justify-end">
+                    Additional Payments (RM) <span>(D)</span>
+                    <SortIcon colKey="bayaran_tambahan" />
+                  </span>
                 </th>
-                <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] bg-[var(--color-surface-raised)]">
+                <th
+                  className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] bg-[var(--color-surface-raised)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => handleSort('jumlah_tunggakan_semasa')}
+                >
                   <div className="flex items-center justify-end">
                     <span>Total Arrears (RM)</span>
                     <span className="font-semibold text-[var(--color-text-primary)] ml-1">(E)</span>
                     <FormulaTooltip content="Total Arrears (E) includes the outstanding capital balance & approved current claims." />
+                    <SortIcon colKey="jumlah_tunggakan_semasa" />
                   </div>
                 </th>
 
