@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  let body: { messages?: ChatMessage[] }
+  let body: { messages?: ChatMessage[]; sesiId?: string }
   try {
     body = await request.json()
   } catch {
@@ -59,6 +59,43 @@ export async function POST(request: NextRequest) {
   }
 
   const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : []
+
+  // ─── Chat history persistence ─────────────────────────────────────────
+  // Reuse the incoming session id when continuing a conversation; otherwise
+  // create a fresh session titled from the first user message.
+  const lastUserMessage =
+    [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+  let sesiId = typeof body.sesiId === 'string' && body.sesiId ? body.sesiId : null
+
+  if (sesiId) {
+    const { data: owned } = await supabase
+      .from('chat_sesi')
+      .select('id')
+      .eq('id', sesiId)
+      .eq('user_id', profile.id)
+      .maybeSingle()
+    if (!owned) sesiId = null
+  }
+
+  if (!sesiId) {
+    const tajuk = (lastUserMessage || 'Perbualan baharu').slice(0, 120)
+    const { data: created, error: createError } = await supabase
+      .from('chat_sesi')
+      .insert({ user_id: profile.id, tajuk })
+      .select('id')
+      .single()
+    if (createError) {
+      console.error('[Chat session create]', createError)
+    } else {
+      sesiId = created.id
+    }
+  }
+
+  if (sesiId && lastUserMessage) {
+    await supabase
+      .from('chat_mesej')
+      .insert({ sesi_id: sesiId, peranan: 'user', kandungan: lastUserMessage })
+  }
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
@@ -157,7 +194,22 @@ Peraturan had skop [${profile.peranan.toUpperCase()}] di atas adalah WAJIB untuk
     const isStructured = detectStructuredRequest(lastUserMessage)
     const cleanedReply = cleanAiResponse(reply, isStructured)
 
-    return NextResponse.json({ reply: cleanedReply, ...(pdfUrl ? { downloadUrl: pdfUrl } : {}) })
+    // Persist the assistant reply and bump session recency.
+    if (sesiId) {
+      await supabase
+        .from('chat_mesej')
+        .insert({ sesi_id: sesiId, peranan: 'assistant', kandungan: cleanedReply })
+      await supabase
+        .from('chat_sesi')
+        .update({ dikemaskini_pada: new Date().toISOString() })
+        .eq('id', sesiId)
+    }
+
+    return NextResponse.json({
+      reply: cleanedReply,
+      ...(pdfUrl ? { downloadUrl: pdfUrl } : {}),
+      ...(sesiId ? { sesiId } : {}),
+    })
   } catch (err) {
     console.error('[AI Chat Error]', err)
     return NextResponse.json(
