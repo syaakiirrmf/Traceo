@@ -92,7 +92,7 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
     >
       {/* Logo */}
       <div className="flex items-center justify-between px-5 h-[68px] border-b border-slate-200/70 bg-white">
-        <Link href="/" transitionTypes={['nav-back']}>
+        <Link href="/" className="hover:opacity-90 transition-opacity">
           <LogoBrand size="md" variant="dark" />
         </Link>
         {onClose && (
@@ -118,7 +118,6 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
               key={item.href}
               href={item.href}
               onClick={() => onClose && onClose()}
-              transitionTypes={['page-nav']}
               className={cn(
                 'group flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all duration-200',
                 isActive
@@ -144,7 +143,6 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
       <div className="px-3 pb-3 border-t border-slate-200/70 pt-3">
         <Link
           href="/dashboard/profil"
-          transitionTypes={['page-nav']}
           className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-slate-100/70 transition-colors group"
         >
           {/* Avatar */}

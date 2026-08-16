@@ -89,7 +89,6 @@ export function OfficerDashboardView({
         <div className="flex items-center gap-2.5 flex-wrap">
           <Link
             href="/dashboard/assistant"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#0066FF]/20 bg-[#EBF2FF] text-xs font-bold text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-all duration-200 shadow-xs"
           >
             <Sparkles size={14} />
@@ -97,7 +96,6 @@ export function OfficerDashboardView({
           </Link>
           <Link
             href="/dashboard/fasiliti"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat"
           >
             <Building2 size={14} />
@@ -229,14 +227,12 @@ export function OfficerDashboardView({
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                     <Link
                       href={`/dashboard/fasiliti/${f.id}`}
-                      transitionTypes={['nav-forward']}
                       className="text-xs font-bold text-slate-600 hover:text-[#0066FF] transition-colors"
                     >
                       Butiran &rarr;
                     </Link>
                     <Link
                       href={`/dashboard/fasiliti/${f.id}/susulan/tambah`}
-                      transitionTypes={['nav-forward']}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-colors shadow-xs"
                     >
                       <Plus size={13} />+ Catat Susulan

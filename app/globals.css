@@ -153,86 +153,53 @@ p font, p mark, p font[color], p span[style*="color"] {
 }
 
 /* ════════════════════════════════════════════════════════
-   PAGE TRANSITION SYSTEM
-   ════════════════════════════════════════════════════════
+   SMOOTH HARDWARE-ACCELERATED PAGE TRANSITION SYSTEM
+   ════════════════════════════════════════════════════════ */
 
-   Three patterns:
-   1. nav-forward  — deeper navigation (landing→login, login→dashboard,
-                     dashboard→sub-page). Slide left.
-   2. nav-back     — going up the hierarchy. Slide right.
-   3. page-nav     — peer-level (sidebar links). Clean crossfade.
-   4. hero-enter   — landing page entry (fade-up on first paint).
-   ═══════════════════════════════════════════════════════════════ */
-
-:root {
-  /* Vita Travel-tuned timing: snappy exit, generous enter */
-  --vt-dur-exit: 180ms;
-  --vt-dur-enter: 380ms;
-  --vt-delay-enter: 180ms;
-  --vt-slide-x: 44px;
-  --vt-slide-y: 14px;
-  --vt-ease: cubic-bezier(0.16, 1, 0.3, 1);
+@keyframes page-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ── Shared keyframes ── */
-@keyframes vt-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes vt-slide-right {
-  from { translate: calc(-1 * var(--vt-slide-x)); }
-  to   { translate: 0; }
-}
-@keyframes vt-slide-left {
-  from { translate: var(--vt-slide-x); }
-  to   { translate: 0; }
-}
-@keyframes vt-slide-up {
-  from { translate: 0 var(--vt-slide-y); }
-  to   { translate: 0 0; }
+@keyframes page-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-/* ── nav-forward: OLD slides out left, NEW slides in from right ── */
-::view-transition-old(.nav-forward) {
-  animation:
-    var(--vt-dur-exit) var(--vt-ease) both vt-fade reverse,
-    var(--vt-dur-exit) var(--vt-ease) both vt-slide-right reverse;
-}
-::view-transition-new(.nav-forward) {
-  animation:
-    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-fade,
-    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-slide-left;
-}
-
-/* ── nav-back: OLD slides out right, NEW slides in from left ── */
-::view-transition-old(.nav-back) {
-  animation:
-    var(--vt-dur-exit) var(--vt-ease) both vt-fade reverse,
-    var(--vt-dur-exit) var(--vt-ease) both vt-slide-left reverse;
-}
-::view-transition-new(.nav-back) {
-  animation:
-    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-fade,
-    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-slide-right;
+@keyframes card-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-/* ── page-nav: crossfade with subtle lift (Vita Travel sidebar feel) ── */
-::view-transition-old(.page-nav) {
-  animation:
-    var(--vt-dur-exit) var(--vt-ease) both vt-fade reverse,
-    var(--vt-dur-exit) var(--vt-ease) both vt-slide-up reverse;
-}
-::view-transition-new(.page-nav) {
-  animation:
-    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-fade,
-    var(--vt-dur-enter) var(--vt-ease) var(--vt-delay-enter) both vt-slide-up;
+.animate-page-enter {
+  animation: page-enter 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
-/* ── hero-enter: fade-up used for landing page initial entry ── */
-::view-transition-new(.hero-enter) {
-  animation:
-    280ms ease-out both vt-fade,
-    280ms ease-out both vt-slide-up;
+.animate-page-fade {
+  animation: page-fade 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity;
+}
+
+.animate-card-pop {
+  animation: card-pop 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 /* ── Anchor the dashboard sidebar: it should NEVER animate ── */
