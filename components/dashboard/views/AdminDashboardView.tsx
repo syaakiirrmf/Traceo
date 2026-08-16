@@ -58,6 +58,21 @@ export interface AdminDashboardViewProps {
     jumlah_tunggakan_semasa: number
     status_fasiliti: string
   }>
+  kpi: {
+    arrearsRatio: number
+    collectionRate: number
+    activeCount: number
+    overdueCount: number
+    legalCount: number
+    avgFinancing: number
+  }
+  topFinanciers: Array<{
+    nama: string
+    count: number
+    pembiayaan: number
+    tunggakan: number
+  }>
+  maxFinancierExposure: number
 }
 
 export function AdminDashboardView({
@@ -70,6 +85,9 @@ export function AdminDashboardView({
   categoryData,
   statusData,
   overdueList,
+  kpi,
+  topFinanciers,
+  maxFinancierExposure,
 }: AdminDashboardViewProps) {
   const activeCount = fasilitiList.filter((f) => f.status_fasiliti === 'aktif').length
 
@@ -189,13 +207,104 @@ export function AdminDashboardView({
         </div>
       </div>
 
+      {/* Admin KPI Ratio Band */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#0066FF]/[0.06] to-transparent border border-[#0066FF]/15">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Arrears Ratio
+          </p>
+          <p className="mt-1.5 text-2xl font-fustat font-black text-slate-900 tabular-nums">
+            {kpi.arrearsRatio.toFixed(1)}%
+          </p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            Tunggakan berbanding pembiayaan
+          </p>
+        </div>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.06] to-transparent border border-emerald-500/15">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Collection Rate
+          </p>
+          <p className="mt-1.5 text-2xl font-fustat font-black text-emerald-600 tabular-nums">
+            {kpi.collectionRate.toFixed(1)}%
+          </p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            Bahagian pembiayaan terkumpul
+          </p>
+        </div>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/[0.06] to-transparent border border-rose-500/15">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            At-Risk Portfolio
+          </p>
+          <p className="mt-1.5 text-2xl font-fustat font-black text-rose-600 tabular-nums">
+            {kpi.overdueCount + kpi.legalCount}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            {kpi.overdueCount} overdue · {kpi.legalCount} legal action
+          </p>
+        </div>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/[0.06] to-transparent border border-purple-500/15">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Avg Financing
+          </p>
+          <p className="mt-1.5 text-2xl font-fustat font-black text-slate-900 tabular-nums">
+            {formatCurrency(kpi.avgFinancing)}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            Purata setiap fasiliti
+          </p>
+        </div>
+      </div>
+
       {/* Admin Charts Section */}
-      <DashboardCharts
-        categories={categoryData}
-        statuses={statusData}
-        totalCagaran={totalCagaran}
-        overdueList={overdueList}
-      />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div className="xl:col-span-2">
+          <DashboardCharts
+            categories={categoryData}
+            statuses={statusData}
+            totalCagaran={totalCagaran}
+            overdueList={overdueList}
+          />
+        </div>
+
+        {/* Top Financiers by Exposure */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Top Financiers by Exposure
+            </span>
+            <Landmark size={16} className="text-[#0066FF]" />
+          </div>
+          <div className="space-y-4">
+            {topFinanciers.map((f) => {
+              const pct = (f.pembiayaan / maxFinancierExposure) * 100
+              return (
+                <div key={f.nama}>
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-xs font-semibold text-slate-800 truncate">{f.nama}</p>
+                    <p className="text-xs font-mono font-bold text-slate-900 tabular-nums">
+                      {formatCurrency(f.pembiayaan)}
+                    </p>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${f.tunggakan > 0 ? 'bg-rose-500/70' : 'bg-[#0066FF]'}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="text-[10.5px] text-slate-500 mt-1">
+                    {f.count} fasiliti · Arrears {formatCurrency(f.tunggakan)}
+                  </p>
+                </div>
+              )
+            })}
+            {topFinanciers.length === 0 && (
+              <p className="text-xs text-slate-400 text-center py-6">
+                Tiada data financier.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
