@@ -1,8 +1,19 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts'
 
 function formatRM(val: number): string {
   return new Intl.NumberFormat('ms-MY', {
@@ -11,6 +22,12 @@ function formatRM(val: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(val)
+}
+
+function formatRMShort(val: number): string {
+  if (val >= 1_000_000) return `RM ${(val / 1_000_000).toFixed(1)}M`
+  if (val >= 1_000) return `RM ${(val / 1_000).toFixed(0)}K`
+  return formatRM(val)
 }
 
 interface CategoryData {
@@ -39,6 +56,52 @@ interface StatusData {
   color: string
 }
 
+function BarTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: Array<{ name: string; value: number; color: string }>
+  label?: string
+}) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-3 text-xs min-w-[160px]">
+      <p className="font-bold text-slate-900 mb-2">{label}</p>
+      {payload.map((p) => (
+        <div key={p.name} className="flex items-center justify-between gap-4">
+          <span className="flex items-center gap-1.5 text-slate-600">
+            <span className="w-2 h-2 rounded-sm inline-block" style={{ backgroundColor: p.color }} />
+            {p.name}
+          </span>
+          <span className="font-mono font-bold text-slate-900">{formatRM(p.value)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PieTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: Array<{ name: string; value: number; payload: { color: string } }>
+}) {
+  if (!active || !payload?.length) return null
+  const item = payload[0]
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-3 text-xs">
+      <div className="flex items-center gap-2">
+        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: item.payload.color }} />
+        <span className="font-semibold text-slate-900">{item.name}</span>
+        <span className="font-mono font-bold text-slate-700">{item.value}</span>
+      </div>
+    </div>
+  )
+}
+
 export function DashboardCharts({
   categories,
   statuses,
@@ -50,24 +113,36 @@ export function DashboardCharts({
   totalCagaran: number
   overdueList: OverdueItem[]
 }) {
-  const [activeBar, setActiveBar] = useState<string | null>(null)
-
-  const maxPembiayaan = Math.max(...categories.map((c) => c.pembiayaan), 1)
   const totalCount = statuses.reduce((s, c) => s + c.count, 0)
+
+  const barData = categories.map((c) => ({
+    name: c.name,
+    href: c.href,
+    Financing: c.pembiayaan,
+    Arrears: c.tunggakan,
+  }))
+
+  const pieData = statuses
+    .filter((s) => s.count > 0)
+    .map((s) => ({
+      name: s.label,
+      value: s.count,
+      color: s.color === 'var(--color-brand)' ? '#0066FF' : s.color,
+    }))
 
   return (
     <div className="space-y-6">
-      {/* ── Section 1: Financial & Status Charts Grid ── */}
+      {/* â”€â”€ Section 1: Financial & Status Charts Grid â”€â”€ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Chart 1: Category Financial Breakdown (Bar Chart) */}
+        {/* Chart 1: BarChart â€” Financing vs Arrears */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-fustat font-black text-slate-900">
-                Financing &amp; Arrears Distribution by Category
+                Financing &amp; Arrears by Category
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Comparison of committed funds vs outstanding arrears
+                Committed funds vs outstanding arrears
               </p>
             </div>
             <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">
@@ -75,68 +150,47 @@ export function DashboardCharts({
             </span>
           </div>
 
-          {/* Bar Chart Bars */}
-          <div className="space-y-4 pt-2">
-            {categories.map((cat) => {
-              const pembiayaanWidth = Math.round((cat.pembiayaan / maxPembiayaan) * 100)
-              const isHovered = activeBar === cat.key
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={barData} barGap={4} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 11, fill: '#64748b' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tickFormatter={formatRMShort}
+                tick={{ fontSize: 10, fill: '#94a3b8' }}
+                axisLine={false}
+                tickLine={false}
+                width={72}
+              />
+              <Tooltip content={<BarTooltip />} cursor={{ fill: '#f1f5f9' }} />
+              <Bar dataKey="Financing" fill="#0066FF" radius={[4, 4, 0, 0]} maxBarSize={48} />
+              <Bar dataKey="Arrears" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={48} />
+            </BarChart>
+          </ResponsiveContainer>
 
-              return (
-                <div
-                  key={cat.key}
-                  className="space-y-1.5 p-3 rounded-xl transition-colors hover:bg-slate-50 border border-transparent hover:border-slate-200/60"
-                  onMouseEnter={() => setActiveBar(cat.key)}
-                  onMouseLeave={() => setActiveBar(null)}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-xs">
-                    <Link
-                      href={cat.href}
-                      transitionTypes={['nav-forward']}
-                      className="font-bold text-slate-900 hover:text-[#0066FF] flex items-center gap-1.5 min-w-0 truncate"
-                    >
-                      <span className="truncate">{cat.name}</span>
-                      <span className="text-[10px] text-slate-400 font-normal shrink-0">
-                        ({cat.count} records)
-                      </span>
-                    </Link>
-                    <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs flex-wrap sm:flex-nowrap shrink-0">
-                      <span className="text-slate-900 font-bold tabular-nums">
-                        {formatRM(cat.pembiayaan)}
-                      </span>
-                      {cat.tunggakan > 0 && (
-                        <span className="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded-full text-[11px] border border-red-200 tabular-nums shrink-0">
-                          Arrears: {formatRM(cat.tunggakan)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Progress Bar Group */}
-                  <div className="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden flex relative">
-                    <div
-                      style={{ width: `${pembiayaanWidth}%` }}
-                      className={`h-full bg-[#0066FF] transition-all duration-300 ${isHovered ? 'bg-[#0048CC]' : ''}`}
-                    />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-200/80">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#0066FF]" /> Total Financing
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-red-500" /> Arrears
-              </span>
-            </div>
-            <span>Auto-updated</span>
+          <div className="flex flex-wrap gap-3 pt-1 border-t border-slate-100">
+            {categories.map((cat) => (
+              <Link
+                key={cat.key}
+                href={cat.href}
+                transitionTypes={['nav-forward']}
+                className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 hover:text-[#0066FF] transition-colors"
+              >
+                <span>{cat.name}</span>
+                <span className="text-slate-400 font-normal">({cat.count})</span>
+                <ArrowUpRight size={11} />
+              </Link>
+            ))}
+            <span className="ml-auto text-[10px] text-slate-400 italic self-center">
+              Auto-updated
+            </span>
           </div>
         </div>
 
-        {/* Chart 2: Status Distribution */}
+        {/* Chart 2: PieChart Donut â€” Facility Status */}
         <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs flex flex-col justify-between space-y-4">
           <div>
             <h2 className="text-base font-bold text-slate-900">Overall Facility Status</h2>
@@ -145,55 +199,53 @@ export function DashboardCharts({
             </p>
           </div>
 
-          {/* Donut Progress Visual */}
-          <div className="space-y-4 py-2">
-            {/* Multi-segmented distribution bar */}
-            <div className="h-3.5 w-full rounded-full bg-slate-100 overflow-hidden flex">
-              {statuses.map((st) => {
-                const pct = totalCount > 0 ? (st.count / totalCount) * 100 : 0
-                if (pct === 0) return null
-                return (
-                  <div
-                    key={st.key}
-                    style={{
-                      width: `${pct}%`,
-                      backgroundColor: st.color === 'var(--color-brand)' ? '#0066FF' : st.color,
-                    }}
-                    className="h-full border-r border-white last:border-0"
-                    title={`${st.label}: ${st.count} (${pct.toFixed(0)}%)`}
-                  />
-                )
-              })}
-            </div>
-
-            {/* Status Item Breakdown */}
-            <div className="space-y-2.5 pt-2">
-              {statuses.map((st) => {
-                const pct = totalCount > 0 ? ((st.count / totalCount) * 100).toFixed(0) : '0'
-                const displayColor = st.color === 'var(--color-brand)' ? '#0066FF' : st.color
-                return (
-                  <div
-                    key={st.key}
-                    className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: displayColor }}
-                      />
-                      <span className="text-slate-700 font-semibold">{st.label}</span>
-                    </div>
-                    <div className="flex items-center gap-2 font-mono">
-                      <span className="font-extrabold text-slate-900">{st.count}</span>
-                      <span className="text-[10px] text-slate-400">({pct}%)</span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+          <div className="flex justify-center">
+            <ResponsiveContainer width="100%" height={160}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={46}
+                  outerRadius={72}
+                  paddingAngle={2}
+                  dataKey="value"
+                  strokeWidth={0}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={index} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<PieTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* Collateral Overview Strip */}
+          <div className="space-y-2">
+            {statuses.map((st) => {
+              const pct = totalCount > 0 ? ((st.count / totalCount) * 100).toFixed(0) : '0'
+              const displayColor = st.color === 'var(--color-brand)' ? '#0066FF' : st.color
+              return (
+                <div
+                  key={st.key}
+                  className="flex items-center justify-between text-xs py-1 border-b border-slate-100 last:border-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: displayColor }}
+                    />
+                    <span className="text-slate-700 font-semibold">{st.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono">
+                    <span className="font-extrabold text-slate-900">{st.count}</span>
+                    <span className="text-[10px] text-slate-400">({pct}%)</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
           <div className="p-3.5 rounded-xl bg-[#EBF2FF]/80 border border-[#0066FF]/20 text-xs space-y-1">
             <p className="text-[10px] uppercase font-bold text-[#0066FF] tracking-wider">
               Collateral Coverage (LTV Ratio)
@@ -208,7 +260,7 @@ export function DashboardCharts({
         </div>
       </div>
 
-      {/* ── Section 2: Overdue Attention List ── */}
+      {/* â”€â”€ Section 2: Overdue Attention List â”€â”€ */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>

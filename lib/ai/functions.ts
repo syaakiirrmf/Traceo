@@ -217,7 +217,7 @@ export async function generateKronologiPdf(
   }
 }
 
-// ─── Dispatcher ───────────────────────────────────────────────────────────────
+//  Dispatcher 
 
 export async function dispatchAiTool(
   name: string,

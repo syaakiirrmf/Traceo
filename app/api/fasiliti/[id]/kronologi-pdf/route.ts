@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { renderToBuffer } from '@react-pdf/renderer'
-import { createElement, type ReactElement } from 'react'
-import { KronologiPDF } from '@/lib/pdf/KronologiPDF'
+import { generateKronologiPdf } from '@/lib/pdf/kronologiPdfme'
 import { format } from 'date-fns'
-import type { DocumentProps } from '@react-pdf/renderer'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -46,12 +43,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (!fasiliti) return NextResponse.json({ error: 'Facility not found' }, { status: 404 })
 
-    const buffer = await renderToBuffer(
-      createElement(KronologiPDF, {
-        fasiliti,
-        susulan: susulan ?? [],
-      }) as ReactElement<DocumentProps>
-    )
+    const buffer = await generateKronologiPdf(fasiliti, susulan ?? [])
 
     const today = format(new Date(), 'ddMMyyyy')
     const kod = (fasiliti.kod_rujukan ?? 'JV').replace('-', '')
