@@ -5,6 +5,7 @@ import { Plus, Search, ArrowUpRight } from 'lucide-react'
 import { Suspense } from 'react'
 import { FasilitiFilter } from './FasilitiFilter'
 import { FasilitiPagination } from './FasilitiPagination'
+import { ExportButton } from '@/components/ExportButton'
 import { formatCurrency } from '@/lib/utils'
 import { hasPermission } from '@/lib/auth/permissions'
 import type { Metadata } from 'next'
@@ -133,14 +134,17 @@ export default async function FasilitiPage({
           </h1>
         </div>
 
-        {canAdd && (
-          <Link
-            href="/dashboard/fasiliti/tambah"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs"
-          >
-            <Plus size={14} />+ Add Facility
-          </Link>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          <ExportButton href="/api/export/fasiliti" />
+          {canAdd && (
+            <Link
+              href="/dashboard/fasiliti/tambah"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors shadow-xs"
+            >
+              <Plus size={14} />+ Add Facility
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Filters */}

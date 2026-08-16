@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Plus, ArrowLeft } from 'lucide-react'
 import { formatRM, formatArea } from '../summary/_helpers'
 import { TanahMDTable } from '../summary/tanah-md/TanahMDTable'
+import { ExportButton } from '@/components/ExportButton'
 import { hasPermission } from '@/lib/auth/permissions'
 import type { Metadata } from 'next'
 
@@ -92,6 +93,8 @@ export default async function TanahJVPage() {
               </p>
             </div>
           </div>
+
+          <ExportButton href="/api/export/tanah-jv" />
 
           {canAdd && (
             <Link
