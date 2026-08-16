@@ -1,8 +1,20 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const SECURITY_HEADERS: Record<string, string> = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'X-DNS-Prefetch-Control': 'off',
+}
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
+  Object.entries(SECURITY_HEADERS).forEach(([name, value]) =>
+    supabaseResponse.headers.set(name, value)
+  )
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,14 +46,22 @@ export async function proxy(request: NextRequest) {
   if (publicRoutes.includes(pathname)) {
     // If already logged in and visiting a page route, redirect to dashboard
     if (user && !pathname.startsWith('/api/')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      const redirect = NextResponse.redirect(new URL('/dashboard', request.url))
+      Object.entries(SECURITY_HEADERS).forEach(([name, value]) =>
+        redirect.headers.set(name, value)
+      )
+      return redirect
     }
     return supabaseResponse
   }
 
   // Protected routes — must be logged in
   if (!user) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const redirect = NextResponse.redirect(new URL('/login', request.url))
+    Object.entries(SECURITY_HEADERS).forEach(([name, value]) =>
+      redirect.headers.set(name, value)
+    )
+    return redirect
   }
 
   return supabaseResponse

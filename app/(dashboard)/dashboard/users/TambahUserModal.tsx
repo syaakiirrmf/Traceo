@@ -86,8 +86,8 @@ export function TambahUserModal() {
             type="password"
             required
             placeholder="Minimum 8 characters"
+            hint="8+ characters with upper, lower &amp; number"
           />
-
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-[var(--color-text-primary)]">
               Role <span className="text-[var(--color-danger)]">*</span>
@@ -117,12 +117,14 @@ function Field({
   type = 'text',
   required,
   placeholder,
+  hint,
 }: {
   label: string
   name: string
   type?: string
   required?: boolean
   placeholder?: string
+  hint?: string
 }) {
   return (
     <div className="space-y-1.5">
@@ -133,9 +135,17 @@ function Field({
         type={type}
         name={name}
         required={required}
+        minLength={name === 'kata_laluan' ? 8 : undefined}
+        pattern={name === 'kata_laluan' ? '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}' : undefined}
+        title={
+          name === 'kata_laluan'
+            ? '8+ characters with uppercase, lowercase and number'
+            : undefined
+        }
         placeholder={placeholder}
         className="w-full h-10 px-3.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
       />
+      {hint && <p className="text-xs text-[var(--color-text-tertiary)]">{hint}</p>}
     </div>
   )
 }
