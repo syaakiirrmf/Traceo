@@ -8,6 +8,24 @@ import { FormulaTooltip, ToggleColumnsButton, StatusBadge } from '../_components
 import { TableSearch, TableSelect, matchesQuery } from '@/components/table/TableSearch'
 import type { Fasiliti } from '@/types'
 
+function SortIcon({
+  colKey,
+  sortKey,
+  sortDir,
+}: {
+  colKey: string
+  sortKey: string | null
+  sortDir: 'asc' | 'desc'
+}) {
+  if (sortKey !== colKey)
+    return <span className="ml-1 text-[var(--color-text-tertiary)] opacity-40">⇅</span>
+  return (
+    <span className="ml-1 text-[var(--color-brand)]">
+      {sortDir === 'asc' ? '↑' : '↓'}
+    </span>
+  )
+}
+
 export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
   const [showExtra, setShowExtra] = useState(false)
   const [query, setQuery] = useState('')
@@ -22,16 +40,6 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
       setSortKey(key)
       setSortDir('asc')
     }
-  }
-
-  function SortIcon({ colKey }: { colKey: string }) {
-    if (sortKey !== colKey)
-      return <span className="ml-1 text-[var(--color-text-tertiary)] opacity-40">⇅</span>
-    return (
-      <span className="ml-1 text-[var(--color-brand)]">
-        {sortDir === 'asc' ? '↑' : '↓'}
-      </span>
-    )
   }
 
   const STATUS_FILTER_OPTIONS = [
@@ -122,7 +130,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                   onClick={() => handleSort('nama_peminjam')}
                 >
                   <span className="flex items-center">
-                    Borrower Name &amp; Code <SortIcon colKey="nama_peminjam" />
+                    Borrower Name &amp; Code <SortIcon colKey="nama_peminjam" sortKey={sortKey} sortDir={sortDir} />
                   </span>
                 </th>
                 <th
@@ -167,7 +175,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 >
                   <span className="flex items-center justify-end">
                     Total Financing (RM) <span className="font-semibold text-[var(--color-text-primary)]">(A)</span>
-                    <SortIcon colKey="jumlah_pembiayaan" />
+                    <SortIcon colKey="jumlah_pembiayaan" sortKey={sortKey} sortDir={sortDir} />
                   </span>
                 </th>
                 <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
@@ -181,7 +189,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 >
                   <span className="flex items-center justify-end">
                     Dividend Arrears (RM) <span>(B)</span>
-                    <SortIcon colKey="tunggakan_dividen" />
+                    <SortIcon colKey="tunggakan_dividen" sortKey={sortKey} sortDir={sortDir} />
                   </span>
                 </th>
                 <th
@@ -190,7 +198,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 >
                   <span className="flex items-center justify-end">
                     Late Charges (RM) <span>(C)</span>
-                    <SortIcon colKey="caj_lewat" />
+                    <SortIcon colKey="caj_lewat" sortKey={sortKey} sortDir={sortDir} />
                   </span>
                 </th>
                 <th
@@ -199,7 +207,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 >
                   <span className="flex items-center justify-end">
                     Additional Payments (RM) <span>(D)</span>
-                    <SortIcon colKey="bayaran_tambahan" />
+                    <SortIcon colKey="bayaran_tambahan" sortKey={sortKey} sortDir={sortDir} />
                   </span>
                 </th>
                 <th
@@ -210,7 +218,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                     <span>Total Arrears (RM)</span>
                     <span className="font-semibold text-[var(--color-text-primary)] ml-1">(E)</span>
                     <FormulaTooltip content="Total Arrears (E) includes the outstanding capital balance & approved current claims." />
-                    <SortIcon colKey="jumlah_tunggakan_semasa" />
+                    <SortIcon colKey="jumlah_tunggakan_semasa" sortKey={sortKey} sortDir={sortDir} />
                   </div>
                 </th>
 
