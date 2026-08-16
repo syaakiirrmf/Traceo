@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import { Toaster } from '@/components/ui/toast'
+import { getSusulanNotifications } from '@/lib/notifications'
 import type { User } from '@/types'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -25,9 +26,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const currentUser = userProfile as User
 
+  const notifications = await getSusulanNotifications(supabase, {
+    id: currentUser.id,
+    peranan: currentUser.peranan,
+  })
+
   return (
     <>
-      <DashboardShell user={currentUser}>{children}</DashboardShell>
+      <DashboardShell user={currentUser} notifications={notifications}>
+        {children}
+      </DashboardShell>
       <Toaster />
     </>
   )
