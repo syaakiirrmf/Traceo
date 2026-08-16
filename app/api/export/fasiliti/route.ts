@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 import * as XLSX from 'xlsx'
 import { format } from 'date-fns'
@@ -109,6 +110,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    Sentry.captureException(error)
     console.error('[Export Fasiliti Excel Error]', error)
     return NextResponse.json({ error: 'Failed to generate Excel' }, { status: 500 })
   }

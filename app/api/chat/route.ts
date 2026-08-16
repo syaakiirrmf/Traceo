@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { GoogleGenerativeAI, type Content } from '@google/generative-ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/ratelimit'
@@ -211,6 +212,7 @@ Peraturan had skop [${profile.peranan.toUpperCase()}] di atas adalah WAJIB untuk
       ...(sesiId ? { sesiId } : {}),
     })
   } catch (err) {
+    Sentry.captureException(err, { extra: { userId: profile.id, role: profile.peranan } })
     console.error('[AI Chat Error]', err)
     return NextResponse.json(
       { error: 'Error communicating with the AI service. Please try again.' },
