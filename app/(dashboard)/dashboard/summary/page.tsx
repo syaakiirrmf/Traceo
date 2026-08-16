@@ -132,7 +132,6 @@ export default async function SummaryIndexPage() {
           <Link
             key={card.href}
             href={card.href}
-            transitionTypes={['nav-forward']}
             className={`group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md hover:border-[#0066FF]/30 transition-all flex flex-col justify-between gap-4 no-underline ${
               card.hasArrears ? 'border-l-4 border-l-red-500' : ''
             }`}

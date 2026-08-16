@@ -38,7 +38,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard', { transitionTypes: ['nav-forward'] })
+    router.push('/dashboard')
     router.refresh()
   }
 

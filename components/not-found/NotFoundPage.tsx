@@ -135,7 +135,6 @@ export default function NotFoundPage() {
         {/* Logo */}
         <Link
           href="/"
-          transitionTypes={['nav-back']}
           className="flex items-center gap-2.5"
           style={{ textDecoration: 'none' }}
         >
@@ -202,7 +201,6 @@ export default function NotFoundPage() {
         <div className="flex flex-col sm:flex-row items-center gap-2.5 mt-1 font-fustat">
           <Link
             href="/dashboard"
-            transitionTypes={['nav-back']}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white font-bold text-sm bg-[#0066FF] hover:bg-[#0048CC] transition-all duration-200 shadow-lg hover:shadow-[#0066FF]/30 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -210,7 +208,6 @@ export default function NotFoundPage() {
           </Link>
           <Link
             href="/"
-            transitionTypes={['nav-back']}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white/80 font-bold text-sm border border-white/15 bg-white/8 hover:bg-white/15 transition-all duration-200 active:scale-95"
           >
             Laman Utama

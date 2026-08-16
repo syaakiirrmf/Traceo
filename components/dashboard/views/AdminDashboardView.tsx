@@ -114,7 +114,6 @@ export function AdminDashboardView({
         <div className="flex items-center gap-2.5 flex-wrap">
           <Link
             href="/dashboard/users"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-700 hover:text-[#0066FF] hover:border-[#0066FF]/30 transition-all duration-200 shadow-xs"
           >
             <Users size={14} className="text-[#0066FF]" />
@@ -122,7 +121,6 @@ export function AdminDashboardView({
           </Link>
           <Link
             href="/dashboard/audit"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-700 hover:text-[#0066FF] hover:border-[#0066FF]/30 transition-all duration-200 shadow-xs"
           >
             <FileText size={14} className="text-[#0066FF]" />
@@ -130,7 +128,6 @@ export function AdminDashboardView({
           </Link>
           <Link
             href="/dashboard/fasiliti/tambah"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat px-4"
           >
             <Plus size={14} />+ Add Facility

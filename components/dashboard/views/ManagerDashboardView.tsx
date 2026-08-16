@@ -108,7 +108,6 @@ export function ManagerDashboardView({
         <div className="flex items-center gap-2.5 flex-wrap">
           <Link
             href="/dashboard/tanah-jv"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-700 hover:text-[#0066FF] hover:border-[#0066FF]/30 transition-all duration-200 shadow-xs"
           >
             <MapPin size={14} className="text-[#0066FF]" />
@@ -116,7 +115,6 @@ export function ManagerDashboardView({
           </Link>
           <Link
             href="/dashboard/fasiliti/tambah"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat"
           >
             <Plus size={14} />+ Add Facility
@@ -243,7 +241,6 @@ export function ManagerDashboardView({
 
                   <Link
                     href={`/dashboard/fasiliti/${item.id}`}
-                    transitionTypes={['nav-forward']}
                     className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-[#0066FF] hover:border-[#0066FF]/30 transition-colors flex-shrink-0"
                   >
                     <ArrowUpRight size={14} />

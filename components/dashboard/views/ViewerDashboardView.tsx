@@ -82,7 +82,6 @@ export function ViewerDashboardView({
         <div className="flex items-center gap-2.5 flex-wrap">
           <Link
             href="/dashboard/summary"
-            transitionTypes={['nav-forward']}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat"
           >
             <FileSpreadsheet size={14} />
@@ -170,7 +169,6 @@ export function ViewerDashboardView({
             </p>
             <Link
               href={cat.href}
-              transitionTypes={['nav-forward']}
               className="mt-3 text-xs font-bold text-[#0066FF] hover:underline inline-flex items-center gap-1"
             >
               Lihat Ringkasan Kategori <ExternalLink size={12} />
