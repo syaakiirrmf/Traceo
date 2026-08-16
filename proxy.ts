@@ -42,7 +42,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Public routes — no auth needed
-  const publicRoutes = ['/', '/login', '/api/auth/login']
+  const publicRoutes = ['/', '/login', '/api/auth/login', '/api/health']
   if (publicRoutes.includes(pathname)) {
     // If already logged in and visiting a page route, redirect to dashboard
     if (user && !pathname.startsWith('/api/')) {
