@@ -1,10 +1,39 @@
 'use server'
 
+import { createHash } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { hasPermission } from '@/lib/auth/permissions'
 import { rateLimitAction } from '@/lib/ratelimit'
+
+const PASSWORD_MIN_LENGTH = 8
+
+function validatePasswordStrength(password: string) {
+  if (password.length < PASSWORD_MIN_LENGTH) {
+    return `Kata laluan mestilah sekurang-kurangnya ${PASSWORD_MIN_LENGTH} aksara.`
+  }
+  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return 'Kata laluan mesti mengandungi huruf besar, huruf kecil dan nombor.'
+  }
+  return null
+}
+
+async function isPasswordCompromised(password: string): Promise<boolean> {
+  const sha1 = createHash('sha1').update(password).digest('hex').toUpperCase()
+  const prefix = sha1.slice(0, 5)
+  const suffix = sha1.slice(5)
+  try {
+    const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+      signal: AbortSignal.timeout(4000),
+    })
+    if (!res.ok) return false
+    const body = await res.text()
+    return body.split('\n').some((line) => line.trim().startsWith(suffix + ':'))
+  } catch {
+    return false
+  }
+}
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -38,6 +67,14 @@ export async function tambahUser(formData: FormData) {
   const nama = formData.get('nama') as string
   const peranan = formData.get('peranan') as string
   const kataLaluan = formData.get('kata_laluan') as string
+
+  const passwordError = validatePasswordStrength(kataLaluan)
+  if (passwordError) throw new Error(passwordError)
+  if (await isPasswordCompromised(kataLaluan)) {
+    throw new Error(
+      'Kata laluan ini telah terdedah dalam kebocoran data awam. Sila pilih kata laluan lain.'
+    )
+  }
 
   const adminClient = createAdminClient()
 
