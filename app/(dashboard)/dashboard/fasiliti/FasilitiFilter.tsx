@@ -39,6 +39,7 @@ export function FasilitiFilter({
       } else {
         params.delete(key)
       }
+      params.delete('page')
       router.push(`?${params.toString()}`)
     },
     [router, searchParams]

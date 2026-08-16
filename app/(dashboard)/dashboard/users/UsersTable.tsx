@@ -5,8 +5,11 @@ import { formatDate, getInitials } from '@/lib/utils'
 import { getRoleLabel } from '@/lib/auth/permissions'
 import { toggleUserStatus } from '@/lib/actions/users'
 import { TableSearch, matchesQuery } from '@/components/table/TableSearch'
+import { Pagination } from '@/components/table/Pagination'
 import { UserCheck, UserX } from 'lucide-react'
 import type { User } from '@/types'
+
+const PAGE_SIZE = 8
 
 const ROLE_STYLES: Record<string, string> = {
   admin:
@@ -21,6 +24,7 @@ const ROLE_STYLES: Record<string, string> = {
 
 export function UsersTable({ users }: { users: User[] }) {
   const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
 
   const q = query.trim().toLowerCase()
   const visibleUsers = useMemo(() => {
@@ -31,6 +35,10 @@ export function UsersTable({ users }: { users: User[] }) {
       )
     )
   }, [users, q])
+
+  const totalPages = Math.max(1, Math.ceil(visibleUsers.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const pageUsers = visibleUsers.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   if (users.length === 0) {
     return (
@@ -48,7 +56,10 @@ export function UsersTable({ users }: { users: User[] }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-0.5">
         <TableSearch
           value={query}
-          onChange={setQuery}
+          onChange={(v) => {
+            setQuery(v)
+            setPage(1)
+          }}
           placeholder="Search name, email, role, status..."
           className="w-full sm:w-72"
         />
@@ -78,7 +89,7 @@ export function UsersTable({ users }: { users: User[] }) {
                   </td>
                 </tr>
               ) : (
-                visibleUsers.map((u: User) => (
+                pageUsers.map((u: User) => (
                   <tr
                     key={u.id}
                     className="hover:bg-[var(--color-surface-raised)]/50 transition-colors group"
@@ -133,6 +144,14 @@ export function UsersTable({ users }: { users: User[] }) {
           </table>
         </div>
       </div>
+
+      <Pagination
+        page={safePage}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        totalItems={visibleUsers.length}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   )
 }

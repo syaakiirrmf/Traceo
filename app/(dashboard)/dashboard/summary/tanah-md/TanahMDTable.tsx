@@ -5,12 +5,16 @@ import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { dash, formatRM, formatArea } from '../_helpers'
 import { TableSearch, TableSelect, matchesQuery } from '@/components/table/TableSearch'
+import { Pagination } from '@/components/table/Pagination'
 import type { TanahJV } from '@/types'
+
+const PAGE_SIZE = 8
 
 export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
   const [query, setQuery] = useState('')
   const [stateFilter, setStateFilter] = useState('')
   const [districtFilter, setDistrictFilter] = useState('')
+  const [page, setPage] = useState(1)
 
   const states = useMemo(
     () => [...new Set(rows.map((t) => t.negeri).filter(Boolean))].sort() as string[],
@@ -47,6 +51,10 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
     })
   }, [rows, q, stateFilter, districtFilter])
 
+  const totalPages = Math.max(1, Math.ceil(visibleRows.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const pageRows = visibleRows.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+
   const totalLuas = visibleRows.reduce((s, t) => s + (t.luas_meter_persegi ?? 0), 0)
   const totalNilaian = visibleRows.reduce((s, t) => s + (t.anggaran_nilaian ?? 0), 0)
 
@@ -57,7 +65,10 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
         <div className="flex flex-col md:flex-row md:items-end gap-3">
           <TableSearch
             value={query}
-            onChange={setQuery}
+            onChange={(v) => {
+              setQuery(v)
+              setPage(1)
+            }}
             placeholder="Search lot, town, title..."
             className="w-full md:w-64"
           />
@@ -67,6 +78,7 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
             onChange={(v) => {
               setStateFilter(v)
               setDistrictFilter('')
+              setPage(1)
             }}
             options={[
               { value: '', label: 'All States' },
@@ -76,7 +88,10 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
           <TableSelect
             label="Filter by district"
             value={districtFilter}
-            onChange={setDistrictFilter}
+            onChange={(v) => {
+              setDistrictFilter(v)
+              setPage(1)
+            }}
             options={[
               { value: '', label: 'All Districts' },
               ...districts.map((d) => ({ value: d, label: d })),
@@ -171,13 +186,13 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
                   </td>
                 </tr>
               ) : (
-                visibleRows.map((t, index) => (
+                pageRows.map((t, index) => (
                   <tr
                     key={t.id}
                     className="hover:bg-[var(--color-surface-raised)]/50 transition-colors group"
                   >
                     <td className="px-3 py-3 text-center font-medium text-[var(--color-text-tertiary)] border-r border-[var(--color-border)] sticky left-0 z-20 bg-[var(--color-surface)] group-hover:bg-[var(--color-surface-raised)]">
-                      {index + 1}
+                      {(safePage - 1) * PAGE_SIZE + index + 1}
                     </td>
 
                     <td className="px-3.5 py-3 font-semibold text-[var(--color-text-primary)] border-r border-[var(--color-border)] sticky left-12 z-20 bg-[var(--color-surface)] group-hover:bg-[var(--color-surface-raised)]">
@@ -256,6 +271,14 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
           </table>
         </div>
       </div>
+
+      <Pagination
+        page={safePage}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        totalItems={visibleRows.length}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   )
 }
