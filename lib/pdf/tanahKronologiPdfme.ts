@@ -1,5 +1,6 @@
 import { generate } from '@pdfme/generator'
 import { text, table } from '@pdfme/schemas'
+import type { Schema } from '@pdfme/common'
 import { format, parseISO } from 'date-fns'
 
 function fmtDate(d: string, fmt = 'dd MMMM yyyy') {
@@ -79,7 +80,7 @@ export async function generateTanahKronologiPdf(tanah: TanahData, susulan: Susul
     .filter(Boolean)
     .join(', ')}`
 
-  const schemas: any[] = [
+  const schemas: Schema[] = [
     {
       type: 'text',
       name: 'conf',
