@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateTanahKronologiPdf } from '@/lib/pdf/tanahKronologiPdfme'
+import { hasPermission } from '@/lib/auth/permissions'
 import { format } from 'date-fns'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
 
-    if (!['admin', 'pengurus', 'viewer'].includes(userProfile.peranan)) {
+    if (!hasPermission(userProfile.peranan, 'jana_kronologi')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

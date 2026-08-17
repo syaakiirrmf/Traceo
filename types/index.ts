@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'pengurus' | 'pegawai_susulan' | 'viewer'
+export type UserRole = 'superadmin' | 'admin' | 'pengurus' | 'pegawai_susulan' | 'viewer'
 export type UserStatus = 'aktif' | 'tidak_aktif'
 
 export type FasilitiKategori = 'jv_syarikat' | 'jv_tanah' | 'pinjaman_individu'
@@ -188,14 +188,56 @@ export interface FasilitiFilter {
 }
 
 
-// ─── Database Entities ───────────────────────────────────────────────────────
+// ─── Database Entities (duplicate removed — defined at line 11) ───────────────
 
-export interface User {
+// ─── Access Control Types ─────────────────────────────────────────────────────
+
+export type FeatureKey =
+  | 'tambah_fasiliti'
+  | 'edit_fasiliti'
+  | 'padam_fasiliti'
+  | 'tambah_susulan'
+  | 'edit_susulan'
+  | 'padam_susulan'
+  | 'jana_kronologi'
+  | 'eksport_excel'
+  | 'lihat_audit_log'
+  | 'urus_pengguna'
+  | 'lihat_dashboard'
+  | 'lihat_assistant'
+  | 'lihat_fasiliti'
+  | 'lihat_tanah_jv'
+  | 'lihat_summary'
+
+export type PageKey =
+  | '/dashboard'
+  | '/dashboard/fasiliti'
+  | '/dashboard/tanah-jv'
+  | '/dashboard/summary'
+  | '/dashboard/summary/jv1'
+  | '/dashboard/summary/jv2'
+  | '/dashboard/summary/jv3'
+  | '/dashboard/audit'
+  | '/dashboard/users'
+  | '/dashboard/assistant'
+  | '/dashboard/profil'
+  | '/dashboard/superadmin'
+  | (string & {})
+
+export interface FeatureAccess {
   id: string
-  nama: string
-  emel: string
-  peranan: UserRole
-  status: UserStatus
+  user_id: string
+  feature_key: FeatureKey
+  is_allowed: boolean
   dicipta_pada: string
+  dikemaskini_pada: string
 }
 
+export interface PageAccess {
+  id: string
+  user_id: string
+  page_path: PageKey
+  is_allowed: boolean
+  dicipta_pada: string
+  dikemaskini_pada: string
+}

@@ -13,6 +13,7 @@ import {
   MapPin,
   LayoutList,
   Sparkles,
+  Crown,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -26,10 +27,17 @@ interface NavItem {
   label: string
   icon: React.ElementType
   permission?: Parameters<typeof hasPermission>[1]
+  superadminOnly?: boolean
 }
 
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  {
+    href: '/dashboard/superadmin',
+    label: 'Superadmin Panel',
+    icon: Crown,
+    superadminOnly: true,
+  },
   { href: '/dashboard/summary/jv1', label: 'Summary JV 1', icon: Building2 },
   { href: '/dashboard/summary/jv2', label: 'Land JV', icon: LayoutList },
   { href: '/dashboard/summary/jv3', label: 'Personal Loan', icon: LayoutList },
@@ -74,7 +82,10 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
   }
 
   const visibleNav = navItems
-    .filter((item) => !item.permission || hasPermission(user.peranan, item.permission))
+    .filter((item) => {
+      if (item.superadminOnly && user.peranan !== 'superadmin') return false
+      return !item.permission || hasPermission(user.peranan, item.permission)
+    })
     .map((item) => {
       // Rename 'Facilities (All)' to 'My Facilities' for Pegawai Susulan
       if (item.href === '/dashboard/fasiliti' && user.peranan === 'pegawai_susulan') {
@@ -110,6 +121,7 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
       <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {visibleNav.map((item) => {
           const Icon = item.icon
+          const isSuperadminItem = item.superadminOnly
           const isActive =
             item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href)
 
@@ -120,7 +132,11 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
               onClick={() => onClose && onClose()}
               className={cn(
                 'group flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all duration-200',
-                isActive
+                isSuperadminItem
+                  ? isActive
+                    ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30 shadow-xs'
+                    : 'text-amber-700 dark:text-amber-300 bg-amber-500/[0.06] hover:bg-amber-500/12 border border-amber-500/20'
+                  : isActive
                   ? 'bg-[#0066FF]/10 text-[#0066FF] font-semibold border border-[#0066FF]/20 shadow-xs'
                   : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
               )}
@@ -129,11 +145,20 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
                 size={17}
                 className={cn(
                   'flex-shrink-0 transition-colors',
-                  isActive ? 'text-[#0066FF]' : 'text-slate-400 group-hover:text-slate-600'
+                  isSuperadminItem
+                    ? 'text-amber-500'
+                    : isActive
+                    ? 'text-[#0066FF]'
+                    : 'text-slate-400 group-hover:text-slate-600'
                 )}
               />
               <span className="flex-1">{item.label}</span>
-              {isActive && <ChevronRight size={13} className="text-[#0066FF] opacity-80" />}
+              {isActive && (
+                <ChevronRight
+                  size={13}
+                  className={cn('opacity-80', isSuperadminItem ? 'text-amber-500' : 'text-[#0066FF]')}
+                />
+              )}
             </Link>
           )
         })}
@@ -146,8 +171,19 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
           className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-slate-100/70 transition-colors group"
         >
           {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-[#EBF2FF] border border-[#0066FF]/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-[11px] font-bold text-[#0066FF]">{getInitials(user.nama)}</span>
+          <div
+            className={cn(
+              'w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0',
+              user.peranan === 'superadmin'
+                ? 'bg-amber-500/20 text-amber-600 border-amber-500/40'
+                : 'bg-[#EBF2FF] text-[#0066FF] border-[#0066FF]/20'
+            )}
+          >
+            {user.peranan === 'superadmin' ? (
+              <Crown size={14} className="text-amber-500" />
+            ) : (
+              <span className="text-[11px] font-bold">{getInitials(user.nama)}</span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-900 truncate leading-tight">

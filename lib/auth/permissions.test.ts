@@ -2,6 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { hasPermission, getRoleLabel, requireRole } from '@/lib/auth/permissions'
 
 describe('hasPermission', () => {
+  it('allows superadmin for all permissions unconditionally', () => {
+    expect(hasPermission('superadmin', 'urus_pengguna')).toBe(true)
+    expect(hasPermission('superadmin', 'lihat_audit_log')).toBe(true)
+    expect(hasPermission('superadmin', 'padam_fasiliti')).toBe(true)
+    expect(hasPermission('superadmin', 'jana_kronologi')).toBe(true)
+    expect(hasPermission('superadmin', 'lihat_assistant')).toBe(true)
+  })
+
   it('allows admin for every permission', () => {
     expect(hasPermission('admin', 'urus_pengguna')).toBe(true)
     expect(hasPermission('admin', 'lihat_audit_log')).toBe(true)
