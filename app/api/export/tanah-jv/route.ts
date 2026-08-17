@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
+import { hasPermission } from '@/lib/auth/permissions'
 import * as XLSX from 'xlsx'
 import { format } from 'date-fns'
 
@@ -19,7 +20,7 @@ export async function GET() {
     .single()
   if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
 
-  if (!['admin', 'pengurus'].includes(userProfile.peranan)) {
+  if (!hasPermission(userProfile.peranan, 'eksport_excel')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

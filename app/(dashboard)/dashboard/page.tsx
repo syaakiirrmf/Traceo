@@ -8,6 +8,7 @@ import { OfficerDashboardView } from '@/components/dashboard/views/OfficerDashbo
 import { ViewerDashboardView } from '@/components/dashboard/views/ViewerDashboardView'
 
 const ROLE_DASHBOARD_CONFIG: Record<UserRole, { tabTitle: string }> = {
+  superadmin: { tabTitle: 'Superadmin Command Center' },
   admin: { tabTitle: 'Executive Dashboard' },
   pengurus: { tabTitle: 'Management Dashboard' },
   pegawai_susulan: { tabTitle: 'Officer Workspace' },
