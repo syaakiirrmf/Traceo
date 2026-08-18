@@ -143,6 +143,12 @@ const FEATURE_REGISTRY: { key: FeatureKey; title: string; desc: string; category
     category: 'Exports & Documents',
   },
   {
+    key: 'eksport_ringkasan',
+    title: 'Export Portfolio Summary PDF',
+    desc: 'Download aggregated portfolio summary as PDF report.',
+    category: 'Exports & Documents',
+  },
+  {
     key: 'lihat_assistant',
     title: 'Access Gemini AI Assistant',
     desc: 'Interact with the AI model for facility analysis.',

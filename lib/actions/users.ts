@@ -105,6 +105,87 @@ export async function tambahUser(formData: FormData) {
   return { ok: true as const, id: authData.user.id }
 }
 
+// ─── Kemaskini Pengguna (nama, emel, peranan, optional password) ─────────────
+// The users row is updated atomically via traceo_kemaskini_pengguna.
+// Supabase Auth (email + optional password) is updated via the admin API;
+// if the DB call fails, the auth email is reverted (compensation).
+
+export async function kemaskiniUser(userId: string, formData: FormData) {
+  const { supabase, userProfile } = await getCurrentUser()
+  if (!hasPermission(userProfile.peranan, 'urus_pengguna')) throw new Error('Access denied')
+
+  const rl = await rateLimitAction('users_kemaskini', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
+    )
+  }
+
+  const nama = formData.get('nama') as string
+  const emel = formData.get('emel') as string
+  const peranan = formData.get('peranan') as string
+  const kataLaluan = (formData.get('kata_laluan') as string) || ''
+  const sahkan = (formData.get('sahkan_kata_laluan') as string) || ''
+
+  if (!nama?.trim()) throw new Error('Name is required')
+  if (!emel?.trim()) throw new Error('Email is required')
+
+  // Fetch target user row (auth_id + current emel) for auth-side sync
+  const { data: target } = await supabase
+    .from('users')
+    .select('auth_id, emel')
+    .eq('id', userId)
+    .single()
+  if (!target) throw new Error('User not found')
+
+  const adminClient = createAdminClient()
+  let emelDiubah = false
+
+  // 1. Optional password reset (external, must not be skipped if provided)
+  if (kataLaluan) {
+    if (kataLaluan !== sahkan) throw new Error('Passwords do not match')
+    const passwordError = validatePasswordStrength(kataLaluan)
+    if (passwordError) throw new Error(passwordError)
+    if (await isPasswordCompromised(kataLaluan)) {
+      throw new Error(
+        'This password has been exposed in a public data breach. Please choose another password.'
+      )
+    }
+    const { error: pwdError } = await adminClient.auth.admin.updateUserById(target.auth_id, {
+      password: kataLaluan,
+    })
+    if (pwdError) throw new Error(`Failed to update password: ${pwdError.message}`)
+  }
+
+  // 2. Sync auth email if changed (external)
+  if (emel !== target.emel) {
+    const { error: emailError } = await adminClient.auth.admin.updateUserById(target.auth_id, {
+      email: emel,
+      email_confirm: true,
+    })
+    if (emailError) throw new Error(`Failed to update email: ${emailError.message}`)
+    emelDiubah = true
+  }
+
+  // 3. Atomic: users row + audit
+  const { error } = await supabase.rpc('traceo_kemaskini_pengguna', {
+    p_id: userId,
+    p_nama: nama.trim(),
+    p_emel: emel.trim(),
+    p_peranan: peranan,
+  })
+
+  if (error) {
+    // Compensate external side-effect: revert auth email
+    if (emelDiubah) {
+      await adminClient.auth.admin.updateUserById(target.auth_id, { email: target.emel })
+    }
+    throw new Error(`Failed to update user: ${error.message}`)
+  }
+
+  revalidatePath('/dashboard/users')
+}
+
 // ─── Toggle Status User ───────────────────────────────────────────────────────
 
 export async function toggleUserStatus(userId: string, statusSemasa: string) {

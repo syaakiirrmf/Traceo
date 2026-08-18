@@ -17,6 +17,7 @@ const PERMISSIONS: Record<string, UserRole[]> = {
   padam_susulan:           ['superadmin', 'admin', 'pengurus', 'pegawai_susulan'],
   jana_kronologi:          ['superadmin', 'admin', 'pengurus', 'pegawai_susulan', 'viewer'],
   eksport_excel:           ['superadmin', 'admin', 'pengurus'],
+  eksport_ringkasan:       ['superadmin', 'admin', 'pengurus', 'pegawai_susulan'],
   lihat_audit_log:         ['superadmin', 'admin'],
   lihat_dashboard:         ['superadmin', 'admin', 'pengurus', 'pegawai_susulan', 'viewer'],
   lihat_assistant:         ['superadmin', 'admin', 'pengurus', 'pegawai_susulan'],

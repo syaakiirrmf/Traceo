@@ -55,7 +55,10 @@ export default async function UsersPage() {
         </div>
 
         {/* Interactive Users Client Table */}
-        <UsersTable users={users ?? []} />
+        <UsersTable
+          users={users ?? []}
+          currentUserRole={userProfile.peranan as UserRole}
+        />
       </div>
     </PageAccessGuard>
   )
