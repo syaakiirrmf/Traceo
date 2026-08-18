@@ -33,7 +33,7 @@ export default async function UsersPage() {
       userId={userProfile.id}
       role={userProfile.peranan as UserRole}
       pagePath="/dashboard/users"
-      featureName="Pengurusan Pengguna"
+      featureName="User Management"
     >
       <div className="space-y-5 max-w-[1600px]">
         {/* Header */}

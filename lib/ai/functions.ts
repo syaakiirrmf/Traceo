@@ -57,8 +57,8 @@ function safeNumber(v: unknown): number {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /**
- * Terima sama ada UUID atau kod rujukan (cth "JV-007") dan pulangkan UUID.
- * Jika input bukan UUID, cari dalam jadual fasiliti melalui kod_rujukan.
+ * Accept either a UUID or a reference code (e.g. "JV-007") and return the UUID.
+ * If the input is not a UUID, look it up in the fasiliti table by kod_rujukan.
  */
 async function resolveFasilitiId(supabase: SupabaseClient, input: string): Promise<string | null> {
   if (UUID_RE.test(input)) return input
@@ -75,8 +75,8 @@ async function resolveFasilitiId(supabase: SupabaseClient, input: string): Promi
 // ─── Tools ────────────────────────────────────────────────────────────────────
 
 /**
- * Ringkasan fasiliti pembiayaan — status, tunggakan, kategori.
- * Ditapis mengikut peranan pengguna (pegawai_susulan hanya melihat tugasan sendiri).
+ * Summary of financing facilities — status, arrears, category.
+ * Filtered by user role (pegawai_susulan only sees their own assignments).
  */
 export async function getFasilitiSummary(
   supabase: SupabaseClient,
@@ -128,7 +128,7 @@ export async function getFasilitiSummary(
 }
 
 /**
- * Senarai susulan terbaru untuk sebuah fasiliti.
+ * List of the latest follow-ups for a facility.
  */
 export async function getSusulanTerkini(
   supabase: SupabaseClient,
@@ -183,8 +183,8 @@ export async function getSusulanTerkini(
 }
 
 /**
- * Jana PDF kronologi — mengembalikan URL pautan muat turun.
- * Menggunakan generator PDF sedia ada (react-pdf) yang dikemas kini mengikut masa nyata.
+ * Generate a chronology PDF — returns a download link URL.
+ * Uses the existing PDF generator (react-pdf) which is updated in real time.
  */
 export async function generateKronologiPdf(
   supabase: SupabaseClient,

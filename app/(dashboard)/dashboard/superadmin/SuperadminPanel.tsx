@@ -32,56 +32,56 @@ import type { User, UserRole, FeatureKey, PageKey, FeatureAccess, PageAccess } f
 const PAGE_REGISTRY: { path: PageKey; title: string; desc: string; icon: React.ElementType }[] = [
   {
     path: '/dashboard',
-    title: 'Dashboard Utama',
-    desc: 'Paparan ringkasan eksekutif, metrik KPI dan carta analisis.',
+    title: 'Main Dashboard',
+    desc: 'Executive summary view, KPI metrics and analytics charts.',
     icon: LayoutGrid,
   },
   {
     path: '/dashboard/summary/jv1',
-    title: 'Ringkasan JV 1 (Syarikat)',
-    desc: 'Pengurusan dan portfolio perkongsian keuntungan syarikat.',
+    title: 'JV 1 Summary (Company)',
+    desc: 'Management and portfolio of company profit-sharing.',
     icon: Building2,
   },
   {
     path: '/dashboard/summary/jv2',
-    title: 'Ringkasan JV 2 (Tanah)',
-    desc: 'Maklumat lot hartanah dan usahasama pembangunan tanah.',
+    title: 'JV 2 Summary (Land)',
+    desc: 'Property lot information and land development joint ventures.',
     icon: MapPin,
   },
   {
     path: '/dashboard/summary/jv3',
-    title: 'Ringkasan JV 3 (Pinjaman)',
-    desc: 'Rekod pinjaman individu dan jadual pembayaran.',
+    title: 'JV 3 Summary (Loans)',
+    desc: 'Individual loan records and payment schedules.',
     icon: Building2,
   },
   {
     path: '/dashboard/tanah-jv',
     title: 'Tanah MD (JV Registry)',
-    desc: 'Daftar rasmi lot tanah usahasama dan penilaian aset.',
+    desc: 'Official registry of joint-venture land lots and asset valuation.',
     icon: MapPin,
   },
   {
     path: '/dashboard/fasiliti',
-    title: 'Fasiliti (Semua Rekod)',
-    desc: 'Senarai penuh kemudahan pembiayaan dan tindakan susulan.',
+    title: 'Facilities (All Records)',
+    desc: 'Full list of financing facilities and follow-up actions.',
     icon: Building2,
   },
   {
     path: '/dashboard/assistant',
-    title: 'Pembantu Pintar AI (@syaakiirr)',
-    desc: 'Antaramuka sembang kecerdasan buatan berasaskan data sebenar.',
+    title: 'Smart AI Assistant (@syaakiirr)',
+    desc: 'AI chat interface powered by real data.',
     icon: Sparkles,
   },
   {
     path: '/dashboard/users',
-    title: 'Pengurusan Pengguna',
-    desc: 'Pendaftaran akaun, penetapan peranan dan status aktiviti.',
+    title: 'User Management',
+    desc: 'Account registration, role assignment and activity status.',
     icon: Users,
   },
   {
     path: '/dashboard/audit',
-    title: 'Log Jejak Audit',
-    desc: 'Rekod aktiviti forensik sistem, pengubahsuaian data dan eksport.',
+    title: 'Audit Trail Log',
+    desc: 'Forensic record of system activity, data changes and exports.',
     icon: FileText,
   },
 ]
@@ -90,75 +90,75 @@ const PAGE_REGISTRY: { path: PageKey; title: string; desc: string; icon: React.E
 const FEATURE_REGISTRY: { key: FeatureKey; title: string; desc: string; category: string }[] = [
   {
     key: 'tambah_fasiliti',
-    title: 'Cipta Fasiliti Baru',
-    desc: 'Boleh mendaftar akaun kemudahan dan pembiayaan baharu.',
-    category: 'Fasiliti & Tanah',
+    title: 'Create New Facility',
+    desc: 'Register new financing facilities and accounts.',
+    category: 'Facilities & Land',
   },
   {
     key: 'edit_fasiliti',
-    title: 'Kemaskini Maklumat Fasiliti',
-    desc: 'Mengubah amaun, status, penama aset dan cagaran.',
-    category: 'Fasiliti & Tanah',
+    title: 'Update Facility Information',
+    desc: 'Modify amounts, status, asset holders and collateral.',
+    category: 'Facilities & Land',
   },
   {
     key: 'padam_fasiliti',
-    title: 'Padam Rekod Fasiliti',
-    desc: 'Membuang fasiliti daripada pangkalan data (Kritikal).',
-    category: 'Fasiliti & Tanah',
+    title: 'Delete Facility Record',
+    desc: 'Remove facilities from the database (Critical).',
+    category: 'Facilities & Land',
   },
   {
     key: 'lihat_fasiliti',
-    title: 'Lihat Butiran Penuh Fasiliti',
-    desc: 'Melihat ringkasan kewangan, cagaran dan baki semasa.',
-    category: 'Fasiliti & Tanah',
+    title: 'View Full Facility Details',
+    desc: 'View financial summary, collateral and current balance.',
+    category: 'Facilities & Land',
   },
   {
     key: 'tambah_susulan',
-    title: 'Catat Tindakan Susulan',
-    desc: 'Menambah log pertemuan, panggilan dan lampiran fail.',
-    category: 'Susulan & Kronologi',
+    title: 'Record Follow-up Action',
+    desc: 'Add meeting logs, calls and file attachments.',
+    category: 'Follow-ups & Chronology',
   },
   {
     key: 'edit_susulan',
-    title: 'Kemaskini Catatan Susulan',
-    desc: 'Menyunting semula nota aktiviti susulan.',
-    category: 'Susulan & Kronologi',
+    title: 'Update Follow-up Notes',
+    desc: 'Re-edit follow-up activity notes.',
+    category: 'Follow-ups & Chronology',
   },
   {
     key: 'padam_susulan',
-    title: 'Padam Catatan Susulan',
-    desc: 'Menghapuskan entri susulan dan lampiran berkait.',
-    category: 'Susulan & Kronologi',
+    title: 'Delete Follow-up Notes',
+    desc: 'Delete follow-up entries and related attachments.',
+    category: 'Follow-ups & Chronology',
   },
   {
     key: 'jana_kronologi',
-    title: 'Jana Laporan Kronologi PDF',
-    desc: 'Mengeksport dokumen formal kronologi PDF @pdfme.',
-    category: 'Eksport & Dokumen',
+    title: 'Generate Chronology PDF Report',
+    desc: 'Export formal chronology PDF documents via @pdfme.',
+    category: 'Exports & Documents',
   },
   {
     key: 'eksport_excel',
-    title: 'Muat Turun Data Excel/CSV',
-    desc: 'Mengeksport rekod keseluruhan ke format hamparan kerja.',
-    category: 'Eksport & Dokumen',
+    title: 'Download Excel/CSV Data',
+    desc: 'Export all records to spreadsheet format.',
+    category: 'Exports & Documents',
   },
   {
     key: 'lihat_assistant',
-    title: 'Akses Pembantu AI Gemini',
-    desc: 'Berinteraksi dengan model AI untuk analisis fasiliti.',
-    category: 'Kecerdasan Buatan',
+    title: 'Access Gemini AI Assistant',
+    desc: 'Interact with the AI model for facility analysis.',
+    category: 'Artificial Intelligence',
   },
   {
     key: 'lihat_audit_log',
-    title: 'Semak Log Audit Forensik',
-    desc: 'Melihat jejak aktiviti keselamatan semua pengguna.',
-    category: 'Pentadbiran',
+    title: 'Review Forensic Audit Log',
+    desc: 'View the security activity trail of all users.',
+    category: 'Administration',
   },
   {
     key: 'urus_pengguna',
-    title: 'Urus Akaun & Peranan Pengguna',
-    desc: 'Mencipta dan mengemas kini peranan pengguna lain.',
-    category: 'Pentadbiran',
+    title: 'Manage Accounts & User Roles',
+    desc: 'Create and update other users\' roles.',
+    category: 'Administration',
   },
 ]
 
@@ -276,10 +276,10 @@ export function SuperadminPanel({
         }),
       })
 
-      if (!res.ok) throw new Error('Gagal mengemas kini capaian halaman')
-      showStatus(`Akses halaman ${pagePath} ditukar kepada ${newAllowed ? 'DIBENARKAN' : 'DISEKAT (Under Dev)'}`)
+      if (!res.ok) throw new Error('Failed to update page access')
+      showStatus(`Page access for ${pagePath} changed to ${newAllowed ? 'ALLOWED' : 'BLOCKED (Under Dev)'}`)
     } catch (err: any) {
-      showStatus(err.message || 'Ralat berlaku', 'error')
+      showStatus(err.message || 'An error occurred', 'error')
     }
   }
 
@@ -298,9 +298,9 @@ export function SuperadminPanel({
         )}`,
         { method: 'DELETE' }
       )
-      showStatus(`Akses ${pagePath} dikembalikan ke tetapan peranan asal`)
+      showStatus(`Access to ${pagePath} restored to original role defaults`)
     } catch (err: any) {
-      showStatus(err.message || 'Ralat reset', 'error')
+      showStatus(err.message || 'Reset error', 'error')
     }
   }
 
@@ -339,10 +339,10 @@ export function SuperadminPanel({
         }),
       })
 
-      if (!res.ok) throw new Error('Gagal mengemas kini capaian ciri')
-      showStatus(`Ciri ${featureKey} ditukar kepada ${newAllowed ? 'DIBENARKAN' : 'DISEKAT'}`)
+      if (!res.ok) throw new Error('Failed to update feature access')
+      showStatus(`Feature ${featureKey} changed to ${newAllowed ? 'ALLOWED' : 'BLOCKED'}`)
     } catch (err: any) {
-      showStatus(err.message || 'Ralat berlaku', 'error')
+      showStatus(err.message || 'An error occurred', 'error')
     }
   }
 
@@ -361,9 +361,9 @@ export function SuperadminPanel({
         )}`,
         { method: 'DELETE' }
       )
-      showStatus(`Ciri ${featureKey} dikembalikan ke tetapan peranan asal`)
+      showStatus(`Feature ${featureKey} restored to original role defaults`)
     } catch (err: any) {
-      showStatus(err.message || 'Ralat reset', 'error')
+      showStatus(err.message || 'Reset error', 'error')
     }
   }
 
@@ -377,7 +377,7 @@ export function SuperadminPanel({
       await handleTogglePage(p.path, true) // set to false
     }
 
-    showStatus(`Mod Kunci Ketat: Semua halaman disekat kecuali Dashboard untuk ${selectedUser.nama}`)
+    showStatus(`Strict Lock Mode: All pages blocked except Dashboard for ${selectedUser.nama}`)
   }
 
   // Quick Preset: Reset All Overrides for Selected User
@@ -400,9 +400,9 @@ export function SuperadminPanel({
           })
         ),
       ])
-      showStatus(`Semua kawalan khas untuk ${selectedUser.nama} telah direset ke asal.`)
+      showStatus(`All custom controls for ${selectedUser.nama} have been reset to defaults.`)
     } catch (e) {
-      showStatus('Ralat semasa mereset semua kawalan', 'error')
+      showStatus('Error while resetting all controls', 'error')
     }
   }
 
@@ -422,21 +422,21 @@ export function SuperadminPanel({
               <span>Superadmin Supreme Privilege</span>
             </div>
             <h1 className="mt-2.5 text-2xl sm:text-3xl font-black tracking-tight font-fustat text-white">
-              Pusat Kawalan Had Capaian &amp; Pembangunan
+              Access Control &amp; Development Center
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Kawal hak akses bagi setiap pengguna secara individu. Sekiranya halaman atau ciri
-              disekat, pengguna akan dipaparkan skrin <strong>&quot;Modul Dalam Pembangunan&quot;</strong> secara elegan tanpa menimbulkan keraguan.
+              Control access rights for each user individually. If a page or feature is blocked,
+              the user will see an elegant <strong>&quot;Module Under Development&quot;</strong> screen without raising any doubt.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 backdrop-blur-md text-right">
               <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                Pengguna Sistem
+                System Users
               </p>
               <p className="text-lg font-black font-fustat text-white">
-                {users.length} Akaun
+                {users.length} Accounts
               </p>
             </div>
           </div>
@@ -469,10 +469,10 @@ export function SuperadminPanel({
           <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs">
             <div className="flex items-center justify-between gap-2 mb-3">
               <h2 className="text-sm font-bold font-fustat text-[var(--color-text-primary)]">
-                Pilih Pengguna Sasaran
+                Select Target User
               </h2>
               <span className="text-[11px] text-[var(--color-text-tertiary)]">
-                {filteredUsers.length} dijumpai
+                {filteredUsers.length} found
               </span>
             </div>
 
@@ -484,7 +484,7 @@ export function SuperadminPanel({
               />
               <input
                 type="text"
-                placeholder="Cari nama atau emel..."
+                placeholder="Search name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-tertiary)] focus:border-[#0066FF] focus:outline-none"
@@ -504,7 +504,7 @@ export function SuperadminPanel({
                       : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)]'
                   )}
                 >
-                  {r === 'all' ? 'Semua' : getRoleLabel(r as UserRole)}
+                  {r === 'all' ? 'All' : getRoleLabel(r as UserRole)}
                 </button>
               ))}
             </div>
@@ -566,7 +566,7 @@ export function SuperadminPanel({
                         {hasRestrictedGates && (
                           <span className="inline-flex items-center gap-0.5 rounded-md bg-amber-500/10 px-1.5 py-0.2 text-[9px] font-bold text-amber-600 dark:text-amber-400">
                             <Lock size={9} />
-                            {userPageOverridesCount + userFeatureOverridesCount} Disekat
+                            {userPageOverridesCount + userFeatureOverridesCount} Blocked
                           </span>
                         )}
                       </div>
@@ -620,18 +620,18 @@ export function SuperadminPanel({
                     <button
                       onClick={handlePresetStrictLock}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-all active:scale-95"
-                      title="Kunci semua halaman kecuali Dashboard utama"
+                      title="Lock all pages except the main Dashboard"
                     >
                       <Lock size={13} />
-                      Kunci Semua Halaman
+                      Lock All Pages
                     </button>
                     <button
                       onClick={handleResetAll}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] transition-all active:scale-95"
-                      title="Pulihkan semua tetapan mengikut peranan asal"
+                      title="Restore all settings to original role defaults"
                     >
                       <RotateCcw size={13} />
-                      Reset Asal
+                      Reset to Default
                     </button>
                   </div>
                 )}
@@ -642,11 +642,11 @@ export function SuperadminPanel({
                 <div className="my-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-center">
                   <Crown size={28} className="mx-auto text-amber-500 mb-2" />
                   <h3 className="text-sm font-bold text-amber-800 dark:text-amber-200 font-fustat">
-                    Akaun Superadmin Memiliki Imuniti Penuh
+                    Superadmin Account Has Full Immunity
                   </h3>
                   <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 max-w-md mx-auto">
-                    Akaun Superadmin tidak tertakluk kepada sekatan had capaian dan sentiasa
-                    memiliki akses tanpa batasan ke seluruh halaman dan ciri sistem.
+                    The Superadmin account is not subject to access restrictions and always has
+                    unrestricted access to all system pages and features.
                   </p>
                 </div>
               ) : (
@@ -663,7 +663,7 @@ export function SuperadminPanel({
                       )}
                     >
                       <Layers size={14} />
-                      <span>Sekatan Halaman (Page Gates)</span>
+                      <span>Page Restrictions (Page Gates)</span>
                     </button>
                     <button
                       onClick={() => setActiveTab('features')}
@@ -675,7 +675,7 @@ export function SuperadminPanel({
                       )}
                     >
                       <Sliders size={14} />
-                      <span>Sekatan Ciri (Feature Controls)</span>
+                      <span>Feature Restrictions (Feature Controls)</span>
                     </button>
                   </div>
 
@@ -683,8 +683,8 @@ export function SuperadminPanel({
                   {activeTab === 'pages' && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-xs text-[var(--color-text-tertiary)] px-1">
-                        <span>Halaman &amp; Laluan URL</span>
-                        <span>Status Akses Pengguna</span>
+                        <span>Pages &amp; URL Paths</span>
+                        <span>User Access Status</span>
                       </div>
 
                       {PAGE_REGISTRY.map((p) => {
@@ -735,7 +735,7 @@ export function SuperadminPanel({
                                 <button
                                   onClick={() => handleResetPage(p.path)}
                                   className="p-1.5 text-[10px] rounded-lg text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface)] transition-all"
-                                  title="Pulihkan ke tetapan asal"
+                                  title="Restore to default settings"
                                 >
                                   <RefreshCw size={13} />
                                 </button>
@@ -753,7 +753,7 @@ export function SuperadminPanel({
                                 {isAllowed ? (
                                   <>
                                     <Unlock size={13} />
-                                    <span>Boleh Akses</span>
+                                    <span>Can Access</span>
                                   </>
                                 ) : (
                                   <>
@@ -773,8 +773,8 @@ export function SuperadminPanel({
                   {activeTab === 'features' && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-xs text-[var(--color-text-tertiary)] px-1">
-                        <span>Ciri &amp; Operasi Sistem</span>
-                        <span>Had Kebenaran</span>
+                        <span>Features &amp; System Operations</span>
+                        <span>Access Limits</span>
                       </div>
 
                       {FEATURE_REGISTRY.map((f) => {
@@ -812,7 +812,7 @@ export function SuperadminPanel({
                                 <button
                                   onClick={() => handleResetFeature(f.key)}
                                   className="p-1.5 text-[10px] rounded-lg text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface)] transition-all"
-                                  title="Pulihkan ke tetapan asal"
+                                  title="Restore to default settings"
                                 >
                                   <RefreshCw size={13} />
                                 </button>
@@ -830,12 +830,12 @@ export function SuperadminPanel({
                                 {isAllowed ? (
                                   <>
                                     <Check size={13} />
-                                    <span>Aktif (Allowed)</span>
+                                    <span>Active (Allowed)</span>
                                   </>
                                 ) : (
                                   <>
                                     <X size={13} />
-                                    <span>Disekat (Disabled)</span>
+                                    <span>Blocked (Disabled)</span>
                                   </>
                                 )}
                               </button>
@@ -851,7 +851,7 @@ export function SuperadminPanel({
           ) : (
             <div className="rounded-2xl border border-dashed border-[var(--color-border)] p-12 text-center text-[var(--color-text-tertiary)]">
               <Users size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm font-semibold">Sila pilih pengguna daripada senarai sebelah kiri</p>
+              <p className="text-sm font-semibold">Please select a user from the list on the left</p>
             </div>
           )}
         </div>

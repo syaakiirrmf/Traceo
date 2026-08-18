@@ -146,7 +146,7 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
       makeInfoRow('Status', STATUS[fasiliti.status_fasiliti] ?? fasiliti.status_fasiliti),
       makeInfoRow('Start Date', fmtDate(fasiliti.tarikh_mula)),
       ...(fasiliti.tarikh_tamat ? [makeInfoRow('End Date', fmtDate(fasiliti.tarikh_tamat))] : []),
-      // ─── Maklumat Pembiayaan Modal ────────────────────────────────────────
+      // ─── Capital Financing Info ────────────────────────────────────────────────
       makeInfoRow('Total Capital Financing (RM) — A', fmtCurrency(fasiliti.jumlah_pembiayaan)),
       // JV1/JV3: text description
       ...(isJV1 && fasiliti.kadar_dividen
@@ -163,7 +163,7 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
       ...(isJV3 && fasiliti.bayaran_tambahan > 0
         ? [makeInfoRow('Additional Payment (RM) — B', fmtCurrency(fasiliti.bayaran_tambahan))]
         : []),
-      // ─── Maklumat Tunggakan & Bayaran ─────────────────────────────────────
+      // ─── Arrears & Payment Info ───────────────────────────────────────────────
       ...(isJV1 && fasiliti.tunggakan_dividen > 0
         ? [makeInfoRow('Dividend Arrears (RM) — B', fmtCurrency(fasiliti.tunggakan_dividen))]
         : []),

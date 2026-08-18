@@ -11,10 +11,10 @@ const PASSWORD_MIN_LENGTH = 8
 
 function validatePasswordStrength(password: string) {
   if (password.length < PASSWORD_MIN_LENGTH) {
-    return `Kata laluan mestilah sekurang-kurangnya ${PASSWORD_MIN_LENGTH} aksara.`
+    return `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`
   }
   if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-    return 'Kata laluan mesti mengandungi huruf besar, huruf kecil dan nombor.'
+    return 'Password must contain uppercase letters, lowercase letters and numbers.'
   }
   return null
 }
@@ -59,7 +59,7 @@ export async function tambahUser(formData: FormData) {
   const rl = await rateLimitAction('users_tambah', 10, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -72,7 +72,7 @@ export async function tambahUser(formData: FormData) {
   if (passwordError) throw new Error(passwordError)
   if (await isPasswordCompromised(kataLaluan)) {
     throw new Error(
-      'Kata laluan ini telah terdedah dalam kebocoran data awam. Sila pilih kata laluan lain.'
+      'This password has been exposed in a public data breach. Please choose another password.'
     )
   }
 
@@ -114,7 +114,7 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
   const rl = await rateLimitAction('users_status', 30, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -140,7 +140,7 @@ export async function kemaskiniPeranan(userId: string, perananBaharu: string) {
   const rl = await rateLimitAction('users_peranan', 30, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 

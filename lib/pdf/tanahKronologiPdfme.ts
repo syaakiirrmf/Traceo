@@ -59,16 +59,16 @@ export async function generateTanahKronologiPdf(tanah: TanahData, susulan: Susul
   const today = format(new Date(), 'dd/MM/yyyy')
 
   const infoRows: Array<[string, string]> = [
-    ['Negeri', tanah.negeri],
-    ['Daerah', tanah.daerah],
-    ['Bandar / Pekan / Mukim', tanah.bandar_mukim],
-    ['Tempat', tanah.tempat],
+    ['State', tanah.negeri],
+    ['District', tanah.daerah],
+    ['City / Town / Mukim', tanah.bandar_mukim],
+    ['Location', tanah.tempat],
     ['No. Lot', tanah.no_lot],
   ]
-  if (tanah.no_hak_milik) infoRows.push(['No. Hak Milik', tanah.no_hak_milik])
-  if (tanah.tarikh_daftar) infoRows.push(['Daftar Pada', fmtDate(tanah.tarikh_daftar)])
-  infoRows.push(['Luas (m²)', fmtArea(tanah.luas_meter_persegi)])
-  infoRows.push(['Anggaran Nilaian (RM)', fmtCurrency(tanah.anggaran_nilaian)])
+  if (tanah.no_hak_milik) infoRows.push(['Title No.', tanah.no_hak_milik])
+  if (tanah.tarikh_daftar) infoRows.push(['Registered On', fmtDate(tanah.tarikh_daftar)])
+  infoRows.push(['Area (m²)', fmtArea(tanah.luas_meter_persegi)])
+  infoRows.push(['Estimated Value (RM)', fmtCurrency(tanah.anggaran_nilaian)])
 
   const susulanRows = susulan.map((s, i) => [
     `${i + 1}. ${fmtDate(s.tarikh_susulan)}`,
@@ -136,7 +136,7 @@ export async function generateTanahKronologiPdf(tanah: TanahData, susulan: Susul
       position: { x: 12, y: yCursor },
       width: 186,
       height: 7,
-      content: 'CATATAN',
+      content: 'NOTES',
       fontSize: 8,
       fontColor: '#5a6080',
     })

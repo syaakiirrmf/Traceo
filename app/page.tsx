@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import HeroSection from '@/components/hero/HeroSection'
 
 export const metadata: Metadata = {
-  title: 'Traceo — Pengurusan Fasiliti JV',
+  title: 'Traceo — JV Facility Management',
   description:
-    'Sistem pengurusan fasiliti JV dan laporan kronologi. Rekod, pantau, dan jana laporan dengan tepat.',
+    'JV facility management system and chronology reports. Record, monitor, and generate reports accurately.',
 }
 
 export default function HomePage() {

@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Superadmin Command Center — Traceo',
-  description: 'Kawalan menyeluruh hak capaian modul, halaman dan ciri sistem untuk setiap pengguna.',
+  description: 'Comprehensive control of module, page and system feature access rights for every user.',
 }
 
 export default async function SuperadminPage() {

@@ -64,7 +64,7 @@ export async function GET() {
     ]
 
     const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Tanah JV')
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Land JV')
 
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
 

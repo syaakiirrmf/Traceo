@@ -36,7 +36,7 @@ export async function tambahSusulanTanah(tanahId: string, formData: FormData) {
   const rl = await rateLimitAction('susulan_tanah_tambah', 20, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -95,7 +95,7 @@ export async function editSusulanTanah(susulanId: string, tanahId: string, formD
   const rl = await rateLimitAction('susulan_tanah_edit', 20, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -125,7 +125,7 @@ export async function padamSusulanTanah(susulanId: string, tanahId: string) {
   const rl = await rateLimitAction('susulan_tanah_padam', 20, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 

@@ -123,7 +123,7 @@ export default async function SummaryIndexPage() {
       userId={userProfile.id}
       role={userProfile.peranan as UserRole}
       pagePath="/dashboard/summary"
-      featureName="Ringkasan JV"
+      featureName="Summary JV"
     >
       <div className="space-y-8 max-w-5xl font-dm">
         {/* Page Header */}

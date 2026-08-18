@@ -74,7 +74,7 @@ export function ViewerDashboardView({
             Portfolio Overview
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Paparan analitik portfolio dan muat turun laporan untuk rujukan &amp; mesyuarat.
+            Portfolio analytics view and report downloads for reference &amp; meetings.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export function ViewerDashboardView({
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat"
           >
             <FileSpreadsheet size={14} />
-            Pusat Ringkasan &amp; Laporan
+            Summary &amp; Report Center
           </Link>
         </div>
       </div>
@@ -106,7 +106,7 @@ export function ViewerDashboardView({
             {formatCurrency(totalPembiayaan)}
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Nilai cagaran hartanah:{' '}
+            Property collateral value:{' '}
             <span className="font-bold text-slate-700">{formatCurrency(totalCagaran)}</span>
           </p>
         </div>
@@ -125,7 +125,7 @@ export function ViewerDashboardView({
             {healthyRate}%
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            {activeCount} daripada {totalCount} fasiliti berstatus aktif
+            {activeCount} of {totalCount} facilities active
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export function ViewerDashboardView({
           <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Tunggakan semasa keseluruhan akaun</p>
+          <p className="text-xs text-slate-500 mt-1">Total current arrears across all accounts</p>
         </div>
       </div>
 
@@ -156,22 +156,22 @@ export function ViewerDashboardView({
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-fustat font-bold text-sm text-slate-900">{cat.name}</h3>
               <span className="text-xs font-bold text-[#0066FF] bg-[#EBF2FF] px-2.5 py-0.5 rounded-full">
-                {cat.count} akaun
+                {cat.count} accounts
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Pembiayaan:{' '}
+              Financing:{' '}
               <span className="font-semibold text-slate-800">{formatCurrency(cat.pembiayaan)}</span>
             </p>
             <p className="text-xs text-slate-500 mt-0.5">
-              Tunggakan:{' '}
+              Arrears:{' '}
               <span className="font-semibold text-rose-600">{formatCurrency(cat.tunggakan)}</span>
             </p>
             <Link
               href={cat.href}
               className="mt-3 text-xs font-bold text-[#0066FF] hover:underline inline-flex items-center gap-1"
             >
-              Lihat Ringkasan Kategori <ExternalLink size={12} />
+              View Category Summary <ExternalLink size={12} />
             </Link>
           </div>
         ))}
@@ -192,13 +192,13 @@ export function ViewerDashboardView({
         <div className="space-y-4">
           <h2 className="text-base font-fustat font-bold text-slate-900 flex items-center gap-2">
             <Download size={16} className="text-[#0066FF]" />
-            Pusat Muat Turun Laporan
+            Report Download Center
           </h2>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3">
             <p className="text-xs text-slate-500 leading-relaxed">
-              Jana dan muat turun laporan kronologi penuh berformat PDF dan Word (.docx) mengikut
-              kategori:
+              Generate and download full chronology reports in PDF and Word (.docx) format by
+              category:
             </p>
 
             <Link
@@ -208,7 +208,7 @@ export function ViewerDashboardView({
               <div className="flex items-center gap-2.5">
                 <Building2 size={16} className="text-[#0066FF]" />
                 <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">
-                  Laporan Summary JV 1
+                  JV 1 Summary Report
                 </span>
               </div>
               <Download size={14} className="text-slate-400 group-hover:text-[#0066FF]" />
@@ -221,7 +221,7 @@ export function ViewerDashboardView({
               <div className="flex items-center gap-2.5">
                 <Landmark size={16} className="text-[#0066FF]" />
                 <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">
-                  Laporan Land JV
+                  Land JV Report
                 </span>
               </div>
               <Download size={14} className="text-slate-400 group-hover:text-[#0066FF]" />
@@ -234,7 +234,7 @@ export function ViewerDashboardView({
               <div className="flex items-center gap-2.5">
                 <UserRound size={16} className="text-[#0066FF]" />
                 <span className="text-xs font-bold text-slate-800 group-hover:text-[#0066FF]">
-                  Laporan Personal Loan
+                  Personal Loan Report
                 </span>
               </div>
               <Download size={14} className="text-slate-400 group-hover:text-[#0066FF]" />

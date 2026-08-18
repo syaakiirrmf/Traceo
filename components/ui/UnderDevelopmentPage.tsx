@@ -12,9 +12,9 @@ interface UnderDevelopmentPageProps {
 }
 
 export function UnderDevelopmentPage({
-  title = 'Modul Dalam Pembangunan',
+  title = 'Module Under Development',
   featureName,
-  description = 'Ciri atau halaman ini sedang dinaik taraf dan belum dibuka untuk akses akaun anda. Sila hubungi Superadmin untuk maklumat lanjut.',
+  description = 'This feature or page is being upgraded and is not yet available for your account access. Please contact the Superadmin for more information.',
   minimal = false,
 }: UnderDevelopmentPageProps) {
   if (minimal) {
@@ -24,7 +24,7 @@ export function UnderDevelopmentPage({
           <Hammer size={22} className="animate-pulse" />
         </div>
         <h3 className="mt-3 text-sm font-bold text-slate-800 dark:text-slate-100 font-fustat">
-          {featureName ? `Ciri "${featureName}" Belum Tersedia` : title}
+          {featureName ? `Feature "${featureName}" Not Yet Available` : title}
         </h3>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
           {description}
@@ -51,7 +51,7 @@ export function UnderDevelopmentPage({
           <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
         </span>
         <Hammer size={13} />
-        <span>Fasa Pembangunan Eksklusif</span>
+        <span>Exclusive Development Phase</span>
       </div>
 
       {/* Main Icon */}
@@ -66,7 +66,7 @@ export function UnderDevelopmentPage({
 
       {/* Content */}
       <h2 className="mt-4 text-2xl font-black tracking-tight text-slate-900 dark:text-white font-fustat sm:text-3xl">
-        {featureName ? `Modul ${featureName}` : title}
+        {featureName ? `Module ${featureName}` : title}
       </h2>
       <p className="mt-2.5 max-w-md text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
         {description}
@@ -76,12 +76,12 @@ export function UnderDevelopmentPage({
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-2.5 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-400">
         <span className="flex items-center gap-1.5 font-medium">
           <ShieldAlert size={14} className="text-[#0066FF]" />
-          Status Akses: <strong className="text-slate-800 dark:text-slate-200">Terhad (Role Policy)</strong>
+          Access Status: <strong className="text-slate-800 dark:text-slate-200">Restricted (Role Policy)</strong>
         </span>
         <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
         <span className="flex items-center gap-1.5 font-medium">
           <Compass size={14} className="text-amber-500" />
-          Versi: <strong>Beta / Staging Tier</strong>
+          Version: <strong>Beta / Staging Tier</strong>
         </span>
       </div>
 
@@ -92,13 +92,13 @@ export function UnderDevelopmentPage({
           className="inline-flex items-center gap-2 rounded-xl bg-[#0066FF] px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all duration-200 hover:bg-[#0048CC] hover:shadow-lg hover:shadow-[#0066FF]/20 active:scale-95"
         >
           <ArrowLeft size={16} />
-          Kembali ke Dashboard
+          Back to Dashboard
         </Link>
         <Link
           href="/dashboard/fasiliti"
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition-all duration-200 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 active:scale-95"
         >
-          Semak Fasiliti
+          View Facilities
         </Link>
       </div>
     </div>

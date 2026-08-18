@@ -92,7 +92,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
     setLoadingMessages(true)
     try {
       const res = await fetch(`/api/chat/history/${sesiId}`)
-      if (!res.ok) throw new Error('Gagal memuat perbualan')
+      if (!res.ok) throw new Error('Failed to load conversation')
       const data = await res.json()
       setMessages((data.messages ?? []).map((m: { peranan: string; kandungan: string }) => ({
         role: m.peranan as 'user' | 'assistant',
@@ -124,7 +124,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
     }
     try {
       const res = await fetch(`/api/chat/history/${sesiId}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Gagal memadam perbualan')
+      if (!res.ok) throw new Error('Failed to delete conversation')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred.')
       refreshSessions()
@@ -177,18 +177,18 @@ export function ChatBox({ userName }: ChatBoxProps) {
             className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors disabled:opacity-40 disabled:pointer-events-none"
           >
             <Plus size={14} />
-            Sesi Baharu
+            New Session
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0">
           {loadingSessions ? (
             <p className="px-3 py-2 text-xs text-[var(--color-text-tertiary)]">
-              Memuat sejarah…
+              Loading history…
             </p>
           ) : sessions.length === 0 ? (
             <p className="px-3 py-2 text-xs text-[var(--color-text-tertiary)]">
-              Tiada sejarah perbualan.
+              No conversation history.
             </p>
           ) : (
             sessions.map((s) => (
@@ -218,7 +218,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
                   type="button"
                   onClick={() => padamSesi(s.id)}
                   disabled={loading}
-                  aria-label="Padam perbualan"
+                  aria-label="Delete conversation"
                   className="p-1 rounded-md text-[var(--color-text-tertiary)] opacity-0 group-hover:opacity-100 hover:text-[var(--color-danger)] transition-opacity disabled:opacity-30"
                 >
                   <Trash2 size={12} />
@@ -256,7 +256,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
           {loadingMessages && (
             <div className="flex items-center justify-center py-10">
               <p className="text-xs text-[var(--color-text-tertiary)]">
-                Memuat perbualan…
+                Loading conversation…
               </p>
             </div>
           )}
