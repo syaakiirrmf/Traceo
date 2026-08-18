@@ -34,7 +34,7 @@ export default async function AuditPage() {
   // Compute metrics
   const uniqueUsers = new Set(logs.map((l) => l.user_id).filter(Boolean)).size
   const exportCount = logs.filter(
-    (l) => l.tindakan === 'jana_kronologi' || l.tindakan === 'eksport_excel'
+    (l) => l.tindakan === 'jana_kronologi' || l.tindakan === 'eksport_excel' || l.tindakan === 'eksport_ringkasan'
   ).length
   const facilityLandOps = logs.filter(
     (l) => l.entiti_jenis === 'fasiliti' || l.entiti_jenis === 'tanah_jv'

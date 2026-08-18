@@ -204,6 +204,7 @@ export type FeatureKey =
   | 'padam_susulan'
   | 'jana_kronologi'
   | 'eksport_excel'
+  | 'eksport_ringkasan'
   | 'lihat_audit_log'
   | 'urus_pengguna'
   | 'lihat_dashboard'

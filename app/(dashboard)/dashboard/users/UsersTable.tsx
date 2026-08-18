@@ -9,6 +9,7 @@ import { Pagination } from '@/components/table/Pagination'
 import { useSort, SortIcon } from '@/components/table/useSort'
 import { UserCheck, UserX } from 'lucide-react'
 import type { User } from '@/types'
+import { EditUserModal } from './EditUserModal'
 
 const PAGE_SIZE = 8
 
@@ -23,7 +24,13 @@ const ROLE_STYLES: Record<string, string> = {
     'bg-[var(--color-surface-raised)] text-[var(--color-text-tertiary)] border-[var(--color-border)]',
 }
 
-export function UsersTable({ users }: { users: User[] }) {
+export function UsersTable({
+  users,
+  currentUserRole,
+}: {
+  users: User[]
+  currentUserRole?: string
+}) {
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
 
@@ -158,15 +165,21 @@ export function UsersTable({ users }: { users: User[] }) {
                       {formatDate(u.dicipta_pada)}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <form action={toggleUserStatus.bind(null, u.id, u.status)}>
-                        <button
-                          type="submit"
-                          title={u.status === 'aktif' ? 'Deactivate' : 'Activate'}
-                          className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${u.status === 'aktif' ? 'text-[var(--color-danger)] hover:bg-[var(--color-danger-subtle)]' : 'text-[var(--color-brand)] hover:bg-[var(--color-brand-subtle)]'}`}
-                        >
-                          {u.status === 'aktif' ? <UserX size={14} /> : <UserCheck size={14} />}
-                        </button>
-                      </form>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <EditUserModal
+                          user={u}
+                          canAssignSuperadmin={currentUserRole === 'superadmin'}
+                        />
+                        <form action={toggleUserStatus.bind(null, u.id, u.status)}>
+                          <button
+                            type="submit"
+                            title={u.status === 'aktif' ? 'Deactivate' : 'Activate'}
+                            className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${u.status === 'aktif' ? 'text-[var(--color-danger)] hover:bg-[var(--color-danger-subtle)]' : 'text-[var(--color-brand)] hover:bg-[var(--color-brand-subtle)]'}`}
+                          >
+                            {u.status === 'aktif' ? <UserX size={14} /> : <UserCheck size={14} />}
+                          </button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -77,6 +77,11 @@ const ACTION_CONFIG: Record<string, ActionMeta> = {
     icon: FileSpreadsheet,
     badgeStyle: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
   },
+  eksport_ringkasan: {
+    label: 'Export Ringkasan',
+    icon: FileText,
+    badgeStyle: 'bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20',
+  },
   cipta_pengguna: {
     label: 'Create User',
     icon: UserCog,
@@ -91,6 +96,11 @@ const ACTION_CONFIG: Record<string, ActionMeta> = {
     label: 'Update Role',
     icon: ShieldCheck,
     badgeStyle: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20',
+  },
+  kemaskini_pengguna: {
+    label: 'Update User',
+    icon: UserCog,
+    badgeStyle: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20',
   },
   kemaskini_pegawai: {
     label: 'Assign Officer',
@@ -116,6 +126,11 @@ const ENTITY_CONFIG: Record<string, { label: string; icon: React.ComponentType<{
     style: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200 dark:border-amber-800',
   },
   users: {
+    label: 'User Account',
+    icon: User,
+    style: 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+  },
+  user: {
     label: 'User Account',
     icon: User,
     style: 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border-purple-200 dark:border-purple-800',
@@ -154,8 +169,9 @@ export function AuditTable({ logs }: { logs: LogAudit[] }) {
       if (activeTab === 'fasiliti' && log.entiti_jenis !== 'fasiliti') return false
       if (activeTab === 'tanah_jv' && log.entiti_jenis !== 'tanah_jv') return false
       if (activeTab === 'susulan' && log.entiti_jenis !== 'susulan') return false
-      if (activeTab === 'users' && log.entiti_jenis !== 'users') return false
-      if (activeTab === 'exports' && !['jana_kronologi', 'eksport_excel'].includes(log.tindakan))
+      if (activeTab === 'users' && log.entiti_jenis !== 'user' && log.entiti_jenis !== 'users') return false
+      if (activeTab === 'exports' &&
+        !['jana_kronologi', 'eksport_excel', 'eksport_ringkasan'].includes(log.tindakan))
         return false
 
       // 2. Action Filter
@@ -258,8 +274,8 @@ export function AuditTable({ logs }: { logs: LogAudit[] }) {
     { key: 'fasiliti', label: 'Facilities', count: logs.filter((l) => l.entiti_jenis === 'fasiliti').length },
     { key: 'tanah_jv', label: 'Land JV', count: logs.filter((l) => l.entiti_jenis === 'tanah_jv').length },
     { key: 'susulan', label: 'Follow-ups', count: logs.filter((l) => l.entiti_jenis === 'susulan').length },
-    { key: 'exports', label: 'Exports & PDF', count: logs.filter((l) => ['jana_kronologi', 'eksport_excel'].includes(l.tindakan)).length },
-    { key: 'users', label: 'Users', count: logs.filter((l) => l.entiti_jenis === 'users').length },
+    { key: 'exports', label: 'Exports & PDF', count: logs.filter((l) => ['jana_kronologi', 'eksport_excel', 'eksport_ringkasan'].includes(l.tindakan)).length },
+    { key: 'users', label: 'Users', count: logs.filter((l) => l.entiti_jenis === 'user' || l.entiti_jenis === 'users').length },
   ]
 
   if (logs.length === 0) {

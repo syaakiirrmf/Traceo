@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
+import { hasPermission } from '@/lib/auth/permissions'
+import type { UserRole } from '@/types'
 import { generateRingkasanPdf, type RingkasanData } from '@/lib/pdf/ringkasanPdfme'
 import { format } from 'date-fns'
 
@@ -18,6 +20,10 @@ export async function GET(request: NextRequest) {
     .eq('auth_id', authUser.id)
     .single()
   if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
+
+  if (!hasPermission(userProfile.peranan as UserRole, 'eksport_ringkasan')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   try {
     let query = supabase
