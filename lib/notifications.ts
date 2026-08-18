@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/types'
+import { differenceInCalendarDays } from 'date-fns'
 
 export interface SusulanNotification {
   id: string
@@ -8,6 +9,8 @@ export interface SusulanNotification {
   status_fasiliti: string
   jumlah_tunggakan_semasa: number
   susulan_terakhir: string | null
+  hari_terlewat: number
+  kritikal: boolean
 }
 
 // Notifications = facilities in an attention-needed state (overdue / legal
@@ -21,7 +24,7 @@ export async function getSusulanNotifications(
   let query = supabase
     .from('fasiliti')
     .select(
-      'id, kod_rujukan, nama_peminjam, status_fasiliti, jumlah_tunggakan_semasa, susulan!susulan_fasiliti_id_fkey(tarikh_susulan)'
+      'id, kod_rujukan, nama_peminjam, status_fasiliti, jumlah_tunggakan_semasa, tarikh_mula, susulan!susulan_fasiliti_id_fkey(tarikh_susulan)'
     )
     .in('status_fasiliti', needsAttention)
     .order('jumlah_tunggakan_semasa', { ascending: false })
@@ -48,6 +51,9 @@ export async function getSusulanNotifications(
       .map((s) => s.tarikh_susulan)
       .sort()
       .reverse()[0]
+    // Days since the last follow-up (or since the facility started if none).
+    const anchor = latest ?? f.tarikh_mula ?? new Date().toISOString()
+    const days = Math.max(differenceInCalendarDays(new Date(), new Date(anchor)), 0)
     return {
       id: f.id,
       kod_rujukan: f.kod_rujukan,
@@ -55,6 +61,8 @@ export async function getSusulanNotifications(
       status_fasiliti: f.status_fasiliti,
       jumlah_tunggakan_semasa: Number(f.jumlah_tunggakan_semasa) || 0,
       susulan_terakhir: latest ?? null,
+      hari_terlewat: days,
+      kritikal: days > 90,
     }
   })
 }

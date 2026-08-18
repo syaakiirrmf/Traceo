@@ -5,7 +5,9 @@ import { ArrowLeft, Plus, Edit, FileText, Pencil } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { hasPermission } from '@/lib/auth/permissions'
 import { DeleteFasilitiButton } from '@/components/fasiliti/DeleteFasilitiButton'
+import { FinancingCalculator } from '@/components/fasiliti/FinancingCalculator'
 import { DeleteSusulanButton } from '@/components/susulan/DeleteSusulanButton'
+import { SusulanApprovalBadge, SusulanApprovalButtons } from '@/components/susulan/SusulanApproval'
 import { AssignPegawaiModal } from '@/components/fasiliti/AssignPegawaiModal'
 import type { Lampiran } from '@/types'
 import type { Metadata } from 'next'
@@ -171,6 +173,11 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
               Chronology
             </Link>
           )}
+          <FinancingCalculator
+            jumlahPembiayaan={fasiliti.jumlah_pembiayaan}
+            kadarDividen={fasiliti.kadar_dividen}
+            kategori={fasiliti.kategori}
+          />
           {canEdit && (
             <Link
               href={`/dashboard/fasiliti/${id}/edit`}
@@ -480,6 +487,16 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
                       <p className="text-xs font-medium text-[var(--color-brand)] mb-1.5">
                         {formatDate(s.tarikh_susulan, 'dd MMMM yyyy')}
                       </p>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <SusulanApprovalBadge status={s.status_kelulusan} />
+                        {(userProfile.peranan === 'admin' || userProfile.peranan === 'pengurus') && (
+                          <SusulanApprovalButtons
+                            susulanId={s.id}
+                            fasilitiId={id}
+                            status={s.status_kelulusan}
+                          />
+                        )}
+                      </div>
                       <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">
                         {s.catatan}
                       </p>

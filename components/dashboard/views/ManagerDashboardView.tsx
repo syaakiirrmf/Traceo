@@ -15,7 +15,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
-import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
+import { DashboardCharts, MonthlyTrendChart, type MonthlyTrendPoint } from '@/components/dashboard/DashboardCharts'
 
 export interface ManagerDashboardViewProps {
   totalPembiayaan: number
@@ -55,6 +55,7 @@ export interface ManagerDashboardViewProps {
     jumlah_tunggakan_semasa: number
     status_fasiliti: string
   }>
+  monthlyTrend: MonthlyTrendPoint[]
 }
 
 const STATUS_LABELS = {
@@ -79,6 +80,7 @@ export function ManagerDashboardView({
   categoryData,
   statusData,
   overdueList,
+  monthlyTrend,
 }: ManagerDashboardViewProps) {
   const activeCount = fasilitiList.filter((f) => f.status_fasiliti === 'aktif').length
   const overdueCount = fasilitiList.filter(
@@ -201,6 +203,9 @@ export function ManagerDashboardView({
             totalCagaran={totalCagaran}
             overdueList={overdueList}
           />
+          <div className="mt-6">
+            <MonthlyTrendChart data={monthlyTrend} />
+          </div>
         </div>
 
         {/* Actionable Overdue Accounts List */}

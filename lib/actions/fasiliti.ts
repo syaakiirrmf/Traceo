@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
 import { rateLimitAction } from '@/lib/ratelimit'
+import { sendOverdueEmail, getAdminEmails } from '@/lib/email'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -21,6 +22,32 @@ async function getCurrentUser() {
 
   if (!userProfile) throw new Error('User not found')
   return { supabase, userProfile }
+}
+
+async function notifyOverdue(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  fasilitiId: string
+) {
+  try {
+    const { data: fasiliti } = await supabase
+      .from('fasiliti')
+      .select('kod_rujukan, nama_peminjam, jumlah_tunggakan_semasa')
+      .eq('id', fasilitiId)
+      .single()
+    const emails = await getAdminEmails(supabase)
+    if (!fasiliti || emails.length === 0) return
+    await Promise.all(
+      emails.map((to) =>
+        sendOverdueEmail(to, {
+          kod_rujukan: fasiliti.kod_rujukan,
+          nama_peminjam: fasiliti.nama_peminjam,
+          jumlah_tunggakan: Number(fasiliti.jumlah_tunggakan_semasa) || 0,
+        })
+      )
+    )
+  } catch (err) {
+    console.error('[notifyOverdue]', err)
+  }
 }
 
 // ─── Tambah Fasiliti ─────────────────────────────────────────────────────────
@@ -173,6 +200,11 @@ export async function editFasiliti(fasilitiId: string, formData: FormData) {
   })
 
   if (error) throw new Error(`Failed to update: ${error.message}`)
+
+  // Notify the admin/manager team when a facility becomes overdue
+  if (payload.status_fasiliti === 'tertunggak') {
+    notifyOverdue(supabase, fasilitiId)
+  }
 
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
   revalidatePath('/dashboard/fasiliti')

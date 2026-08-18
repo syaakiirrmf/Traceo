@@ -33,10 +33,23 @@ export interface OfficerDashboardViewProps {
     fasiliti_id: string
     tarikh_susulan: string
     catatan: string
+    status_kelulusan?: 'menunggu' | 'diluluskan' | 'ditolak' | null
     kod_rujukan?: string
     nama_peminjam?: string
   }>
 }
+
+const APPROVAL_STYLES = {
+  menunggu: 'bg-amber-500/10 text-amber-600 border-amber-500/30',
+  diluluskan: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30',
+  ditolak: 'bg-rose-500/10 text-rose-600 border-rose-500/30',
+} as const
+
+const APPROVAL_LABELS = {
+  menunggu: 'Menunggu',
+  diluluskan: 'Diluluskan',
+  ditolak: 'Ditolak',
+} as const
 
 const STATUS_STYLES = {
   aktif: 'bg-[#0066FF]/10 text-[#0066FF] border-[#0066FF]/20',
@@ -270,7 +283,18 @@ export function OfficerDashboardView({
                       <Calendar size={11} /> {s.tarikh_susulan}
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-slate-800">{s.nama_peminjam}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-bold text-slate-800">{s.nama_peminjam}</p>
+                    {s.status_kelulusan && (
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                          APPROVAL_STYLES[s.status_kelulusan] || 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {APPROVAL_LABELS[s.status_kelulusan] || s.status_kelulusan}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed bg-slate-50 p-2 rounded-lg border border-slate-100">
                     {s.catatan}
                   </p>

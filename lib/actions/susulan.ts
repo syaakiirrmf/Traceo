@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
 import { uploadFile, deleteFile, getFileType, validateFile } from '@/lib/storage/cloudinary'
 import { rateLimitAction } from '@/lib/ratelimit'
+import { sendNewSusulanEmail, getAdminEmails, sendApprovalEmail } from '@/lib/email'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -22,6 +23,33 @@ async function getCurrentUser() {
 
   if (!userProfile) throw new Error('User not found')
   return { supabase, userProfile }
+}
+
+async function notifyNewSusulan(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  fasilitiId: string,
+  data: { tarikh_susulan: string }
+) {
+  try {
+    const { data: fasiliti } = await supabase
+      .from('fasiliti')
+      .select('kod_rujukan, nama_peminjam')
+      .eq('id', fasilitiId)
+      .single()
+    const emails = await getAdminEmails(supabase)
+    if (!fasiliti || emails.length === 0) return
+    await Promise.all(
+      emails.map((to) =>
+        sendNewSusulanEmail(to, {
+          kod_rujukan: fasiliti.kod_rujukan,
+          nama_peminjam: fasiliti.nama_peminjam,
+          tarikh_susulan: data.tarikh_susulan,
+        })
+      )
+    )
+  } catch (err) {
+    console.error('[notifyNewSusulan]', err)
+  }
 }
 
 // ─── Tambah Susulan ──────────────────────────────────────────────────────────
@@ -79,6 +107,11 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
     throw new Error(`Failed to save follow-up: ${error.message}`)
   }
 
+  // Notify admin/manager team of the new follow-up (best-effort, non-blocking)
+  notifyNewSusulan(supabase, fasilitiId, {
+    tarikh_susulan: formData.get('tarikh_susulan') as string,
+  })
+
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
   redirect(`/dashboard/fasiliti/${fasilitiId}`)
 }
@@ -111,6 +144,68 @@ export async function editSusulan(susulanId: string, fasilitiId: string, formDat
 
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
   redirect(`/dashboard/fasiliti/${fasilitiId}`)
+}
+
+// ─── Lulus / Tolak Susulan (approval workflow) ─────────────────────────────
+// Only admin/pengurus may approve. Enforced inside traceo_lulus_susulan.
+export async function lulusSusulan(
+  susulanId: string,
+  fasilitiId: string,
+  keputusan: 'diluluskan' | 'ditolak'
+) {
+  const { supabase, userProfile } = await getCurrentUser()
+
+  if (!hasPermission(userProfile.peranan, 'edit_susulan_orang_lain')) {
+    throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('susulan_lulus', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
+    )
+  }
+
+  const { error } = await supabase.rpc('traceo_lulus_susulan', {
+    p_id: susulanId,
+    p_kelulusan: keputusan,
+  })
+  if (error) throw new Error(`Failed to update approval: ${error.message}`)
+
+  notifyApproval(supabase, susulanId, keputusan)
+
+  revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
+}
+
+async function notifyApproval(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  susulanId: string,
+  keputusan: 'diluluskan' | 'ditolak'
+) {
+  try {
+    const { data: susulan } = await supabase
+      .from('susulan')
+      .select('dicatat_oleh, fasiliti:fasiliti!susulan_fasiliti_id_fkey(kod_rujukan, nama_peminjam)')
+      .eq('id', susulanId)
+      .single()
+    if (!susulan?.dicatat_oleh) return
+    const { data: user } = await supabase
+      .from('users')
+      .select('emel')
+      .eq('id', susulan.dicatat_oleh)
+      .single()
+    const fasiliti = Array.isArray(susulan.fasiliti)
+      ? susulan.fasiliti[0]
+      : susulan.fasiliti
+    if (!user?.emel || !fasiliti) return
+    await sendApprovalEmail(user.emel, {
+      kod_rujukan: fasiliti.kod_rujukan,
+      nama_peminjam: fasiliti.nama_peminjam,
+      keputusan,
+    })
+  } catch (err) {
+    console.error('[notifyApproval]', err)
+  }
 }
 
 // ─── Padam Susulan ───────────────────────────────────────────────────────────

@@ -113,6 +113,35 @@ export async function editSusulanTanah(susulanId: string, tanahId: string, formD
   redirect(`/dashboard/tanah-jv/${tanahId}`)
 }
 
+// ─── Lulus / Tolak Susulan Tanah (approval workflow) ────────────────────────
+// Only admin/pengurus may approve. Enforced inside traceo_lulus_susulan.
+export async function lulusSusulanTanah(
+  susulanId: string,
+  tanahId: string,
+  keputusan: 'diluluskan' | 'ditolak'
+) {
+  const { supabase, userProfile } = await getCurrentUser()
+
+  if (!hasPermission(userProfile.peranan, 'edit_susulan_orang_lain')) {
+    throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('susulan_tanah_lulus', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
+    )
+  }
+
+  const { error } = await supabase.rpc('traceo_lulus_susulan', {
+    p_id: susulanId,
+    p_kelulusan: keputusan,
+  })
+  if (error) throw new Error(`Failed to update approval: ${error.message}`)
+
+  revalidatePath(`/dashboard/tanah-jv/${tanahId}`)
+}
+
 // ─── Padam Susulan Tanah ─────────────────────────────────────────────────────
 
 export async function padamSusulanTanah(susulanId: string, tanahId: string) {

@@ -6,6 +6,7 @@ import { getRoleLabel } from '@/lib/auth/permissions'
 import { toggleUserStatus } from '@/lib/actions/users'
 import { TableSearch, matchesQuery } from '@/components/table/TableSearch'
 import { Pagination } from '@/components/table/Pagination'
+import { useSort, SortIcon } from '@/components/table/useSort'
 import { UserCheck, UserX } from 'lucide-react'
 import type { User } from '@/types'
 
@@ -36,9 +37,11 @@ export function UsersTable({ users }: { users: User[] }) {
     )
   }, [users, q])
 
-  const totalPages = Math.max(1, Math.ceil(visibleUsers.length / PAGE_SIZE))
+  const { sortKey, sortDirection, toggle, sortedRows } = useSort<User>(visibleUsers, 'nama')
+
+  const totalPages = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
-  const pageUsers = visibleUsers.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const pageUsers = sortedRows.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   if (users.length === 0) {
     return (
@@ -64,7 +67,7 @@ export function UsersTable({ users }: { users: User[] }) {
           className="w-full sm:w-72"
         />
         <p className="text-xs text-[var(--color-text-tertiary)]">
-          {visibleUsers.length} of {users.length} accounts
+          {sortedRows.length} of {users.length} accounts
         </p>
       </div>
 
@@ -74,10 +77,38 @@ export function UsersTable({ users }: { users: User[] }) {
           <table className="w-full text-xs text-left border-collapse">
             <thead>
               <tr className="border-b border-[var(--color-border)] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)] font-medium">
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Registered Date</th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('nama')}
+                >
+                  <span className="inline-flex items-center">
+                    User <SortIcon colKey="nama" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('peranan')}
+                >
+                  <span className="inline-flex items-center">
+                    Role <SortIcon colKey="peranan" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('status')}
+                >
+                  <span className="inline-flex items-center">
+                    Status <SortIcon colKey="status" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('dicipta_pada')}
+                >
+                  <span className="inline-flex items-center">
+                    Registered Date <SortIcon colKey="dicipta_pada" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
+                </th>
                 <th className="px-4 py-3 w-12 text-center" />
               </tr>
             </thead>
@@ -149,7 +180,7 @@ export function UsersTable({ users }: { users: User[] }) {
         page={safePage}
         totalPages={totalPages}
         onPageChange={setPage}
-        totalItems={visibleUsers.length}
+        totalItems={sortedRows.length}
         pageSize={PAGE_SIZE}
       />
     </div>

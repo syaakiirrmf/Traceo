@@ -20,6 +20,9 @@ import {
   Pie,
   Cell,
   CartesianGrid,
+  AreaChart,
+  Area,
+  Legend,
 } from 'recharts'
 
 function formatRM(val: number): string {
@@ -560,6 +563,136 @@ export function DashboardCharts({
             </table>
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+export interface MonthlyTrendPoint {
+  label: string
+  count: number
+  pembiayaan: number
+  tunggakan: number
+}
+
+// ─── Monthly Trend Area Chart ───────────────────────────────────────────────
+function TrendTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: Array<{ dataKey: string; value: number }>
+  label?: string
+}) {
+  if (!active || !payload?.length) return null
+  const financing = payload.find((p) => p.dataKey === 'pembiayaan')?.value ?? 0
+  const arrears = payload.find((p) => p.dataKey === 'tunggakan')?.value ?? 0
+  const count = payload.find((p) => p.dataKey === 'count')?.value ?? 0
+  const ratio = financing > 0 ? ((arrears / financing) * 100).toFixed(1) : '0'
+  return (
+    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl p-3.5 text-xs min-w-[200px] backdrop-blur-md">
+      <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2 mb-2.5">
+        <span className="font-bold text-[var(--color-text-primary)] font-fustat text-sm">
+          {label}
+        </span>
+        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[var(--color-brand)]/10 text-[var(--color-brand)] border border-[var(--color-brand)]/20">
+          {count} new
+        </span>
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-[var(--color-text-secondary)]">Financing:</span>
+          <span className="font-mono font-bold text-[var(--color-text-primary)]">
+            {formatRM(financing)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-[var(--color-text-secondary)]">Arrears:</span>
+          <span
+            className={`font-mono font-bold ${arrears > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-[var(--color-text-primary)]'}`}
+          >
+            {formatRM(arrears)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-[var(--color-text-secondary)]">Arrears ratio:</span>
+          <span className="font-mono font-bold text-[var(--color-text-primary)]">{ratio}%</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function MonthlyTrendChart({ data }: { data: MonthlyTrendPoint[] }) {
+  if (!data || data.length === 0) return null
+  return (
+    <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] p-5 sm:p-6 shadow-xs">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+        <h2 className="text-base font-fustat font-bold text-[var(--color-text-primary)]">
+          Monthly Portfolio Growth Trend
+        </h2>
+      </div>
+      <p className="text-xs text-[var(--color-text-secondary)] mb-4">
+        Financing and arrears added over the last 12 months
+      </p>
+
+      <div className="w-full h-56">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 8, right: 12, left: -6, bottom: 0 }}>
+            <defs>
+              <linearGradient id="trendFinancing" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="trendArrears" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="#F43F5E" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.6} />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 10, fill: 'var(--color-text-secondary)', fontWeight: 600 }}
+              axisLine={{ stroke: 'var(--color-border)' }}
+              tickLine={false}
+              dy={6}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              tickFormatter={formatRMShort}
+              tick={{ fontSize: 10, fill: 'var(--color-text-tertiary)', fontFamily: 'monospace' }}
+              axisLine={false}
+              tickLine={false}
+              width={70}
+            />
+            <Tooltip content={<TrendTooltip />} />
+            <Legend
+              iconType="circle"
+              iconSize={8}
+              wrapperStyle={{ fontSize: 11, fontWeight: 600, paddingTop: 8 }}
+            />
+            <Area
+              type="monotone"
+              dataKey="pembiayaan"
+              name="Financing"
+              stroke="#3B82F6"
+              strokeWidth={2.5}
+              fill="url(#trendFinancing)"
+              animationDuration={600}
+            />
+            <Area
+              type="monotone"
+              dataKey="tunggakan"
+              name="Arrears"
+              stroke="#F43F5E"
+              strokeWidth={2}
+              fill="url(#trendArrears)"
+              animationDuration={600}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   )
