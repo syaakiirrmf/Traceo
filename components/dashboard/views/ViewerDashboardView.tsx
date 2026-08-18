@@ -15,7 +15,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
-import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
+import { DashboardCharts, MonthlyTrendChart, type MonthlyTrendPoint } from '@/components/dashboard/DashboardCharts'
 
 export interface ViewerDashboardViewProps {
   totalPembiayaan: number
@@ -45,6 +45,7 @@ export interface ViewerDashboardViewProps {
     count: number
     color: string
   }>
+  monthlyTrend: MonthlyTrendPoint[]
 }
 
 export function ViewerDashboardView({
@@ -54,6 +55,7 @@ export function ViewerDashboardView({
   fasilitiList,
   categoryData,
   statusData,
+  monthlyTrend,
 }: ViewerDashboardViewProps) {
   const activeCount = fasilitiList.filter((f) => f.status_fasiliti === 'aktif').length
   const totalCount = fasilitiList.length
@@ -186,6 +188,9 @@ export function ViewerDashboardView({
             totalCagaran={totalCagaran}
             overdueList={[]}
           />
+          <div className="mt-6">
+            <MonthlyTrendChart data={monthlyTrend} />
+          </div>
         </div>
 
         {/* Quick Report Download Center Card */}

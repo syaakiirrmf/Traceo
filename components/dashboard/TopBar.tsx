@@ -126,6 +126,11 @@ export function TopBar({ user, notifications = [], onMenuToggle }: TopBarProps) 
                                 >
                                   {meta.label}
                                 </span>
+                                {n.kritikal && (
+                                  <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-rose-600 text-white">
+                                    CRITICAL
+                                  </span>
+                                )}
                               </span>
                               <span className="block text-xs text-slate-600 truncate mt-0.5">
                                 {n.nama_peminjam}
@@ -136,6 +141,12 @@ export function TopBar({ user, notifications = [], onMenuToggle }: TopBarProps) 
                                   minimumFractionDigits: 2,
                                 })}
                                 {n.susulan_terakhir && ` · Follow-up: ${n.susulan_terakhir}`}
+                                {n.kritikal && (
+                                  <span className="font-semibold text-rose-600">
+                                    {' '}
+                                    · {n.hari_terlewat} days without follow-up
+                                  </span>
+                                )}
                               </span>
                             </span>
                           </Link>

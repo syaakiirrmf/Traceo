@@ -43,9 +43,72 @@ interface SearchParams {
   status?: string
   kategori?: string
   page?: string
+  sort?: string
+  dir?: string
 }
 
 const PAGE_SIZE = 10
+
+const SORTABLE_COLUMNS = new Map([
+  ['kod_rujukan', 'kod_rujukan'],
+  ['nama_peminjam', 'nama_peminjam'],
+  ['jumlah_pembiayaan', 'jumlah_pembiayaan'],
+  ['jumlah_tunggakan_semasa', 'jumlah_tunggakan_semasa'],
+  ['status_fasiliti', 'status_fasiliti'],
+])
+
+function buildSortHref(
+  params: SearchParams,
+  col: string,
+  currentCol: string,
+  currentDir: string
+) {
+  const nextDir =
+    currentCol === col ? (currentDir === 'asc' ? 'desc' : 'asc') : 'asc'
+  const sp = new URLSearchParams()
+  if (params.q) sp.set('q', params.q)
+  if (params.status) sp.set('status', params.status)
+  if (params.kategori) sp.set('kategori', params.kategori)
+  if (params.page) sp.set('page', params.page)
+  sp.set('sort', col)
+  sp.set('dir', nextDir)
+  const qs = sp.toString()
+  return `/dashboard/fasiliti${qs ? `?${qs}` : ''}`
+}
+
+function SortableTh({
+  label,
+  col,
+  sortCol,
+  sortDir,
+  params,
+  right,
+}: {
+  label: string
+  col: string
+  sortCol: string
+  sortDir: string
+  params: SearchParams
+  right?: boolean
+}) {
+  const active = sortCol === col
+  const arrow = active ? (sortDir === 'asc' ? '↑' : '↓') : '⇅'
+  return (
+    <th
+      className={`px-4 py-3 cursor-pointer select-none hover:bg-slate-100/60 transition-colors ${right ? 'text-right' : ''}`}
+    >
+      <Link
+        href={buildSortHref(params, col, sortCol, sortDir)}
+        className={`inline-flex items-center gap-1 ${right ? 'flex-row-reverse' : ''}`}
+      >
+        {label}
+        <span className={active ? 'text-[var(--color-brand)]' : 'opacity-40'}>
+          {arrow}
+        </span>
+      </Link>
+    </th>
+  )
+}
 
 export default async function FasilitiPage({
   searchParams,
@@ -82,13 +145,17 @@ export default async function FasilitiPage({
     if (assignedIds.length === 0) assignedIds = ['00000000-0000-0000-0000-000000000000']
   }
 
+  // Server-side sorting
+  const sortCol = SORTABLE_COLUMNS.get(params.sort ?? '') ?? 'kod_rujukan'
+  const sortDir = params.dir === 'asc' ? 'asc' : 'desc'
+
   let query = supabase
     .from('fasiliti')
     .select(
       'id, kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, status_fasiliti, tarikh_mula, jumlah_tunggakan_semasa',
       { count: 'exact' }
     )
-    .order('dicipta_pada', { ascending: false })
+    .order(sortCol, { ascending: sortDir === 'asc' })
 
   // Scope query to assigned facilities for pegawai
   if (assignedIds !== null) query = query.in('id', assignedIds)
@@ -195,12 +262,44 @@ export default async function FasilitiPage({
               <table className="w-full text-xs text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[var(--color-border)] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)] font-medium">
-                    <th className="px-4 py-3">Reference Code</th>
-                    <th className="px-4 py-3">Borrower / Contractor</th>
+                    <SortableTh
+                      label="Reference Code"
+                      col="kod_rujukan"
+                      sortCol={sortCol}
+                      sortDir={sortDir}
+                      params={params}
+                    />
+                    <SortableTh
+                      label="Borrower / Contractor"
+                      col="nama_peminjam"
+                      sortCol={sortCol}
+                      sortDir={sortDir}
+                      params={params}
+                    />
                     <th className="px-4 py-3">Category</th>
-                    <th className="px-4 py-3 text-right">Total Financing</th>
-                    <th className="px-4 py-3 text-right">Total Arrears</th>
-                    <th className="px-4 py-3">Status</th>
+                    <SortableTh
+                      label="Total Financing"
+                      col="jumlah_pembiayaan"
+                      sortCol={sortCol}
+                      sortDir={sortDir}
+                      params={params}
+                      right
+                    />
+                    <SortableTh
+                      label="Total Arrears"
+                      col="jumlah_tunggakan_semasa"
+                      sortCol={sortCol}
+                      sortDir={sortDir}
+                      params={params}
+                      right
+                    />
+                    <SortableTh
+                      label="Status"
+                      col="status_fasiliti"
+                      sortCol={sortCol}
+                      sortDir={sortDir}
+                      params={params}
+                    />
                     <th className="px-4 py-3 text-center" />
                   </tr>
                 </thead>

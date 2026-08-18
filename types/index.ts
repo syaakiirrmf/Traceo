@@ -70,6 +70,9 @@ export interface Susulan {
   dicatat_oleh: string
   dicipta_pada: string
   dikemaskini_pada: string
+  status_kelulusan?: 'menunggu' | 'diluluskan' | 'ditolak'
+  diluluskan_oleh?: string | null
+  diluluskan_pada?: string | null
   // Joined
   lampiran?: Lampiran[]
   dicatat_oleh_user?: Pick<User, 'id' | 'nama'>

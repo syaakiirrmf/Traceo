@@ -14,9 +14,10 @@ import {
   Sparkles,
   TrendingUp,
   AlertTriangle,
+  ClipboardCheck,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
-import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
+import { DashboardCharts, MonthlyTrendChart, type MonthlyTrendPoint } from '@/components/dashboard/DashboardCharts'
 
 export interface AdminDashboardViewProps {
   totalPembiayaan: number
@@ -73,6 +74,8 @@ export interface AdminDashboardViewProps {
     tunggakan: number
   }>
   maxFinancierExposure: number
+  monthlyTrend: MonthlyTrendPoint[]
+  approvalStats: { menunggu: number; diluluskan: number; ditolak: number }
 }
 
 export function AdminDashboardView({
@@ -88,8 +91,14 @@ export function AdminDashboardView({
   kpi,
   topFinanciers,
   maxFinancierExposure,
+  monthlyTrend,
+  approvalStats,
 }: AdminDashboardViewProps) {
   const activeCount = fasilitiList.filter((f) => f.status_fasiliti === 'aktif').length
+  const approvalTotal =
+    approvalStats.menunggu + approvalStats.diluluskan + approvalStats.ditolak
+  const approvalPendingPct =
+    approvalTotal > 0 ? (approvalStats.menunggu / approvalTotal) * 100 : 0
 
   return (
     <div className="space-y-6 max-w-[1600px] p-6 font-dm">
@@ -261,6 +270,9 @@ export function AdminDashboardView({
             totalCagaran={totalCagaran}
             overdueList={overdueList}
           />
+          <div className="mt-4">
+            <MonthlyTrendChart data={monthlyTrend} />
+          </div>
         </div>
 
         {/* Top Financiers by Exposure */}
@@ -300,6 +312,65 @@ export function AdminDashboardView({
               </p>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Follow-up Approval Pipeline */}
+      <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            Follow-up Approval Pipeline
+          </span>
+          <ClipboardCheck size={16} className="text-[#0066FF]" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-50/50">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600">
+              Pending Approval
+            </p>
+            <p className="mt-1.5 text-2xl font-fustat font-black text-amber-600 tabular-nums">
+              {approvalStats.menunggu}
+            </p>
+            <p className="text-[10.5px] text-slate-500 mt-0.5">
+              {approvalPendingPct.toFixed(0)}% of all follow-ups
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-50/50">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
+              Approved
+            </p>
+            <p className="mt-1.5 text-2xl font-fustat font-black text-emerald-600 tabular-nums">
+              {approvalStats.diluluskan}
+            </p>
+            <p className="text-[10.5px] text-slate-500 mt-0.5">Follow-ups approved</p>
+          </div>
+          <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-50/50">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-rose-600">
+              Rejected
+            </p>
+            <p className="mt-1.5 text-2xl font-fustat font-black text-rose-600 tabular-nums">
+              {approvalStats.ditolak}
+            </p>
+            <p className="text-[10.5px] text-slate-500 mt-0.5">Follow-ups rejected</p>
+          </div>
+        </div>
+        <div className="mt-4 h-2 rounded-full bg-slate-100 overflow-hidden flex">
+          {approvalTotal > 0 && (
+            <>
+              <div
+                className="h-full bg-amber-500"
+                style={{ width: `${(approvalStats.menunggu / approvalTotal) * 100}%` }}
+              />
+              <div
+                className="h-full bg-emerald-500"
+                style={{ width: `${(approvalStats.diluluskan / approvalTotal) * 100}%` }}
+              />
+              <div
+                className="h-full bg-rose-500"
+                style={{ width: `${(approvalStats.ditolak / approvalTotal) * 100}%` }}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

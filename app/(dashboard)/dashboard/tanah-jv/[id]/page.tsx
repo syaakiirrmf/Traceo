@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Edit, Plus, Pencil, FileText } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { DeleteTanahSusulanButton } from '@/components/susulan/DeleteTanahSusulanButton'
+import { SusulanApprovalBadge, SusulanApprovalButtons } from '@/components/susulan/SusulanApproval'
 import type { Lampiran } from '@/types'
 import type { Metadata } from 'next'
 
@@ -203,6 +204,17 @@ export default async function TanahJVDetailPage({ params }: { params: Promise<{ 
                       <p className="text-xs font-medium text-[var(--color-brand)] mb-1.5">
                         {formatDate(s.tarikh_susulan, 'dd MMMM yyyy')}
                       </p>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <SusulanApprovalBadge status={s.status_kelulusan} />
+                        {(userProfile.peranan === 'admin' || userProfile.peranan === 'pengurus') && (
+                          <SusulanApprovalButtons
+                            susulanId={s.id}
+                            fasilitiId={id}
+                            status={s.status_kelulusan}
+                            isTanah
+                          />
+                        )}
+                      </div>
                       <p className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap leading-relaxed">
                         {s.catatan}
                       </p>

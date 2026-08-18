@@ -15,6 +15,42 @@ const ROLE_DASHBOARD_CONFIG: Record<UserRole, { tabTitle: string }> = {
   viewer: { tabTitle: 'Portfolio Overview' },
 }
 
+interface MonthlyTrendPoint {
+  label: string
+  count: number
+  pembiayaan: number
+  tunggakan: number
+}
+
+function buildMonthlyTrend(
+  fasiliti: Array<{ dicipta_pada: string; jumlah_pembiayaan: number; jumlah_tunggakan_semasa: number }>
+): MonthlyTrendPoint[] {
+  const now = new Date()
+  const buckets: MonthlyTrendPoint[] = []
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    buckets.push({
+      label: d.toLocaleString('ms-MY', { month: 'short', year: '2-digit' }),
+      count: 0,
+      pembiayaan: 0,
+      tunggakan: 0,
+    })
+  }
+
+  for (const f of fasiliti) {
+    if (!f.dicipta_pada) continue
+    const created = new Date(f.dicipta_pada)
+    if (Number.isNaN(created.getTime())) continue
+    const idx = (created.getFullYear() - now.getFullYear()) * 12 + (created.getMonth() - now.getMonth()) + 11
+    if (idx >= 0 && idx < 12) {
+      buckets[idx].count += 1
+      buckets[idx].pembiayaan += f.jumlah_pembiayaan
+      buckets[idx].tunggakan += f.jumlah_tunggakan_semasa
+    }
+  }
+  return buckets
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient()
   const {
@@ -155,6 +191,9 @@ export default async function DashboardPage() {
   const legalCount = statusCounts.tindakan_guaman
   const avgFinancing = fasilitiList.length > 0 ? totalPembiayaan / fasilitiList.length : 0
 
+  // ─── Monthly trend (last 12 months, by dicipta_pada) ────────────────────────
+  const monthlyTrend = buildMonthlyTrend(fasilitiList)
+
   const financierMap = new Map<
     string,
     { nama: string; count: number; pembiayaan: number; tunggakan: number }
@@ -178,7 +217,7 @@ export default async function DashboardPage() {
       supabase.from('fasiliti_pegawai').select('fasiliti_id').eq('user_id', currentUser.id),
       supabase
         .from('susulan')
-        .select('id, fasiliti_id, tarikh_susulan, catatan')
+        .select('id, fasiliti_id, tarikh_susulan, catatan, status_kelulusan')
         .eq('dicatat_oleh', currentUser.id)
         .order('tarikh_susulan', { ascending: false })
         .limit(6),
@@ -215,6 +254,7 @@ export default async function DashboardPage() {
         fasilitiList={fasilitiList}
         categoryData={categoryData}
         statusData={statusData}
+        monthlyTrend={monthlyTrend}
       />
     )
   }
@@ -230,15 +270,31 @@ export default async function DashboardPage() {
         categoryData={categoryData}
         statusData={statusData}
         overdueList={overdueList}
+        monthlyTrend={monthlyTrend}
       />
     )
   }
 
   // ─── 4. ADMIN DASHBOARD VIEW (Default) ──────────────────────────────────────
-  const [{ count: usersCount }, { count: auditCount }] = await Promise.all([
+  const [
+    { count: usersCount },
+    { count: auditCount },
+    { data: approvalRows },
+  ] = await Promise.all([
     supabase.from('users').select('*', { count: 'exact', head: true }),
     supabase.from('log_audit').select('*', { count: 'exact', head: true }),
+    supabase.from('susulan').select('status_kelulusan'),
   ])
+
+  const approvalStats = {
+    menunggu: 0,
+    diluluskan: 0,
+    ditolak: 0,
+  }
+  for (const s of approvalRows ?? []) {
+    const key = s.status_kelulusan as keyof typeof approvalStats
+    if (key in approvalStats) approvalStats[key] += 1
+  }
 
   return (
     <AdminDashboardView
@@ -261,6 +317,8 @@ export default async function DashboardPage() {
       }}
       topFinanciers={topFinanciers}
       maxFinancierExposure={maxFinancierExposure}
+      monthlyTrend={monthlyTrend}
+      approvalStats={approvalStats}
     />
   )
 }

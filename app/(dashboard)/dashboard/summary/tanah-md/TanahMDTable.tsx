@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { dash, formatRM, formatArea } from '../_helpers'
 import { TableSearch, TableSelect, matchesQuery } from '@/components/table/TableSearch'
 import { Pagination } from '@/components/table/Pagination'
+import { useSort, SortIcon } from '@/components/table/useSort'
 import type { TanahJV } from '@/types'
 
 const PAGE_SIZE = 8
@@ -51,9 +52,14 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
     })
   }, [rows, q, stateFilter, districtFilter])
 
-  const totalPages = Math.max(1, Math.ceil(visibleRows.length / PAGE_SIZE))
+  const { sortKey, sortDirection, toggle, sortedRows } = useSort<Partial<TanahJV>>(
+    visibleRows,
+    'no_lot'
+  )
+
+  const totalPages = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
-  const pageRows = visibleRows.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const pageRows = sortedRows.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   const totalLuas = visibleRows.reduce((s, t) => s + (t.luas_meter_persegi ?? 0), 0)
   const totalNilaian = visibleRows.reduce((s, t) => s + (t.anggaran_nilaian ?? 0), 0)
@@ -116,9 +122,12 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
                 </th>
                 <th
                   rowSpan={2}
-                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[140px] sticky left-12 z-40 bg-[var(--color-surface-raised)]"
+                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[140px] sticky left-12 z-40 bg-[var(--color-surface-raised)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('no_lot')}
                 >
-                  Lot No.
+                  <span className="inline-flex items-center">
+                    Lot No. <SortIcon colKey="no_lot" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
                 </th>
                 <th
                   colSpan={6}
@@ -128,15 +137,21 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
                 </th>
                 <th
                   rowSpan={2}
-                  className="px-4 py-3 font-semibold text-right border-r border-[var(--color-border)] text-[var(--color-text-primary)] min-w-[130px]"
+                  className="px-4 py-3 font-semibold text-right border-r border-[var(--color-border)] text-[var(--color-text-primary)] min-w-[130px] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('luas_meter_persegi')}
                 >
-                  Area (m²)
+                  <span className="inline-flex items-center justify-end">
+                    Area (m²) <SortIcon colKey="luas_meter_persegi" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
                 </th>
                 <th
                   rowSpan={2}
-                  className="px-4 py-3 font-semibold text-right border-r border-[var(--color-border)] text-[var(--color-text-primary)] min-w-[150px]"
+                  className="px-4 py-3 font-semibold text-right border-r border-[var(--color-border)] text-[var(--color-text-primary)] min-w-[150px] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('anggaran_nilaian')}
                 >
-                  Collateral Value (RM)
+                  <span className="inline-flex items-center justify-end">
+                    Collateral Value (RM) <SortIcon colKey="anggaran_nilaian" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
                 </th>
                 <th
                   rowSpan={2}
@@ -151,11 +166,21 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
               </tr>
 
               <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)]">
-                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
-                  State
+                <th
+                  className="px-3.5 py-2 font-medium border-r border-[var(--color-border)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('negeri')}
+                >
+                  <span className="inline-flex items-center">
+                    State <SortIcon colKey="negeri" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
                 </th>
-                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
-                  District
+                <th
+                  className="px-3.5 py-2 font-medium border-r border-[var(--color-border)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  onClick={() => toggle('daerah')}
+                >
+                  <span className="inline-flex items-center">
+                    District <SortIcon colKey="daerah" sortKey={String(sortKey)} sortDir={sortDirection} />
+                  </span>
                 </th>
                 <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
                   Town / Village / Mukim
@@ -276,7 +301,7 @@ export function TanahMDTable({ rows }: { rows: Partial<TanahJV>[] }) {
         page={safePage}
         totalPages={totalPages}
         onPageChange={setPage}
-        totalItems={visibleRows.length}
+        totalItems={sortedRows.length}
         pageSize={PAGE_SIZE}
       />
     </div>

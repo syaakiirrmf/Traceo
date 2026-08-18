@@ -14,6 +14,7 @@ import {
   LayoutList,
   Sparkles,
   Crown,
+  CalendarDays,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -48,6 +49,12 @@ const navItems: NavItem[] = [
     permission: 'tambah_fasiliti',
   },
   { href: '/dashboard/fasiliti', label: 'Facilities (All)', icon: Building2 },
+  {
+    href: '/dashboard/susulan',
+    label: 'Follow-Up Calendar',
+    icon: CalendarDays,
+    permission: 'tambah_susulan',
+  },
   {
     href: '/dashboard/assistant',
     label: '@syaakiirr',
