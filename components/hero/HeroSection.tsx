@@ -717,7 +717,7 @@ export default function HeroSection() {
               data-animate
               style={{ ...s(80), color: C.textSub, fontSize: 16, lineHeight: 1.65, maxWidth: 420 }}
             >
-              JV Syarikat, Tanah, dan Pinjaman Individu. Same system, same process, same reports.
+              JV Company, Land, and Individual Loan. Same system, same process, same reports.
             </p>
           </div>
 
@@ -755,7 +755,7 @@ export default function HeroSection() {
                   textTransform: 'uppercase',
                 }}
               >
-                JV Syarikat
+                JV Company
               </div>
               {/* Abstract bar chart decoration */}
               <div
@@ -786,10 +786,10 @@ export default function HeroSection() {
                     marginBottom: 6,
                   }}
                 >
-                  JV1 · Syarikat
+                  JV1 · Company
                 </div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
-                  Corporate accounts: akaun status, tunggakan, dan susulan.
+                  Corporate accounts: account status, arrears, and follow-ups.
                 </div>
               </div>
             </div>
@@ -817,7 +817,7 @@ export default function HeroSection() {
                     marginBottom: 12,
                   }}
                 >
-                  JV Tanah
+                  JV Land
                 </div>
                 <div
                   style={{
@@ -829,7 +829,7 @@ export default function HeroSection() {
                     marginBottom: 8,
                   }}
                 >
-                  JV2 · Tanah
+                  JV2 · Land
                 </div>
                 <div style={{ fontSize: 13, color: C.textSub, lineHeight: 1.6 }}>
                   Land financing. Log site visits, track progress, export kronologi.
@@ -867,7 +867,7 @@ export default function HeroSection() {
                     marginBottom: 12,
                   }}
                 >
-                  Pinjaman Individu
+                  Individual Loan
                 </div>
                 <div
                   style={{
@@ -879,7 +879,7 @@ export default function HeroSection() {
                     marginBottom: 8,
                   }}
                 >
-                  JV3 · Individu
+                  JV3 · Individual
                 </div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
                   Individual loans. Log visits, monitor status, generate PDF.
@@ -986,7 +986,7 @@ export default function HeroSection() {
                   'All three JV types in one system. No separate files.',
                   'Every visit logged with date, notes, and photos',
                   'Export to Word and PDF directly from logged visits',
-                  'Admin, Pengurus, Pegawai Susulan. Each sees only what they need.',
+                  'Admin, Manager, Follow-up Officer. Each sees only what they need.',
                 ].map((item) => (
                   <div
                     key={item}
@@ -1136,7 +1136,7 @@ export default function HeroSection() {
                 delay={80}
                 num="02"
                 title="Chronology Tracking"
-                desc="Log each site visit: date, notes, photos. Every susulan is permanently recorded in sequence, tied to the facility."
+                desc="Log each site visit: date, notes, photos. Every follow-up is permanently recorded in sequence, tied to the facility."
               />
               <FeatureRow
                 delay={160}
@@ -1148,7 +1148,7 @@ export default function HeroSection() {
                 delay={240}
                 num="04"
                 title="RBAC Access Control"
-                desc="Three roles: Admin, Pengurus, Pegawai Susulan. Each sees and does exactly what's relevant. Nothing more."
+                desc="Three roles: Admin, Manager, Follow-up Officer. Each sees and does exactly what's relevant. Nothing more."
               />
               <FeatureRow
                 delay={320}
@@ -1369,7 +1369,7 @@ function FooterCard() {
     {
       header: 'Platform',
       links: [
-        { label: 'Fasiliti', href: '/dashboard/fasiliti' },
+        { label: 'Facilities', href: '/dashboard/fasiliti' },
         { label: 'Tanah JV', href: '/dashboard/tanah-jv' },
         { label: 'Summary', href: '/dashboard/summary' },
         { label: 'Dashboard', href: '/dashboard' },
@@ -1378,7 +1378,7 @@ function FooterCard() {
     {
       header: 'Resources',
       links: [
-        { label: 'Kronologi', href: '/dashboard/fasiliti' },
+        { label: 'Chronology', href: '/dashboard/fasiliti' },
         { label: 'Reports', href: '/dashboard/summary' },
         { label: 'Audit Log', href: '/dashboard/audit' },
         { label: 'Assistant', href: '/dashboard/assistant' },
@@ -1416,7 +1416,7 @@ function FooterCard() {
                   className="text-[#64748B] leading-relaxed text-[16px] font-normal max-w-[320px]"
                   style={{ fontFamily: DM }}
                 >
-                  Facility monitoring for JV Syarikat, Tanah, and Pinjaman Individu. Log visits,
+                  Facility monitoring for JV Company, Land, and Individual Loan. Log visits,
                   track accounts, export reports.
                 </p>
               </div>

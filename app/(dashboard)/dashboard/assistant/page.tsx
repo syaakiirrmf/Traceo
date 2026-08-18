@@ -28,7 +28,7 @@ export default async function AssistantPage() {
       userId={profile.id}
       role={profile.peranan as UserRole}
       pagePath="/dashboard/assistant"
-      featureName="Pembantu Pintar AI (@syaakiirr)"
+      featureName="Smart AI Assistant (@syaakiirr)"
     >
       <div className="space-y-5 h-full">
         <div className="border-b border-[var(--color-border)] pb-4">

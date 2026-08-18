@@ -87,7 +87,7 @@ export function TopBar({ user, notifications = [], onMenuToggle }: TopBarProps) 
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
                 <p className="text-sm font-fustat font-bold text-slate-900">Notifications</p>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  {count} perlu perhatian
+                  {count} need attention
                 </span>
               </div>
 
@@ -96,7 +96,7 @@ export function TopBar({ user, notifications = [], onMenuToggle }: TopBarProps) 
                   <div className="px-4 py-8 text-center">
                     <CheckCircle2 size={20} className="mx-auto mb-2 text-emerald-500" />
                     <p className="text-xs text-slate-500">
-                      Tiada fasiliti yang memerlukan perhatian.
+                      No facilities requiring attention.
                     </p>
                   </div>
                 ) : (
@@ -131,11 +131,11 @@ export function TopBar({ user, notifications = [], onMenuToggle }: TopBarProps) 
                                 {n.nama_peminjam}
                               </span>
                               <span className="block text-[10.5px] text-slate-400 mt-0.5">
-                                Tunggakan: RM{' '}
+                                Arrears: RM{' '}
                                 {n.jumlah_tunggakan_semasa.toLocaleString('ms-MY', {
                                   minimumFractionDigits: 2,
                                 })}
-                                {n.susulan_terakhir && ` · Susulan: ${n.susulan_terakhir}`}
+                                {n.susulan_terakhir && ` · Follow-up: ${n.susulan_terakhir}`}
                               </span>
                             </span>
                           </Link>

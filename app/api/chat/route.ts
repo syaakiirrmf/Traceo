@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   if (!rl.ok) {
     return NextResponse.json(
       {
-        error: `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`,
+        error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`,
       },
       { status: 429 }
     )
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (!sesiId) {
-    const tajuk = (lastUserMessage || 'Perbualan baharu').slice(0, 120)
+    const tajuk = (lastUserMessage || 'New conversation').slice(0, 120)
     const { data: created, error: createError } = await supabase
       .from('chat_sesi')
       .insert({ user_id: profile.id, tajuk })

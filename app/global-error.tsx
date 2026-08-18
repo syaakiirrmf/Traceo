@@ -49,14 +49,14 @@ export default function GlobalError({
           </div>
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-white/10 text-teal-300 border border-white/10 mb-3">
-            Ralat Global &bull; Critical System Error
+            Global Error &bull; Critical System Error
           </span>
 
-          <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Ralat Luar Jangkaan</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Unexpected Error</h1>
 
           <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed bg-black/30 border border-white/10 p-3.5 rounded-xl font-mono text-left break-words">
             {error.message ||
-              'Sistem menghadapi masalah kritikal semasa memproses permintaan anda.'}
+              'The system encountered a critical problem while processing your request.'}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -64,13 +64,13 @@ export default function GlobalError({
               onClick={reset}
               className="w-full sm:w-auto px-6 py-3 rounded-full bg-teal-600 hover:bg-teal-500 text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-teal-500/20 active:scale-95 cursor-pointer"
             >
-              Cuba Semula (Retry)
+              Try Again (Retry)
             </button>
             <Link
               href="/dashboard"
               className="w-full sm:w-auto px-6 py-3 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/20 text-xs sm:text-sm font-semibold transition-all duration-200 active:scale-95 text-center"
             >
-              Kembali ke Dashboard
+              Back to Dashboard
             </Link>
           </div>
         </div>

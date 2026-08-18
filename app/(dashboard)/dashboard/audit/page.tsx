@@ -45,7 +45,7 @@ export default async function AuditPage() {
       userId={userProfile.id}
       role={userProfile.peranan as UserRole}
       pagePath="/dashboard/audit"
-      featureName="Log Audit Forensik"
+      featureName="Forensic Audit Log"
     >
       <div className="space-y-6 max-w-[1600px] font-dm">
         {/* Header */}

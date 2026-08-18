@@ -106,7 +106,7 @@ export function AdminDashboardView({
             Executive Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Kawalan penuh pangkalan data, pengurusan pengguna, log audit sistem, dan kewangan JV.
+            Full control of the database, user management, system audit logs, and JV finances.
           </p>
         </div>
 
@@ -150,7 +150,7 @@ export function AdminDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {formatCurrency(totalPembiayaan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">{fasilitiList.length} fasiliti didaftarkan</p>
+          <p className="text-xs text-slate-500 mt-1">{fasilitiList.length} facilities registered</p>
         </div>
 
         {/* Total Arrears */}
@@ -166,7 +166,7 @@ export function AdminDashboardView({
           <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Tunggakan semasa keseluruhan</p>
+          <p className="text-xs text-slate-500 mt-1">Total current arrears</p>
         </div>
 
         {/* Land Collateral */}
@@ -182,7 +182,7 @@ export function AdminDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {formatCurrency(totalCagaran)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Nilai cagaran hartanah didaftarkan</p>
+          <p className="text-xs text-slate-500 mt-1">Registered property collateral value</p>
         </div>
 
         {/* System & Users Status */}
@@ -199,7 +199,7 @@ export function AdminDashboardView({
             {usersCount} Users
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Audit logs: <span className="font-bold text-slate-700">{auditCount} rekod</span>
+            Audit logs: <span className="font-bold text-slate-700">{auditCount} records</span>
           </p>
         </div>
       </div>
@@ -214,7 +214,7 @@ export function AdminDashboardView({
             {kpi.arrearsRatio.toFixed(1)}%
           </p>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            Tunggakan berbanding pembiayaan
+            Arrears versus financing
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.06] to-transparent border border-emerald-500/15">
@@ -225,7 +225,7 @@ export function AdminDashboardView({
             {kpi.collectionRate.toFixed(1)}%
           </p>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            Bahagian pembiayaan terkumpul
+            Portion of financing collected
           </p>
         </div>
         <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-500/[0.06] to-transparent border border-rose-500/15">
@@ -247,7 +247,7 @@ export function AdminDashboardView({
             {formatCurrency(kpi.avgFinancing)}
           </p>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            Purata setiap fasiliti
+            Average per facility
           </p>
         </div>
       </div>
@@ -289,14 +289,14 @@ export function AdminDashboardView({
                     />
                   </div>
                   <p className="text-[10.5px] text-slate-500 mt-1">
-                    {f.count} fasiliti · Arrears {formatCurrency(f.tunggakan)}
+                    {f.count} facilities · Arrears {formatCurrency(f.tunggakan)}
                   </p>
                 </div>
               )
             })}
             {topFinanciers.length === 0 && (
               <p className="text-xs text-slate-400 text-center py-6">
-                Tiada data financier.
+                No financier data.
               </p>
             )}
           </div>

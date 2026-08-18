@@ -100,7 +100,7 @@ export function ManagerDashboardView({
             Management Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Pengurusan operasi fasiliti, penyeliaan pegawai, dan pemantauan akaun tertunggak.
+            Operational facility management, officer supervision, and monitoring of overdue accounts.
           </p>
         </div>
 
@@ -138,7 +138,7 @@ export function ManagerDashboardView({
             {activeCount}
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Jumlah pembiayaan:{' '}
+            Total financing:{' '}
             <span className="font-semibold text-slate-700">{formatCurrency(totalPembiayaan)}</span>
           </p>
         </div>
@@ -156,7 +156,7 @@ export function ManagerDashboardView({
           <p className="text-3xl font-fustat font-black text-amber-600 tracking-tight">
             {overdueCount}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Memerlukan penugasan &amp; tindak susulan</p>
+          <p className="text-xs text-slate-500 mt-1">Requires assignment &amp; follow-up</p>
         </div>
 
         {/* Total Arrears */}
@@ -172,7 +172,7 @@ export function ManagerDashboardView({
           <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Sasaran kutipan pengurus</p>
+          <p className="text-xs text-slate-500 mt-1">Manager collection target</p>
         </div>
 
         {/* Collateral Value */}
@@ -188,7 +188,7 @@ export function ManagerDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {formatCurrency(totalCagaran)}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Liputan cagaran hartanah</p>
+          <p className="text-xs text-slate-500 mt-1">Property collateral coverage</p>
         </div>
       </div>
 
@@ -207,13 +207,13 @@ export function ManagerDashboardView({
         <div className="space-y-4">
           <h2 className="text-base font-fustat font-bold text-slate-900 flex items-center gap-2">
             <AlertTriangle size={16} className="text-amber-600" />
-            Tunggakan Perlu Tindakan ({overdueList.length})
+            Overdue Accounts Requiring Action ({overdueList.length})
           </h2>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-3">
             {overdueList.length === 0 ? (
               <p className="text-xs text-slate-500 text-center py-6">
-                Tiada akaun tertunggak setakat ini.
+                No overdue accounts so far.
               </p>
             ) : (
               overdueList.map((item) => (

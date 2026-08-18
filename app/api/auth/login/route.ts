@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   if (!rl.ok) {
     return NextResponse.json(
       {
-        error: `Terlalu banyak percubaan log masuk. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`,
+        error: `Too many login attempts. Please wait ${rl.retryAfterSeconds}s before trying again.`,
       },
       { status: 429 }
     )

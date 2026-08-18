@@ -38,18 +38,18 @@ export default function DashboardError({
 
         {/* Category tag */}
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200/80 mb-3">
-          Ralat Sistem &bull; System Notice
+          System Error &bull; System Notice
         </span>
 
         {/* Heading */}
         <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
-          Gagal Memuatkan Halaman
+          Failed to Load Page
         </h1>
 
         {/* Error message */}
         <p className="text-xs sm:text-sm text-slate-600 mb-6 leading-relaxed bg-slate-50 border border-slate-200/60 p-3.5 rounded-xl font-mono text-left break-words max-h-32 overflow-y-auto">
           {error.message ||
-            'Ralat yang tidak dijangka telah berlaku semasa memproses permintaan anda.'}
+            'An unexpected error occurred while processing your request.'}
         </p>
 
         {/* Action buttons */}
@@ -59,7 +59,7 @@ export default function DashboardError({
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-teal-700 text-white text-xs sm:text-sm font-semibold hover:bg-teal-800 transition-all duration-200 shadow-sm active:scale-95 cursor-pointer"
           >
             <RefreshCw size={15} className="animate-spin-once" />
-            Cuba Semula (Retry)
+            Try Again (Retry)
           </button>
           <Link
             href="/dashboard"

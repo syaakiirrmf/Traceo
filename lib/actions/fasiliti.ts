@@ -35,7 +35,7 @@ export async function tambahFasiliti(formData: FormData) {
   const rl = await rateLimitAction('fasiliti_tambah', 20, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -116,7 +116,7 @@ export async function editFasiliti(fasilitiId: string, formData: FormData) {
   const rl = await rateLimitAction('fasiliti_edit', 20, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -191,7 +191,7 @@ export async function padamFasiliti(fasilitiId: string) {
   const rl = await rateLimitAction('fasiliti_padam', 20, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -214,7 +214,7 @@ export async function kemaskiniPegawaiFasiliti(fasilitiId: string, pegawaiIds: s
   const rl = await rateLimitAction('fasiliti_pegawai', 20, 60, userProfile.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 

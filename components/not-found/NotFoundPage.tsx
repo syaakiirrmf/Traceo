@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { ArrowLeft, Menu, X } from 'lucide-react'
 
 const NAV_LINKS = [
-  { href: '/#kemudahan', label: 'Kemudahan' },
-  { href: '/#tentang', label: 'Tentang Sistem' },
-  { href: '/#ciri', label: 'Ciri-ciri' },
-  { href: '/#hubungi', label: 'Hubungi' },
+  { href: '/#kemudahan', label: 'Facilities' },
+  { href: '/#tentang', label: 'About the System' },
+  { href: '/#ciri', label: 'Features' },
+  { href: '/#hubungi', label: 'Contact' },
 ]
 
 export default function NotFoundPage() {
@@ -171,7 +171,7 @@ export default function NotFoundPage() {
         <button
           onClick={() => setMenuOpen(true)}
           className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-full text-white text-sm font-semibold bg-[#0066FF]/80 hover:bg-[#0066FF] border border-[#0066FF]/40 backdrop-blur-sm transition-colors"
-          aria-label="Buka menu"
+          aria-label="Open menu"
         >
           <Menu className="w-4 h-4" />
           <span>Menu</span>
@@ -186,16 +186,16 @@ export default function NotFoundPage() {
         <div className="flex items-center justify-center gap-2 mb-1">
           <span className="block w-1.5 h-1.5 rounded-full bg-[#0066FF] opacity-90 animate-ping" />
           <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#60B1FF]">
-            Ralat 404 &bull; Page Not Found
+            404 Error &bull; Page Not Found
           </span>
           <span className="block w-1.5 h-1.5 rounded-full bg-[#0066FF] opacity-90 animate-ping" />
         </div>
 
         <h1 className="text-white text-xl sm:text-2xl md:text-3xl font-fustat font-black tracking-tight leading-tight">
-          Halaman ini tidak wujud.
+          This page does not exist.
         </h1>
         <p className="text-slate-400 text-xs sm:text-sm max-w-xs sm:max-w-sm leading-relaxed">
-          Halaman yang anda cari telah dipadam atau URL yang dimasukkan tidak tepat.
+          The page you were looking for has been removed or the URL entered is incorrect.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-2.5 mt-1 font-fustat">
@@ -204,13 +204,13 @@ export default function NotFoundPage() {
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white font-bold text-sm bg-[#0066FF] hover:bg-[#0048CC] transition-all duration-200 shadow-lg hover:shadow-[#0066FF]/30 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
-            Ke Dashboard
+            Go to Dashboard
           </Link>
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white/80 font-bold text-sm border border-white/15 bg-white/8 hover:bg-white/15 transition-all duration-200 active:scale-95"
           >
-            Laman Utama
+            Home
           </Link>
         </div>
       </div>
@@ -270,7 +270,7 @@ export default function NotFoundPage() {
             <button
               onClick={() => setMenuOpen(false)}
               className="flex items-center justify-center w-9 h-9 rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
-              aria-label="Tutup menu"
+              aria-label="Close menu"
             >
               <X className="w-4 h-4" />
             </button>
@@ -279,7 +279,7 @@ export default function NotFoundPage() {
           {/* Drawer links */}
           <div className="relative flex flex-col gap-1.5 px-5 pt-5">
             <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
-              Navigasi
+              Navigation
             </p>
             {NAV_LINKS.map((link, i) => (
               <Link
@@ -303,7 +303,7 @@ export default function NotFoundPage() {
               style={{ transitionDelay: menuOpen ? '380ms' : '0ms' }}
             >
               <ArrowLeft className="w-4 h-4" />
-              Ke Dashboard
+Go to Dashboard
             </Link>
           </div>
         </div>

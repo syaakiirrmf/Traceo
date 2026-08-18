@@ -123,7 +123,7 @@ export default async function FasilitiPage({
       userId={userProfile.id}
       role={userProfile.peranan as UserRole}
       pagePath="/dashboard/fasiliti"
-      featureName="Fasiliti (Semua Rekod)"
+      featureName="Facility (All Records)"
     >
       <div className="space-y-5 max-w-[1600px]">
         {/* Header */}

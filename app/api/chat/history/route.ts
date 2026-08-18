@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     body = {}
   }
 
-  const tajuk = (body.tajuk ?? 'Perbualan baharu').slice(0, 120)
+  const tajuk = (body.tajuk ?? 'New conversation').slice(0, 120)
 
   const { data: session, error } = await supabase
     .from('chat_sesi')

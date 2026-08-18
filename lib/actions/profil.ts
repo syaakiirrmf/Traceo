@@ -16,7 +16,7 @@ export async function kemaskiniProfil(formData: FormData) {
   const rl = await rateLimitAction('profil_kemaskini', 10, 60, authUser.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 
@@ -46,7 +46,7 @@ export async function tukarKataLaluan(formData: FormData) {
   const rl = await rateLimitAction('profil_kata_laluan', 5, 60, authUser.id)
   if (!rl.ok) {
     throw new Error(
-      `Terlalu banyak permintaan. Sila tunggu ${rl.retryAfterSeconds}s sebelum mencuba lagi.`
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
     )
   }
 

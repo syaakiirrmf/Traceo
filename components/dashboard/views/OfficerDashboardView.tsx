@@ -80,8 +80,8 @@ export function OfficerDashboardView({
             Officer Workspace
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Selamat datang, <span className="font-semibold text-slate-800">{user.nama}</span>.
-            Berikut adalah senarai fasiliti dan tugasan susulan anda.
+            Welcome, <span className="font-semibold text-slate-800">{user.nama}</span>.
+            Here are your list of facilities and follow-up assignments.
           </p>
         </div>
 
@@ -119,7 +119,7 @@ export function OfficerDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {assignedFasiliti.length}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Fasiliti di bawah seliaan anda</p>
+          <p className="text-xs text-slate-500 mt-1">Facilities under your supervision</p>
         </div>
 
         {/* Needing Follow-up */}
@@ -136,7 +136,7 @@ export function OfficerDashboardView({
             {overdueCount}
           </p>
           <p className="text-xs text-slate-500 mt-1">
-            Jumlah tunggakan:{' '}
+            Total arrears:{' '}
             <span className="font-bold text-slate-700">{formatCurrency(totalArrears)}</span>
           </p>
         </div>
@@ -154,7 +154,7 @@ export function OfficerDashboardView({
           <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
             {recentSusulan.length}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Rekod susulan yang baru anda kemaskini</p>
+          <p className="text-xs text-slate-500 mt-1">Follow-up records you recently updated</p>
         </div>
       </div>
 
@@ -165,23 +165,23 @@ export function OfficerDashboardView({
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-fustat font-bold text-slate-900 flex items-center gap-2">
               <Building2 size={18} className="text-[#0066FF]" />
-              Fasiliti Tugasan Saya ({assignedFasiliti.length})
+              My Assigned Facilities ({assignedFasiliti.length})
             </h2>
             <Link
               href="/dashboard/fasiliti"
               className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1"
             >
-              Lihat Semua <ArrowRight size={12} />
+              View All <ArrowRight size={12} />
             </Link>
           </div>
 
           {assignedFasiliti.length === 0 ? (
             <div className="p-10 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center">
               <p className="text-sm font-semibold text-slate-600">
-                Tiada fasiliti di-assign kepada anda lagi.
+                No facilities have been assigned to you yet.
               </p>
               <p className="text-xs text-slate-400 mt-1">
-                Sila hubungi Admin atau Pengurus untuk penugasan akaun.
+                Please contact the Admin or Manager for account assignments.
               </p>
             </div>
           ) : (
@@ -211,7 +211,7 @@ export function OfficerDashboardView({
                       {f.nama_peminjam}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1">
-                      Pembiayaan:{' '}
+                      Financing:{' '}
                       <span className="font-medium text-slate-700">
                         {formatCurrency(f.jumlah_pembiayaan)}
                       </span>
@@ -219,7 +219,7 @@ export function OfficerDashboardView({
 
                     {Number(f.jumlah_tunggakan_semasa) > 0 && (
                       <p className="text-xs font-bold text-rose-600 mt-2 bg-rose-50 px-2.5 py-1 rounded-lg inline-block">
-                        Tunggakan: {formatCurrency(f.jumlah_tunggakan_semasa)}
+                        Arrears: {formatCurrency(f.jumlah_tunggakan_semasa)}
                       </p>
                     )}
                   </div>
@@ -229,13 +229,13 @@ export function OfficerDashboardView({
                       href={`/dashboard/fasiliti/${f.id}`}
                       className="text-xs font-bold text-slate-600 hover:text-[#0066FF] transition-colors"
                     >
-                      Butiran &rarr;
+                      Details &rarr;
                     </Link>
                     <Link
                       href={`/dashboard/fasiliti/${f.id}/susulan/tambah`}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-colors shadow-xs"
                     >
-                      <Plus size={13} />+ Catat Susulan
+                      <Plus size={13} />+ Log Follow-up
                     </Link>
                   </div>
                 </div>
@@ -248,13 +248,13 @@ export function OfficerDashboardView({
         <div className="space-y-4">
           <h2 className="text-lg font-fustat font-bold text-slate-900 flex items-center gap-2">
             <Clock size={18} className="text-[#0066FF]" />
-            Catatan Susulan Terkini Saya
+            My Recent Follow-up Entries
           </h2>
 
           <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4">
             {recentSusulan.length === 0 ? (
               <p className="text-xs text-slate-500 text-center py-6">
-                Belum ada rekod susulan yang dicatat oleh anda.
+                No follow-up records have been logged by you yet.
               </p>
             ) : (
               recentSusulan.map((s) => (

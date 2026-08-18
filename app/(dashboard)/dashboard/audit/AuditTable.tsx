@@ -582,7 +582,7 @@ export function AuditTable({ logs }: { logs: LogAudit[] }) {
             {/* Structured JSON payload viewer */}
             <div>
               <span className="text-[10px] uppercase font-bold text-[var(--color-text-tertiary)] tracking-wider block mb-1.5">
-                Audit Payload (Butiran)
+                Audit Payload (Details)
               </span>
               <pre className="p-3.5 rounded-xl bg-slate-950 text-slate-100 font-mono text-[11px] overflow-x-auto max-h-56 leading-relaxed border border-slate-800">
                 {JSON.stringify(selectedLog.butiran ?? {}, null, 2)}

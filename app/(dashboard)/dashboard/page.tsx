@@ -160,7 +160,7 @@ export default async function DashboardPage() {
     { nama: string; count: number; pembiayaan: number; tunggakan: number }
   >()
   for (const f of fasilitiList) {
-    const nama = f.pembiaya_modal?.trim() || 'Tidak Dinyatakan'
+    const nama = f.pembiaya_modal?.trim() || 'Not Specified'
     const cur = financierMap.get(nama) ?? { nama, count: 0, pembiayaan: 0, tunggakan: 0 }
     cur.count += 1
     cur.pembiayaan += f.jumlah_pembiayaan

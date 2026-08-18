@@ -113,10 +113,10 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB
 
 export function validateFile(file: File): { valid: boolean; error?: string } {
   if (!ALLOWED_TYPES.includes(file.type)) {
-    return { valid: false, error: `Jenis fail tidak disokong: ${file.type}` }
+    return { valid: false, error: `File type not supported: ${file.type}` }
   }
   if (file.size > MAX_SIZE_BYTES) {
-    return { valid: false, error: `Saiz fail melebihi 10MB` }
+    return { valid: false, error: `File size exceeds 10MB` }
   }
   return { valid: true }
 }
