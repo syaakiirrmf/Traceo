@@ -6,27 +6,37 @@
 - Local:         http://localhost:3000
 - Network:       http://192.168.56.1:3000
 - Environments: .env.local
-✓ Ready in 9.2s
-⚠ Slow filesystem detected. The benchmark took 202ms. If C:\Users\syakir\Downloads\syaakiirr\Traceo\.next/dev is a network drive, consider moving it to a local folder.
-See more: https://nextjs.org/docs/app/guides/local-development
-○ Compiling instrumentation Node.js ...
-○ Compiling instrumentation Edge ...
+✓ Ready in 1963ms
 - Experiments (use with caution):
   · clientTraceMetadata
   · staleTimes
   ✓ viewTransition
 
-○ Compiling / ...
- GET /login 200 in 866ms (next.js: 347ms, proxy.ts: 48ms, application-code: 470ms)
- GET /login 200 in 1445ms (next.js: 44ms, proxy.ts: 46ms, application-code: 1355ms)
- POST /api/auth/login 200 in 1575ms (next.js: 569ms, proxy.ts: 46ms, application-code: 960ms)
- GET /dashboard 200 in 4.9s (next.js: 1256ms, proxy.ts: 181ms, application-code: 3.5s)
- GET /dashboard 200 in 3.6s (next.js: 145ms, proxy.ts: 766ms, application-code: 2.7s)
+ GET /login 200 in 2.2s (next.js: 456ms, proxy.ts: 462ms, application-code: 1271ms)
+Error [AuthApiError]: Invalid Refresh Token: Refresh Token Not Found
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 400,
+  code: 'refresh_token_not_found'
+}
+Error [AuthApiError]: Invalid Refresh Token: Refresh Token Not Found
+    at ignore-listed frames {
+  __isAuthError: true,
+  status: 400,
+  code: 'refresh_token_not_found'
+}
+ GET /login 200 in 1428ms (next.js: 61ms, proxy.ts: 1074ms, application-code: 293ms)
+ POST /api/auth/login 200 in 937ms (next.js: 304ms, proxy.ts: 32ms, application-code: 602ms)
+ GET /dashboard 200 in 2.9s (next.js: 284ms, proxy.ts: 86ms, application-code: 2.5s)
+ GET /dashboard 200 in 1965ms (next.js: 47ms, proxy.ts: 251ms, application-code: 1667ms)
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
-○ Compiling /dashboard/users ...
- GET /dashboard 200 in 5.7s (next.js: 520ms, proxy.ts: 2.8s, application-code: 2.4s)
- GET /dashboard/users 200 in 74s (next.js: 59s, proxy.ts: 187ms, application-code: 15.2s)
- POST /dashboard/users 200 in 4.2s (next.js: 62ms, proxy.ts: 281ms, application-code: 3.9s)
-  └─ ƒ kemaskiniUser("8a8e3c9b-6fef-460c-abe4-605c9625aa04", {}) in 1713ms lib/actions/users.ts
- GET /dashboard/users 200 in 1656ms (next.js: 95ms, proxy.ts: 388ms, application-code: 1173ms)
-[?25h
+ GET /dashboard/users 200 in 1867ms (next.js: 256ms, proxy.ts: 189ms, application-code: 1423ms)
+ POST /dashboard/users 200 in 2.1s (next.js: 31ms, proxy.ts: 195ms, application-code: 1845ms)
+  └─ ƒ kemaskiniUser("8a8e3c9b-6fef-460c-abe4-605c9625aa04", {}) in 1133ms lib/actions/users.ts
+ GET /dashboard/users 200 in 614ms (next.js: 28ms, proxy.ts: 131ms, application-code: 455ms)
+ GET /login 200 in 72ms (next.js: 13ms, proxy.ts: 11ms, application-code: 48ms)
+ GET /login 200 in 81ms (next.js: 12ms, proxy.ts: 12ms, application-code: 57ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ POST /api/auth/login 200 in 490ms (next.js: 23ms, proxy.ts: 18ms, application-code: 449ms)
+ GET /dashboard 200 in 839ms (next.js: 17ms, proxy.ts: 79ms, application-code: 743ms)
+ GET /dashboard 200 in 748ms (next.js: 17ms, proxy.ts: 130ms, application-code: 601ms)
