@@ -4,8 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
-import { uploadFile, deleteFile, getFileType, validateFile } from '@/lib/storage/cloudinary'
+import { uploadFile, deleteFile, getFileType, validateFileBatch, verifyFileSignature, sanitizeFileName, mapLimit } from '@/lib/storage/cloudinary'
 import { rateLimitAction } from '@/lib/ratelimit'
+import { susulanSchema, fd, parseOrThrow } from '@/lib/validation'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -16,11 +17,15 @@ async function getCurrentUser() {
 
   const { data: userProfile } = await supabase
     .from('users')
-    .select('id, peranan')
+    .select('id, peranan, status')
     .eq('auth_id', authUser.id)
     .single()
 
   if (!userProfile) throw new Error('User not found')
+  if (userProfile.status === 'tidak_aktif') {
+    await supabase.auth.signOut()
+    throw new Error('Account is disabled.')
+  }
   return { supabase, userProfile }
 }
 
@@ -42,25 +47,38 @@ export async function tambahSusulanTanah(tanahId: string, formData: FormData) {
 
   const susulanId = crypto.randomUUID()
 
-  // Upload files to Cloudinary first (external side-effect — cannot be part of
-  // the DB transaction). If the DB transaction fails we compensate by deleting
-  // the uploaded files.
+  const susulan = parseOrThrow(susulanSchema, {
+    tarikh_susulan: fd(formData, 'tarikh_susulan'),
+    catatan: fd(formData, 'catatan'),
+  })
+
+  // Upload fail ke Cloudinary dahulu (side-effect luar). Selari concurrency 3.
   const files = formData.getAll('lampiran') as File[]
+  const batch = validateFileBatch(files)
+  if (batch.errors.length > 0) {
+    throw new Error(batch.errors.join(' '))
+  }
   const lampiran: { url_fail: string; jenis_fail: string; nama_asal: string }[] = []
-  for (const file of files) {
-    if (!file || file.size === 0) continue
-
-    const validation = validateFile(file)
-    if (!validation.valid) continue
-
+  const failed: string[] = []
+  await mapLimit(batch.valid, 3, async (file) => {
+    if (!(await verifyFileSignature(file))) {
+      failed.push(`'${file.name}': kandungan fail tidak sepadan dengan jenisnya.`)
+      return
+    }
     const uploaded = await uploadFile(file, `susulan/${susulanId}`)
     if (uploaded) {
       lampiran.push({
         url_fail: uploaded.url,
         jenis_fail: getFileType(file),
-        nama_asal: file.name,
+        nama_asal: sanitizeFileName(file.name),
       })
+    } else {
+      failed.push(`'${file.name}': muat naik gagal. Cuba lagi.`)
     }
+  })
+  if (failed.length > 0) {
+    await Promise.all(lampiran.map((l) => deleteFile(l.url_fail)))
+    throw new Error(failed.join(' '))
   }
 
   // Atomic: susulan + lampiran + audit in a single transaction
@@ -68,8 +86,8 @@ export async function tambahSusulanTanah(tanahId: string, formData: FormData) {
     p_id: susulanId,
     p_fasiliti_id: null,
     p_tanah_id: tanahId,
-    p_tarikh_susulan: formData.get('tarikh_susulan') as string,
-    p_catatan: formData.get('catatan') as string,
+    p_tarikh_susulan: susulan.tarikh_susulan,
+    p_catatan: susulan.catatan,
     p_lampiran: lampiran.length > 0 ? lampiran : [],
   })
 
@@ -101,10 +119,14 @@ export async function editSusulanTanah(susulanId: string, tanahId: string, formD
 
   // Ownership check for pegawai_susulan is enforced inside the transaction
   // function via RLS (susulan_update policy). Atomic: update + audit.
+  const validated = parseOrThrow(susulanSchema, {
+    tarikh_susulan: fd(formData, 'tarikh_susulan'),
+    catatan: fd(formData, 'catatan'),
+  })
   const { error } = await supabase.rpc('traceo_edit_susulan', {
     p_id: susulanId,
-    p_tarikh_susulan: formData.get('tarikh_susulan') as string,
-    p_catatan: formData.get('catatan') as string,
+    p_tarikh_susulan: validated.tarikh_susulan,
+    p_catatan: validated.catatan,
   })
 
   if (error) throw new Error(`Failed to update: ${error.message}`)

@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+// Health dalaman — memerlukan auth (proxy). Guna anon client (head+count)
+// bukan service_role supaya tidak jadi oracle DB awam.
 export async function GET() {
-  const started = Date.now()
-  const supabase = createAdminClient()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   let db = 'ok'
   try {
@@ -17,13 +22,5 @@ export async function GET() {
   }
 
   const status = db === 'ok' ? 200 : 503
-  return NextResponse.json(
-    {
-      status: status === 200 ? 'ok' : 'degraded',
-      db,
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
-    },
-    { status }
-  )
+  return NextResponse.json({ status: status === 200 ? 'ok' : 'degraded', db }, { status })
 }

@@ -1,8 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiUser } from '@/lib/auth/api'
+import { rateLimitFailOpen } from '@/lib/ratelimit'
+import { tulisAudit } from '@/lib/audit'
 import * as XLSX from 'xlsx'
 import { format } from 'date-fns'
+import type { NextRequest } from 'next/server'
 
 const STATUS_LABELS: Record<string, string> = {
   aktif: 'Active',
@@ -17,20 +20,27 @@ const KATEGORI_LABELS: Record<string, string> = {
   pinjaman_individu: 'Individual Loan',
 }
 
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
+const EXPORT_LIMIT = 2000 // cap eksport — elak OOM bila dataset besar
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export async function GET(request?: NextRequest) {
+  const authed = await requireApiUser('eksport_excel')
+  if (authed.error) return authed.error
+  const { supabase, profile: userProfile } = authed
 
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('id, peranan')
-    .eq('auth_id', authUser.id)
-    .single()
-  if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
+  // Hormati filter UI (q/status/kategori) — sebelum ini eksport abaikan filter.
+  const url = request ? new URL(request.url) : null
+  const q = (url?.searchParams.get('q') ?? '').trim().slice(0, 100)
+  const status = (url?.searchParams.get('status') ?? '').trim()
+  const kategori = (url?.searchParams.get('kategori') ?? '').trim()
+
+  const rl = await rateLimitFailOpen(`export_fasiliti:${userProfile.id}`, 10, 60, 'export_fasiliti')
+  if (!rl.ok) {
+    Sentry.captureMessage('export_fasiliti_429', { level: 'warning', extra: { userId: userProfile.id } })
+    return NextResponse.json(
+      { error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.` },
+      { status: 429 }
+    )
+  }
 
   try {
     let query = supabase
@@ -39,6 +49,18 @@ export async function GET(request: NextRequest) {
         'kod_rujukan, kategori, nama_peminjam, pembiaya_modal, jumlah_pembiayaan, jumlah_tunggakan_semasa, status_fasiliti, tarikh_mula, tarikh_tamat, ringkasan_cagaran, catatan_am'
       )
       .order('dicipta_pada', { ascending: false })
+      .limit(EXPORT_LIMIT)
+
+    if (status && ['aktif', 'tertunggak', 'tindakan_guaman', 'selesai'].includes(status)) {
+      query = query.eq('status_fasiliti', status)
+    }
+    if (kategori && ['jv_syarikat', 'jv_tanah', 'pinjaman_individu'].includes(kategori)) {
+      query = query.eq('kategori', kategori)
+    }
+    if (q) {
+      const like = `%${q.replace(/[%_,]/g, '')}%`
+      query = query.or(`nama_peminjam.ilike.${like},pembiaya_modal.ilike.${like},kod_rujukan.ilike.${like}`)
+    }
 
     if (userProfile.peranan === 'pegawai_susulan') {
       const { data: assigned } = await supabase
@@ -94,12 +116,7 @@ export async function GET(request: NextRequest) {
     const today = format(new Date(), 'ddMMyyyy')
     const filename = `FASILITI_${today}.xlsx`
 
-    await supabase.from('log_audit').insert({
-      user_id: userProfile.id,
-      tindakan: 'eksport_excel',
-      entiti_jenis: 'fasiliti',
-      butiran: { format: 'xlsx', filename },
-    })
+    await tulisAudit(supabase, 'eksport_excel', 'fasiliti', null, { format: 'xlsx', filename })
 
     return new NextResponse(buffer, {
       status: 200,

@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Traceo — JV Facility & Chronology Management System
 
-## Getting Started
+Internal system for tracking JV financing facilities (companies, land, individual loans),
+follow-up chronology, and Word/PDF report generation. Replaces manual Excel/Word workflows.
 
-First, run the development server:
+Stack: **Next.js 16** (App Router) + **Supabase** (Postgres, Auth, RLS) + **Upstash Redis**
+(rate limiting) + **Cloudinary** (attachments) + **Resend** (email) + **Gemini** (AI assistant).
+Deployed on **Netlify** (`netlify.toml`).
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # isi nilai sebenar
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Required env (see `.env.example`): `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `UPSTASH_*`, `RESEND_API_KEY`,
+`CLOUDINARY_*`, `GEMINI_API_KEY`, `SENTRY_DSN` (+ `NEXT_PUBLIC_SENTRY_DSN`, same value).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Database: apply migrations in order from `supabase/migrations/` (currently `001–021`)
+via Supabase Dashboard → SQL Editor.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+| Command | Purpose |
+|---|---|
+| `npm run dev` / `build` / `start` | dev / production build / serve |
+| `npm run typecheck` | `tsc --noEmit` (wajib lulus sebelum commit) |
+| `npm run lint` | ESLint `--max-warnings=0` |
+| `npm test` / `npm run test:coverage` | Vitest / with V8 coverage |
 
-To learn more about Next.js, take a look at the following resources:
+## Roles & access
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`superadmin` → `admin` → `pengurus` (manager) → `pegawai_susulan` (field officer) →
+`viewer` (read-only). Enforced in 3 layers: `proxy.ts` (edge), RLS policies
+(`supabase/migrations/021_fasa1_tighten_rls.sql`), and server actions / API routes
+(`lib/auth/api.ts` → `requireApiUser()`). Disabled accounts (`tidak_aktif`) are blocked
+at every layer with session revocation.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Key rules: pegawai only sees assigned facilities; tanah registry is admin/pengurus/viewer
+only; audit writes go through RPC `traceo_audit()` (`lib/audit.ts`); uploads max
+10 files / 10MB each / 50MB total, HEIC rejected with guidance (`lib/storage/limits.ts`).
 
-## Deploy on Vercel
+## Docs
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `PRODUCT.md` — product context · `DESIGN.md` — design tokens
+- `docs/api-reference.md` — schema, RLS, routes, rate limits
+- `AGENTS.md` — Next.js 16 agent rules (read before writing code)

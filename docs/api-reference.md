@@ -14,13 +14,13 @@ Sistem Pengurusan Fasiliti JV & Penjanaan Kronologi.
 
 | Enum | Values |
 |---|---|
-| `user_role` | `admin`, `pengurus`, `pegawai_susulan`, `viewer` (Superadmin is special-cased in app code, see below) |
+| `user_role` | `admin`, `pengurus`, `pegawai_susulan`, `viewer`, `superadmin` (ditambah dalam `014`) |
 | `user_status` | `aktif`, `tidak_aktif` |
 | `fasiliti_kategori` | `jv_syarikat`, `jv_tanah`, `pinjaman_individu` |
 | `fasiliti_status` | `aktif`, `tertunggak`, `tindakan_guaman`, `selesai` |
 | `lampiran_jenis` | `imej`, `dokumen` |
 
-> **Superadmin note:** there is no `superadmin` value in the `user_role` enum. A superadmin is a row in `users` created by the system owner (matching the app-config email). `permissions.ts` grants `superadmin` unconditional access; `supabase.auth.admin` is used to seed it.
+> **Superadmin note:** `superadmin` ialah nilai enum `user_role` sejak migration `014`. `permissions.ts` memberi `superadmin` akses tanpa syarat; bypass RLS untuk setiap jadual (termasuk chat, sejak `021`).
 
 ### Tables
 
@@ -71,7 +71,7 @@ Constraint (`007`): exactly one of `fasiliti_id` / `tanah_id` must be set.
 
 **lampiran** (`001`) — attachments to susulan: `url_fail`, `jenis_fail`, `nama_asal`, `dimuat_naik_pada`.
 
-**log_audit** (`001`) — `user_id`, `tindakan`, `entiti_jenis`, `entiti_id`, `butiran` (JSONB), `tarikh`.
+**log_audit** (`001`, `021`) — `user_id`, `tindakan` (whitelist), `entiti_jenis` (whitelist), `entiti_id` (nullable sejak `021` — eksport agregat tiada satu entiti), `butiran` (JSONB), `tarikh`. Tulis melalui RPC `traceo_audit()` (SECURITY DEFINER).
 
 **tanah_jv** (`004`) — land registry: `negeri`, `daerah`, `bandar_mukim`, `tempat`, `no_lot`, `tarikh_daftar`, `no_hak_milik`, `luas_meter_persegi`, `anggaran_nilaian`, `catatan`, `dicipta_oleh`.
 
@@ -120,7 +120,7 @@ All under `/api`. Auth = session cookie via `supabase.auth.getUser()` (or Supaba
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| GET | `/api/health` | none | DB liveness probe → `200 {status:'ok', db:'ok'}` or `503 degraded/down` |
+| GET | `/api/health` | session | DB liveness probe (sejak Fasa 1 memerlukan auth; guna anon client, bukan service_role) |
 
 ### Auth
 
@@ -132,17 +132,18 @@ All under `/api`. Auth = session cookie via `supabase.auth.getUser()` (or Supaba
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| GET | `/api/export/fasiliti` | session | Generates `.xlsx` of all facilities (`FASILITI_<DDMMYYYY>.xlsx`). `pegawai_susulan` scoped to assigned facilities (403 if none). Writes a `log_audit` row (`eksport_excel`). |
-| GET | `/api/export/tanah-jv` | session | Generates `.xlsx` of all `tanah_jv` records. |
+| GET | `/api/export/fasiliti` | session | `.xlsx` fasiliti. Hormati filter UI `?q=&status=&kategori=`; cap 2000 rows; rate 10/60s; pegawai skop assigned (403 jika tiada). Audit via `traceo_audit` (`eksport_excel`). |
+| GET | `/api/export/tanah-jv` | session | `.xlsx` semua rekod `tanah_jv`; cap 2000 rows; rate 10/60s. |
+| GET | `/api/export/ringkasan` | session | PDF ringkasan portfolio; cap 2000 rows; rate 10/60s; permission `eksport_ringkasan`. |
 
 ### Chronology / Kronologi
 
 | Method | Route | Auth | Description |
 |---|---|---|---|
-| GET | `/api/fasiliti/[id]/kronologi` | session | Returns the follow-up chronology (JSON) for a facility. |
-| GET | `/api/fasiliti/[id]/kronologi-pdf` | session | Generates PDF of a facility chronology via `lib/pdf/kronologiPdfme.ts` (pdfme). |
-| GET | `/api/tanah-jv/[id]/kronologi` | session | Chronology (JSON) for a `tanah_jv` record. |
-| GET | `/api/tanah-jv/[id]/kronologi-pdf` | session | PDF of a land chronology via `lib/pdf/tanahKronologiPdfme.ts`. |
+| GET | `/api/fasiliti/[id]/kronologi` | session | DOCX kronologi susulan fasiliti; assignment check untuk pegawai; rate 20/60s. |
+| GET | `/api/fasiliti/[id]/kronologi-pdf` | session | PDF kronologi fasiliti via `lib/pdf/kronologiPdfme.ts` (pdfme); rate 20/60s. |
+| GET | `/api/tanah-jv/[id]/kronologi` | session | DOCX kronologi tanah; admin/pengurus/viewer sahaja (pegawai ditolak); rate 20/60s. |
+| GET | `/api/tanah-jv/[id]/kronologi-pdf` | session | PDF kronologi tanah via `lib/pdf/tanahKronologiPdfme.ts`; rate 20/60s. |
 
 ### AI Assistant
 
@@ -173,9 +174,9 @@ Server Actions are invoked directly (not HTTP) and also subject to `rateLimitAct
 
 ## 5. Testing
 
-- Runner: **Vitest** (`npm test`). Config: `vitest.config.mts` — includes `lib/**` and `app/**` test files.
+- Runner: **Vitest** (`npm test`, `npm run test:coverage`). Config: `vitest.config.mts` — includes `lib/**` and `app/**` test files; `server-only` di-stub dalam test runtime.
 - Existing suites: `lib/auth/permissions.test.ts`, `lib/ai/postProcess.test.ts`, and API route integration tests under `app/api/**/route.test.ts` (mock `@/lib/supabase/server`, `@/lib/supabase/admin`, `@/lib/ratelimit`, `next/headers`).
-- Lint/typecheck: `npm run lint` (ESLint), `npx tsc --noEmit`.
+- Lint/typecheck: `npm run lint` (ESLint `--max-warnings=0`), `npm run typecheck`. Rate limits: login fail-closed 5/60s; chat/export/kronologi/history/superadmin fail-open + Sentry log (`lib/ratelimit.ts`).
 
 ## 6. Key Files
 
@@ -188,4 +189,8 @@ Server Actions are invoked directly (not HTTP) and also subject to `rateLimitAct
 | Notifications (overdue) | `lib/notifications.ts` |
 | PDF generation | `lib/pdf/kronologiPdfme.ts`, `lib/pdf/tanahKronologiPdfme.ts` |
 | AI functions | `lib/ai/functions.ts` |
-| Migrations | `supabase/migrations/001–016` |
+| Migrations | `supabase/migrations/001–021` |
+| Validation (Zod) | `lib/validation.ts` |
+| Audit RPC | `lib/audit.ts` → `traceo_audit()` |
+| API auth helper | `lib/auth/api.ts` → `requireApiUser()` |
+| Upload limits | `lib/storage/limits.ts`, `lib/storage/cloudinary.ts` |

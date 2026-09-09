@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { PageAccessGuard } from '@/components/ui/PageAccessGuard'
+import Link from 'next/link'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import { AuditTable } from './AuditTable'
 import { Activity, ShieldCheck, FileText, Layers, Users } from 'lucide-react'
 import type { Metadata } from 'next'
@@ -8,7 +9,13 @@ import type { UserRole } from '@/types'
 
 export const metadata: Metadata = { title: 'Audit Log System — Traceo' }
 
-export default async function AuditPage() {
+const AUDIT_PAGE_SIZE = 50
+
+export default async function AuditPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
   const supabase = await createClient()
   const {
     data: { user: authUser },
@@ -23,11 +30,19 @@ export default async function AuditPage() {
 
   if (!userProfile) redirect('/login')
 
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/audit')
+
+  const { count } = await supabase.from('log_audit').select('id', { count: 'exact', head: true })
+  const totalItems = count ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalItems / AUDIT_PAGE_SIZE))
+  const sp = await searchParams
+  const page = Math.min(Math.max(1, Number(sp.page) || 1), totalPages)
+
   const { data: logsData } = await supabase
     .from('log_audit')
     .select('*, user:users(nama, emel)')
     .order('tarikh', { ascending: false })
-    .limit(300)
+    .range((page - 1) * AUDIT_PAGE_SIZE, page * AUDIT_PAGE_SIZE - 1)
 
   const logs = logsData ?? []
 
@@ -41,13 +56,7 @@ export default async function AuditPage() {
   ).length
 
   return (
-    <PageAccessGuard
-      userId={userProfile.id}
-      role={userProfile.peranan as UserRole}
-      pagePath="/dashboard/audit"
-      featureName="Forensic Audit Log"
-    >
-      <div className="space-y-6 max-w-[1600px] font-dm">
+    <div className="space-y-6 max-w-[1600px] font-dm">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
           <div>
@@ -130,8 +139,32 @@ export default async function AuditPage() {
 
         {/* Interactive Audit Client Table */}
         <AuditTable logs={logs} />
+
+        {/* Server pagination */}
+        <div className="flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
+          <p>
+            Halaman {page} / {totalPages} · {totalItems} rekod
+          </p>
+          <div className="flex items-center gap-2">
+            {page > 1 ? (
+              <Link
+                href={`/dashboard/audit?page=${page - 1}`}
+                className="px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-raised)] transition-colors"
+              >
+                ← Sebelum
+              </Link>
+            ) : null}
+            {page < totalPages ? (
+              <Link
+                href={`/dashboard/audit?page=${page + 1}`}
+                className="px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-raised)] transition-colors"
+              >
+                Berikut →
+              </Link>
+            ) : null}
+          </div>
+        </div>
       </div>
-    </PageAccessGuard>
   )
 }
 

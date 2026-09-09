@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { PageAccessGuard } from '@/components/ui/PageAccessGuard'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import { TambahUserModal } from './TambahUserModal'
 import { UsersTable } from './UsersTable'
 import type { Metadata } from 'next'
@@ -23,19 +23,15 @@ export default async function UsersPage() {
 
   if (!userProfile) redirect('/login')
 
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/users')
+
   const { data: users } = await supabase
     .from('users')
     .select('*')
     .order('dicipta_pada', { ascending: false })
 
   return (
-    <PageAccessGuard
-      userId={userProfile.id}
-      role={userProfile.peranan as UserRole}
-      pagePath="/dashboard/users"
-      featureName="User Management"
-    >
-      <div className="space-y-5 max-w-[1600px]">
+    <div className="space-y-5 max-w-[1600px]">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
           <div>
@@ -60,6 +56,5 @@ export default async function UsersPage() {
           currentUserRole={userProfile.peranan as UserRole}
         />
       </div>
-    </PageAccessGuard>
   )
 }

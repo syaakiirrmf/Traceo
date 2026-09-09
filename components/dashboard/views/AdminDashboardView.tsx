@@ -5,14 +5,10 @@ import Link from 'next/link'
 import {
   Building2,
   Landmark,
-  UserRound,
-  MapPin,
   Plus,
   ShieldCheck,
   Users,
   FileText,
-  Sparkles,
-  TrendingUp,
   AlertTriangle,
   ClipboardCheck,
 } from 'lucide-react'
@@ -94,7 +90,6 @@ export function AdminDashboardView({
   monthlyTrend,
   approvalStats,
 }: AdminDashboardViewProps) {
-  const activeCount = fasilitiList.filter((f) => f.status_fasiliti === 'aktif').length
   const approvalTotal =
     approvalStats.menunggu + approvalStats.diluluskan + approvalStats.ditolak
   const approvalPendingPct =

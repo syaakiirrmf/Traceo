@@ -1,6 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import type { Mock } from 'vitest'
-import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
@@ -18,6 +17,7 @@ interface FromChain {
   eq: Mock
   in: Mock
   order: Mock
+  limit?: Mock
   insert: Mock
   single: Mock
   maybeSingle: Mock
@@ -32,17 +32,21 @@ function makeFrom() {
         eq: vi.fn(),
         in: vi.fn(),
         order: vi.fn(),
+        limit: vi.fn(),
         insert: vi.fn(),
         single: vi.fn(),
         maybeSingle: vi.fn(),
       }
       for (const key of Object.keys(chain[table]) as Array<keyof FromChain>) {
-        if (key !== 'select') {
+        if (key !== 'select' && key !== 'limit') {
           chain[table][key] = vi.fn(function (this: unknown) {
             return this
           })
         }
       }
+      chain[table].limit = vi.fn(function (this: unknown) {
+        return this
+      })
     }
     return chain[table]
   })
@@ -68,7 +72,7 @@ describe('GET /api/export/ringkasan', () => {
       auth: { getUser: vi.fn(async () => ({ data: { user: null } })) },
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
-    const res = await ringkasanGet(new NextRequest('http://localhost/api/export/ringkasan'))
+    const res = await ringkasanGet()
     expect(res.status).toBe(401)
     expect((await res.json()).error).toBe('Unauthorized')
   })
@@ -98,7 +102,7 @@ describe('GET /api/export/ringkasan', () => {
       }),
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
-    const res = await ringkasanGet(new NextRequest('http://localhost/api/export/ringkasan'))
+    const res = await ringkasanGet()
     expect(res.status).toBe(403)
   })
 
@@ -118,11 +122,11 @@ describe('GET /api/export/ringkasan', () => {
       eq: vi.fn().mockReturnThis(),
       in: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
+      limit: vi.fn(async () => ({ data: [fasilitiRow] })),
       insert: vi.fn().mockReturnThis(),
       single: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockReturnThis(),
     }
-    chain.fasiliti.order.mockResolvedValue({ data: [fasilitiRow] })
     chain.log_audit = {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -133,17 +137,19 @@ describe('GET /api/export/ringkasan', () => {
       maybeSingle: vi.fn().mockReturnThis(),
     }
 
+    const rpc = vi.fn(async () => ({ error: null }))
     const supabase = {
       auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })) },
       from: fromFn,
+      rpc,
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
 
-    const res = await ringkasanGet(new NextRequest('http://localhost/api/export/ringkasan'))
+    const res = await ringkasanGet()
     expect(res.status).toBe(200)
     expect(res.headers.get('content-type')).toContain('application/pdf')
     expect(res.headers.get('content-disposition')).toContain('RINGKASAN_PORTFOLIO_')
-    expect(chain.log_audit.insert).toHaveBeenCalled()
+    expect(rpc).toHaveBeenCalledWith('traceo_audit', expect.objectContaining({ p_tindakan: 'eksport_ringkasan' }))
   })
 
   it('returns 404 when no data', async () => {
@@ -162,18 +168,20 @@ describe('GET /api/export/ringkasan', () => {
       eq: vi.fn().mockReturnThis(),
       in: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
+      limit: vi.fn(async () => ({ data: null })),
       insert: vi.fn().mockReturnThis(),
       single: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockReturnThis(),
     }
-    chain.fasiliti.order.mockResolvedValue({ data: null })
     const supabase = {
       auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })) },
       from: fromFn,
+      rpc: vi.fn(async () => ({ error: null })),
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
 
-    const res = await ringkasanGet(new NextRequest('http://localhost/api/export/ringkasan'))
+    const res = await ringkasanGet()
     expect(res.status).toBe(404)
   })
 })
+

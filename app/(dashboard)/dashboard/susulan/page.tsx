@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { PageAccessGuard } from '@/components/ui/PageAccessGuard'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import { FollowUpCalendar } from '@/components/calendar/FollowUpCalendar'
 import { hasPermission } from '@/lib/auth/permissions'
 import type { Metadata } from 'next'
@@ -19,7 +19,11 @@ export interface CalendarEvent {
   dicatat_oleh: string
 }
 
-export default async function SusulanCalendarPage() {
+export default async function SusulanCalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ skop?: string }>
+}) {
   const supabase = await createClient()
 
   const {
@@ -33,6 +37,8 @@ export default async function SusulanCalendarPage() {
     .eq('auth_id', authUser.id)
     .single()
   if (!userProfile) redirect('/login')
+
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/susulan')
 
   const isPegawai = userProfile.peranan === 'pegawai_susulan'
 
@@ -54,6 +60,16 @@ export default async function SusulanCalendarPage() {
       'id, tarikh_susulan, catatan, fasiliti_id, tanah_id, dicatat_oleh, fasiliti:fasiliti!susulan_fasiliti_id_fkey(kod_rujukan, nama_peminjam)'
     )
     .order('tarikh_susulan', { ascending: true })
+    .limit(2000)
+
+  // Tetingkap 3 bulan secara lalai (elak muat seluruh sejarah); ?skop=semua untuk penuh.
+  const skop = (await searchParams).skop
+  if (skop !== 'semua') {
+    const now = new Date()
+    const dari = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10)
+    const hingga = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().slice(0, 10)
+    query = query.gte('tarikh_susulan', dari).lte('tarikh_susulan', hingga)
+  }
 
   if (assignedIds !== null) query = query.in('fasiliti_id', assignedIds)
 
@@ -78,34 +94,27 @@ export default async function SusulanCalendarPage() {
   const canAdd = hasPermission(userProfile.peranan, 'tambah_susulan')
 
   return (
-    <PageAccessGuard
-      userId={userProfile.id}
-      role={userProfile.peranan as UserRole}
-      pagePath="/dashboard/susulan"
-      featureName="Follow-Up Calendar"
-    >
-      <div className="space-y-5 max-w-[1400px]">
-        <div className="border-b border-[var(--color-border)] pb-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-            Follow-Up Management
-          </span>
-          <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
-            Follow-Up Calendar
-          </h1>
-          <p className="text-xs text-[var(--color-text-tertiary)] mt-1">
-            {isPegawai ? 'Your assigned facilities' : 'All follow-ups across facilities'} •{' '}
-            {events.length} events
-          </p>
-        </div>
-
-        {error ? (
-          <div className="rounded-xl border border-[var(--color-danger)]/30 bg-[var(--color-danger-subtle)] p-4 text-xs text-[var(--color-danger)]">
-            Failed to load calendar events.
-          </div>
-        ) : (
-          <FollowUpCalendar events={events} canAdd={canAdd} />
-        )}
+    <div className="space-y-5 max-w-[1400px]">
+      <div className="border-b border-[var(--color-border)] pb-4">
+        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+          Follow-Up Management
+        </span>
+        <h1 className="text-lg font-bold tracking-tight text-[var(--color-text-primary)] mt-0.5">
+          Follow-Up Calendar
+        </h1>
+        <p className="text-xs text-[var(--color-text-tertiary)] mt-1">
+          {isPegawai ? 'Your assigned facilities' : 'All follow-ups across facilities'} •{' '}
+          {events.length} events{skop === 'semua' ? ' (semua)' : ' (3 bulan)'}
+        </p>
       </div>
-    </PageAccessGuard>
+
+      {error ? (
+        <div className="rounded-xl border border-[var(--color-danger)]/30 bg-[var(--color-danger-subtle)] p-4 text-xs text-[var(--color-danger)]">
+          Failed to load calendar events.
+        </div>
+      ) : (
+        <FollowUpCalendar events={events} canAdd={canAdd} />
+      )}
+    </div>
   )
 }

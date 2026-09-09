@@ -1,5 +1,7 @@
 'use client'
 
+import { ActionForm } from '@/components/forms/ActionForm'
+import { SubmitButton } from '@/components/ui/SubmitButton'
 import { useState } from 'react'
 import Link from 'next/link'
 import { tambahFasiliti } from '@/lib/actions/fasiliti'
@@ -38,10 +40,10 @@ export function TambahFasilitiForm({
   const isJV3 = kategori === 'pinjaman_individu'
 
   return (
-    <form action={tambahFasiliti} className="space-y-5">
+    <ActionForm action={tambahFasiliti} className="space-y-5">
       {/* ── Section 1: Basic ── */}
       <Section title="Basic Information">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
               Category <span className="text-[var(--color-danger)]">*</span>
@@ -79,7 +81,7 @@ export function TambahFasilitiForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="Capital Funder"
             name="pembiaya_modal"
@@ -104,7 +106,7 @@ export function TambahFasilitiForm({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Start Date" name="tarikh_mula" type="date" required />
           <Field label="End Date" name="tarikh_tamat" type="date" />
         </div>
@@ -112,7 +114,7 @@ export function TambahFasilitiForm({
 
       {/* ── Section 2: Maklumat Pembiayaan Modal ── */}
       <Section title="Capital Financing Information">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="Total Capital Financing (RM) — A"
             name="jumlah_pembiayaan"
@@ -170,7 +172,7 @@ export function TambahFasilitiForm({
           title="Arrears & Payments Information"
           subtitle="Leave Total (E) blank to auto-compute"
         >
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {isJV1 && (
               <>
                 <Field
@@ -260,7 +262,7 @@ export function TambahFasilitiForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="Estimated Value (RM)"
             name="nilai_cagaran"
@@ -326,12 +328,7 @@ export function TambahFasilitiForm({
 
       {/* Submit */}
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          className="px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium hover:bg-[var(--color-brand-hover)] transition-colors shadow-[var(--shadow-sm)]"
-        >
-          Register Facility
-        </button>
+        <SubmitButton>Register Facility</SubmitButton>
         <Link
           href="/dashboard/fasiliti"
           className="px-6 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] transition-colors"
@@ -339,7 +336,7 @@ export function TambahFasilitiForm({
           Cancel
         </Link>
       </div>
-    </form>
+    </ActionForm>
   )
 }
 
@@ -417,3 +414,4 @@ function TotalArrears({ label }: { label: string }) {
     </div>
   )
 }
+

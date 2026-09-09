@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { hasPermission } from '@/lib/auth/permissions'
 import { rateLimitAction } from '@/lib/ratelimit'
+import { ciptaPenggunaSchema, fd, parseOrThrow } from '@/lib/validation'
 
 const PASSWORD_MIN_LENGTH = 8
 
@@ -43,10 +44,14 @@ async function getCurrentUser() {
   if (!authUser) throw new Error('Not logged in')
   const { data: userProfile } = await supabase
     .from('users')
-    .select('id, peranan')
+    .select('id, peranan, status')
     .eq('auth_id', authUser.id)
     .single()
   if (!userProfile) throw new Error('User not found')
+  if (userProfile.status === 'tidak_aktif') {
+    await supabase.auth.signOut()
+    throw new Error('Account is disabled.')
+  }
   return { supabase, userProfile }
 }
 
@@ -63,10 +68,14 @@ export async function tambahUser(formData: FormData) {
     )
   }
 
-  const emel = formData.get('emel') as string
-  const nama = formData.get('nama') as string
-  const peranan = formData.get('peranan') as string
-  const kataLaluan = formData.get('kata_laluan') as string
+  const input = parseOrThrow(ciptaPenggunaSchema, {
+    emel: fd(formData, 'emel'),
+    nama: fd(formData, 'nama'),
+    peranan: fd(formData, 'peranan'),
+  })
+  const { emel, nama, peranan } = input
+  const kataLaluan = fd(formData, 'kata_laluan') ?? ''
+  if (!kataLaluan) throw new Error('Password is required')
 
   const passwordError = validatePasswordStrength(kataLaluan)
   if (passwordError) throw new Error(passwordError)
@@ -121,14 +130,14 @@ export async function kemaskiniUser(userId: string, formData: FormData) {
     )
   }
 
-  const nama = formData.get('nama') as string
-  const emel = formData.get('emel') as string
-  const peranan = formData.get('peranan') as string
-  const kataLaluan = (formData.get('kata_laluan') as string) || ''
-  const sahkan = (formData.get('sahkan_kata_laluan') as string) || ''
-
-  if (!nama?.trim()) throw new Error('Name is required')
-  if (!emel?.trim()) throw new Error('Email is required')
+  const input = parseOrThrow(ciptaPenggunaSchema, {
+    emel: fd(formData, 'emel'),
+    nama: fd(formData, 'nama'),
+    peranan: fd(formData, 'peranan'),
+  })
+  const { nama, emel, peranan } = input
+  const kataLaluan = fd(formData, 'kata_laluan') || ''
+  const sahkan = fd(formData, 'sahkan_kata_laluan') || ''
 
   // Fetch target user row (auth_id + current emel) for auth-side sync
   const { data: target } = await supabase
@@ -141,7 +150,7 @@ export async function kemaskiniUser(userId: string, formData: FormData) {
   const adminClient = createAdminClient()
   let emelDiubah = false
 
-  // 1. Optional password reset (external, must not be skipped if provided)
+  // Validate password before touching anything (both legacy & existing flows)
   if (kataLaluan) {
     if (kataLaluan !== sahkan) throw new Error('Passwords do not match')
     const passwordError = validatePasswordStrength(kataLaluan)
@@ -151,6 +160,45 @@ export async function kemaskiniUser(userId: string, formData: FormData) {
         'This password has been exposed in a public data breach. Please choose another password.'
       )
     }
+  }
+
+  // ── Legacy account: no Supabase Auth identity yet (auth_id is NULL) ──────
+  if (!target.auth_id) {
+    // 1. Update the users row first (nama / emel / peranan)
+    const { error } = await supabase.rpc('traceo_kemaskini_pengguna', {
+      p_id: userId,
+      p_nama: nama.trim(),
+      p_emel: emel.trim(),
+      p_peranan: peranan,
+    })
+    if (error) throw new Error(`Failed to update user: ${error.message}`)
+
+    // 2. If a password was provided, create the auth identity and link it.
+    if (kataLaluan) {
+      const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+        email: emel.trim(),
+        password: kataLaluan,
+        email_confirm: true,
+      })
+      if (authError) throw new Error(`Failed to activate account: ${authError.message}`)
+
+      const { error: pautError } = await supabase.rpc('traceo_paut_auth', {
+        p_pengguna_id: userId,
+        p_auth_id: authData.user.id,
+      })
+      if (pautError) {
+        // Compensate: remove the orphaned auth identity
+        await adminClient.auth.admin.deleteUser(authData.user.id)
+        throw new Error(`Failed to link account: ${pautError.message}`)
+      }
+    }
+
+    revalidatePath('/dashboard/users')
+    return
+  }
+
+  // 1. Optional password reset (external, must not be skipped if provided)
+  if (kataLaluan) {
     const { error: pwdError } = await adminClient.auth.admin.updateUserById(target.auth_id, {
       password: kataLaluan,
     })
@@ -201,6 +249,14 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
 
   const statusBaharu = statusSemasa === 'aktif' ? 'tidak_aktif' : 'aktif'
 
+  // Ambil auth_id sasaran dahulu untuk revoke sesi bila dinyahaktifkan.
+  const adminClient = createAdminClient()
+  const { data: target } = await supabase
+    .from('users')
+    .select('auth_id')
+    .eq('id', userId)
+    .maybeSingle()
+
   // Atomic: update status + audit in a single transaction
   const { error } = await supabase.rpc('traceo_kemaskini_status_pengguna', {
     p_id: userId,
@@ -208,6 +264,15 @@ export async function toggleUserStatus(userId: string, statusSemasa: string) {
   })
 
   if (error) throw new Error(`Failed to update status: ${error.message}`)
+
+  // Revoke semua sesi bila akaun dinyahaktifkan (jangan biar JWT lama hidup).
+  if (statusBaharu === 'tidak_aktif' && target?.auth_id) {
+    try {
+      await adminClient.auth.admin.signOut(target.auth_id)
+    } catch (err) {
+      console.error('[toggleUserStatus signOut]', err)
+    }
+  }
 
   revalidatePath('/dashboard/users')
 }

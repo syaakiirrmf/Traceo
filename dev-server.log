@@ -6,37 +6,57 @@
 - Local:         http://localhost:3000
 - Network:       http://192.168.56.1:3000
 - Environments: .env.local
-✓ Ready in 1963ms
+✓ Ready in 2.4s
 - Experiments (use with caution):
   · clientTraceMetadata
   · staleTimes
   ✓ viewTransition
 
- GET /login 200 in 2.2s (next.js: 456ms, proxy.ts: 462ms, application-code: 1271ms)
-Error [AuthApiError]: Invalid Refresh Token: Refresh Token Not Found
-    at ignore-listed frames {
-  __isAuthError: true,
-  status: 400,
-  code: 'refresh_token_not_found'
-}
-Error [AuthApiError]: Invalid Refresh Token: Refresh Token Not Found
-    at ignore-listed frames {
-  __isAuthError: true,
-  status: 400,
-  code: 'refresh_token_not_found'
-}
- GET /login 200 in 1428ms (next.js: 61ms, proxy.ts: 1074ms, application-code: 293ms)
- POST /api/auth/login 200 in 937ms (next.js: 304ms, proxy.ts: 32ms, application-code: 602ms)
- GET /dashboard 200 in 2.9s (next.js: 284ms, proxy.ts: 86ms, application-code: 2.5s)
- GET /dashboard 200 in 1965ms (next.js: 47ms, proxy.ts: 251ms, application-code: 1667ms)
+ GET /dashboard 200 in 5.9s (next.js: 966ms, proxy.ts: 151ms, application-code: 4.7s)
+ GET /dashboard/assistant 307 in 2.2s (next.js: 269ms, proxy.ts: 265ms, application-code: 1661ms)
+ GET /dashboard 200 in 2.2s (next.js: 60ms, proxy.ts: 170ms, application-code: 1955ms)
+ GET /dashboard/tanah-jv 307 in 1845ms (next.js: 311ms, proxy.ts: 283ms, application-code: 1251ms)
+ GET /dashboard 200 in 1088ms (next.js: 28ms, proxy.ts: 77ms, application-code: 983ms)
+ GET /dashboard/users 307 in 1520ms (next.js: 308ms, proxy.ts: 403ms, application-code: 810ms)
+ GET /dashboard 200 in 939ms (next.js: 27ms, proxy.ts: 74ms, application-code: 839ms)
+ GET /api/export/fasiliti 403 in 1752ms (next.js: 1276ms, proxy.ts: 193ms, application-code: 283ms)
+ GET /login 200 in 553ms (next.js: 335ms, proxy.ts: 50ms, application-code: 167ms)
+ GET /login 200 in 214ms (next.js: 34ms, proxy.ts: 38ms, application-code: 142ms)
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
- GET /dashboard/users 200 in 1867ms (next.js: 256ms, proxy.ts: 189ms, application-code: 1423ms)
- POST /dashboard/users 200 in 2.1s (next.js: 31ms, proxy.ts: 195ms, application-code: 1845ms)
-  └─ ƒ kemaskiniUser("8a8e3c9b-6fef-460c-abe4-605c9625aa04", {}) in 1133ms lib/actions/users.ts
- GET /dashboard/users 200 in 614ms (next.js: 28ms, proxy.ts: 131ms, application-code: 455ms)
- GET /login 200 in 72ms (next.js: 13ms, proxy.ts: 11ms, application-code: 48ms)
- GET /login 200 in 81ms (next.js: 12ms, proxy.ts: 12ms, application-code: 57ms)
+ POST /api/auth/login 200 in 1212ms (next.js: 360ms, proxy.ts: 27ms, application-code: 825ms)
+ GET /dashboard 200 in 2.1s (next.js: 27ms, proxy.ts: 86ms, application-code: 2.0s)
+ GET /dashboard 200 in 1905ms (next.js: 96ms, proxy.ts: 238ms, application-code: 1571ms)
+ GET /dashboard/tanah-jv 307 in 1060ms (next.js: 23ms, proxy.ts: 207ms, application-code: 830ms)
+ GET /dashboard 200 in 1291ms (next.js: 35ms, proxy.ts: 72ms, application-code: 1183ms)
+ GET /dashboard/users 307 in 1060ms (next.js: 35ms, proxy.ts: 333ms, application-code: 691ms)
+ GET /dashboard 200 in 830ms (next.js: 22ms, proxy.ts: 68ms, application-code: 740ms)
+ GET /api/export/fasiliti 403 in 1132ms (next.js: 22ms, proxy.ts: 663ms, application-code: 447ms)
+ GET /dashboard/assistant 200 in 1582ms (next.js: 31ms, proxy.ts: 407ms, application-code: 1143ms)
+ GET /api/chat/history 200 in 921ms (next.js: 488ms, proxy.ts: 163ms, application-code: 271ms)
+ GET /login 200 in 348ms (next.js: 127ms, proxy.ts: 30ms, application-code: 191ms)
+ GET /login 200 in 225ms (next.js: 28ms, proxy.ts: 41ms, application-code: 156ms)
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
- POST /api/auth/login 200 in 490ms (next.js: 23ms, proxy.ts: 18ms, application-code: 449ms)
- GET /dashboard 200 in 839ms (next.js: 17ms, proxy.ts: 79ms, application-code: 743ms)
- GET /dashboard 200 in 748ms (next.js: 17ms, proxy.ts: 130ms, application-code: 601ms)
+ POST /api/auth/login 200 in 1119ms (next.js: 44ms, proxy.ts: 25ms, application-code: 1050ms)
+ GET /dashboard 200 in 2.1s (next.js: 33ms, proxy.ts: 105ms, application-code: 1938ms)
+ GET /dashboard 200 in 1996ms (next.js: 102ms, proxy.ts: 329ms, application-code: 1566ms)
+ GET /dashboard/users 307 in 1203ms (next.js: 31ms, proxy.ts: 364ms, application-code: 808ms)
+ GET /dashboard 200 in 1184ms (next.js: 27ms, proxy.ts: 90ms, application-code: 1068ms)
+ GET /login 200 in 326ms (next.js: 35ms, proxy.ts: 22ms, application-code: 269ms)
+ GET /login 200 in 403ms (next.js: 81ms, proxy.ts: 62ms, application-code: 260ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ POST /api/auth/login 200 in 672ms (next.js: 25ms, proxy.ts: 22ms, application-code: 625ms)
+ GET /dashboard 200 in 2.1s (next.js: 22ms, proxy.ts: 85ms, application-code: 1985ms)
+ GET /dashboard 200 in 1763ms (next.js: 41ms, proxy.ts: 156ms, application-code: 1566ms)
+ GET /dashboard/users 307 in 1105ms (next.js: 22ms, proxy.ts: 424ms, application-code: 659ms)
+ GET /dashboard 200 in 945ms (next.js: 30ms, proxy.ts: 70ms, application-code: 845ms)
+ GET /dashboard/users 200 in 1596ms (next.js: 26ms, proxy.ts: 487ms, application-code: 1082ms)
+ GET /login 200 in 185ms (next.js: 21ms, proxy.ts: 16ms, application-code: 148ms)
+ GET /login 200 in 134ms (next.js: 20ms, proxy.ts: 30ms, application-code: 84ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ POST /api/auth/login 401 in 416ms (next.js: 33ms, proxy.ts: 23ms, application-code: 359ms)
+ POST /api/auth/login 401 in 567ms (next.js: 42ms, proxy.ts: 26ms, application-code: 499ms)
+ POST /api/auth/login 401 in 402ms (next.js: 24ms, proxy.ts: 20ms, application-code: 358ms)
+ POST /api/auth/login 401 in 520ms (next.js: 29ms, proxy.ts: 24ms, application-code: 466ms)
+ POST /api/auth/login 200 in 792ms (next.js: 45ms, proxy.ts: 53ms, application-code: 694ms)
+ GET /dashboard 200 in 2.9s (next.js: 62ms, proxy.ts: 174ms, application-code: 2.7s)
+ GET /dashboard/superadmin 200 in 2.1s (next.js: 565ms, proxy.ts: 178ms, application-code: 1379ms)

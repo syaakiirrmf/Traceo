@@ -1,10 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import { editTanahJV } from '@/lib/actions/tanah_jv'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { ActionForm } from '@/components/forms/ActionForm'
+import { SubmitButton } from '@/components/ui/SubmitButton'
 import type { Metadata } from 'next'
+import type { UserRole } from '@/types'
 
 export const metadata: Metadata = { title: 'Edit Land Parcel' }
 
@@ -23,8 +27,12 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
     .eq('auth_id', authUser.id)
     .single()
 
-  if (!userProfile || !hasPermission(userProfile.peranan, 'edit_fasiliti')) {
-    redirect('/dashboard/tanah-jv')
+  if (!userProfile) redirect('/login')
+
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/tanah-jv')
+
+  if (!hasPermission(userProfile.peranan, 'edit_fasiliti')) {
+    redirect(`/dashboard/tanah-jv/${id}`)
   }
 
   const { data: tanah } = await supabase.from('tanah_jv').select('*').eq('id', id).single()
@@ -56,10 +64,10 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      <form action={action} className="space-y-5">
+      <ActionForm action={action} className="space-y-5">
         {/* Tajuk */}
         <Section title="Title — Land Title Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="State"
               name="negeri"
@@ -75,7 +83,7 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
               placeholder="e.g. Seremban"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="Town / Village / Mukim"
               name="bandar_mukim"
@@ -91,7 +99,7 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
               placeholder="e.g. Gemencheh"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="No. Lot"
               name="no_lot"
@@ -116,7 +124,7 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
 
         {/* Luas & Nilaian */}
         <Section title="Area &amp; Valuation">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="Area (m²)"
               name="luas_meter_persegi"
@@ -150,12 +158,7 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
         </Section>
 
         <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            className="px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium hover:bg-[var(--color-brand-hover)] transition-colors shadow-[var(--shadow-sm)]"
-          >
-            Save Changes
-          </button>
+          <SubmitButton>Save Changes</SubmitButton>
           <Link
             href={`/dashboard/tanah-jv/${id}`}
             className="px-6 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] transition-colors"
@@ -163,7 +166,7 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
             Cancel
           </Link>
         </div>
-      </form>
+      </ActionForm>
     </div>
   )
 }

@@ -143,7 +143,14 @@ export function UsersTable({
                           <p className="font-semibold text-[var(--color-text-primary)] leading-snug">
                             {u.nama}
                           </p>
-                          <p className="text-[11px] text-[var(--color-text-tertiary)]">{u.emel}</p>
+                          <p className="text-[11px] text-[var(--color-text-tertiary)] flex items-center gap-1.5">
+                            {u.emel}
+                            {!u.auth_id && (
+                              <span className="inline-flex items-center px-1.5 py-px rounded-full border border-amber-500/30 bg-amber-500/10 text-[10px] font-medium text-amber-700">
+                                No login
+                              </span>
+                            )}
+                          </p>
                         </div>
                       </div>
                     </td>

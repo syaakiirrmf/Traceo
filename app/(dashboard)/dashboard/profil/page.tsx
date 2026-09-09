@@ -105,6 +105,20 @@ export default async function ProfilPage({
         <form action={tukarKataLaluan} className="space-y-4">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-[var(--color-text-primary)]">
+              Current Password <span className="text-[var(--color-danger)]">*</span>
+            </label>
+            <input
+              type="password"
+              name="kata_laluan_semasa"
+              required
+              minLength={8}
+              placeholder="Enter current password"
+              autoComplete="current-password"
+              className="w-full h-10 px-3.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-[var(--color-text-primary)]">
               New Password <span className="text-[var(--color-danger)]">*</span>
             </label>
             <input

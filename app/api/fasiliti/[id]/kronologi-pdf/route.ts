@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import * as Sentry from '@sentry/nextjs'
+import { requireApiUser } from '@/lib/auth/api'
+import { rateLimitFailOpen } from '@/lib/ratelimit'
+import { tulisAudit } from '@/lib/audit'
 import { generateKronologiPdf } from '@/lib/pdf/kronologiPdfme'
 import { format } from 'date-fns'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
+  const authed = await requireApiUser('jana_kronologi')
+  if (authed.error) return authed.error
+  const { supabase, profile: userProfile } = authed
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const rl = await rateLimitFailOpen(`kronologi_pdf:${userProfile.id}`, 20, 60, 'kronologi_pdf')
+  if (!rl.ok) {
+    Sentry.captureMessage('kronologi_pdf_429', { level: 'warning', extra: { userId: userProfile.id } })
+    return NextResponse.json(
+      { error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.` },
+      { status: 429 }
+    )
+  }
 
   try {
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('id, peranan')
-      .eq('auth_id', authUser.id)
-      .single()
-
-    if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
 
     // Pegawai Susulan assignment check
     if (userProfile.peranan === 'pegawai_susulan') {
@@ -49,16 +51,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const kod = (fasiliti.kod_rujukan ?? 'JV').replace('-', '')
     const filename = `KRONOLOGI_${kod}_${today}.pdf`
 
-    // Audit log
-    if (userProfile) {
-      await supabase.from('log_audit').insert({
-        user_id: userProfile.id,
-        tindakan: 'jana_kronologi',
-        entiti_jenis: 'fasiliti',
-        entiti_id: id,
-        butiran: { format: 'pdf', filename },
-      })
-    }
+    // Audit log (best-effort via RPC)
+    await tulisAudit(supabase, 'jana_kronologi', 'fasiliti', id, { format: 'pdf', filename })
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
@@ -68,6 +62,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     })
   } catch (error) {
+    Sentry.captureException(error)
     console.error('[PDF Export Error]', error)
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
   }

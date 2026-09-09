@@ -1,27 +1,23 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
-import { createClient } from '@/lib/supabase/server'
-import { hasPermission } from '@/lib/auth/permissions'
+import { requireApiUser } from '@/lib/auth/api'
+import { rateLimitFailOpen } from '@/lib/ratelimit'
+import { tulisAudit } from '@/lib/audit'
 import * as XLSX from 'xlsx'
 import { format } from 'date-fns'
 
 export async function GET() {
-  const supabase = await createClient()
+  const authed = await requireApiUser('eksport_excel')
+  if (authed.error) return authed.error
+  const { supabase, profile: userProfile } = authed
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('id, peranan')
-    .eq('auth_id', authUser.id)
-    .single()
-  if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
-
-  if (!hasPermission(userProfile.peranan, 'eksport_excel')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const rl = await rateLimitFailOpen(`export_tanah:${userProfile.id}`, 10, 60, 'export_tanah')
+  if (!rl.ok) {
+    Sentry.captureMessage('export_tanah_429', { level: 'warning', extra: { userId: userProfile.id } })
+    return NextResponse.json(
+      { error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.` },
+      { status: 429 }
+    )
   }
 
   try {
@@ -31,6 +27,7 @@ export async function GET() {
         'negeri, daerah, bandar_mukim, tempat, no_lot, tarikh_daftar, no_hak_milik, luas_meter_persegi, anggaran_nilaian, catatan'
       )
       .order('dicipta_pada', { ascending: true })
+      .limit(2000)
 
     if (!tanahList) {
       return NextResponse.json({ error: 'No data' }, { status: 404 })
@@ -71,12 +68,7 @@ export async function GET() {
     const today = format(new Date(), 'ddMMyyyy')
     const filename = `TANAH_JV_${today}.xlsx`
 
-    await supabase.from('log_audit').insert({
-      user_id: userProfile.id,
-      tindakan: 'eksport_excel',
-      entiti_jenis: 'tanah_jv',
-      butiran: { format: 'xlsx', filename },
-    })
+    await tulisAudit(supabase, 'eksport_excel', 'tanah_jv', null, { format: 'xlsx', filename })
 
     return new NextResponse(buffer, {
       status: 200,

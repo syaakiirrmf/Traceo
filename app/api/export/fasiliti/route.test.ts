@@ -1,6 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import type { Mock } from 'vitest'
-import { NextRequest } from 'next/server'
 import * as XLSX from 'xlsx'
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -15,6 +14,7 @@ interface FromChain {
   eq: Mock
   in: Mock
   order: Mock
+  limit?: Mock
   insert: Mock
   single: Mock
   maybeSingle: Mock
@@ -29,21 +29,29 @@ function makeFrom() {
         eq: vi.fn(),
         in: vi.fn(),
         order: vi.fn(),
+        limit: vi.fn(),
         insert: vi.fn(),
         single: vi.fn(),
         maybeSingle: vi.fn(),
       }
       for (const key of Object.keys(chain[table]) as Array<keyof FromChain>) {
-        if (key !== 'select') {
+        if (key !== 'select' && key !== 'limit') {
           chain[table][key] = vi.fn(function (this: unknown) {
             return this
           })
         }
       }
+      chain[table].limit = vi.fn(function (this: unknown) {
+        return this
+      })
     }
     return chain[table]
   })
   return { fromFn, chain }
+}
+
+function mockRpc() {
+  return vi.fn(async () => ({ error: null }))
 }
 
 describe('GET /api/export/fasiliti', () => {
@@ -70,7 +78,7 @@ describe('GET /api/export/fasiliti', () => {
       auth: { getUser: vi.fn(async () => ({ data: { user: null } })) },
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
-    const res = await exportGet(new NextRequest('http://localhost/api/export/fasiliti'))
+    const res = await exportGet()
     expect(res.status).toBe(401)
     expect((await res.json()).error).toBe('Unauthorized')
   })
@@ -111,7 +119,7 @@ describe('GET /api/export/fasiliti', () => {
       }),
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
-    const res = await exportGet(new NextRequest('http://localhost/api/export/fasiliti'))
+    const res = await exportGet()
     expect(res.status).toBe(403)
   })
 
@@ -131,11 +139,11 @@ describe('GET /api/export/fasiliti', () => {
       eq: vi.fn().mockReturnThis(),
       in: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
+      limit: vi.fn(async () => ({ data: [fasilitiRow] })),
       insert: vi.fn().mockReturnThis(),
       single: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockReturnThis(),
     }
-    chain.fasiliti.order.mockResolvedValue({ data: [fasilitiRow] })
     chain.log_audit = {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -149,10 +157,11 @@ describe('GET /api/export/fasiliti', () => {
     const supabase = {
       auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })) },
       from: fromFn,
+      rpc: mockRpc(),
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
 
-    const res = await exportGet(new NextRequest('http://localhost/api/export/fasiliti'))
+    const res = await exportGet()
     expect(res.status).toBe(200)
     const contentType = res.headers.get('content-type')
     expect(contentType).toContain('spreadsheetml')
@@ -187,18 +196,21 @@ describe('GET /api/export/fasiliti', () => {
       eq: vi.fn().mockReturnThis(),
       in: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
+      limit: vi.fn(async () => ({ data: null })),
       insert: vi.fn().mockReturnThis(),
       single: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockReturnThis(),
     }
-    chain.fasiliti.order.mockResolvedValue({ data: null })
+    chain.fasiliti.order.mockReturnThis()
     const supabase = {
       auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })) },
       from: fromFn,
+      rpc: mockRpc(),
     }
     ;(createClient as Mock).mockResolvedValue(supabase)
 
-    const res = await exportGet(new NextRequest('http://localhost/api/export/fasiliti'))
+    const res = await exportGet()
     expect(res.status).toBe(404)
   })
 })
+

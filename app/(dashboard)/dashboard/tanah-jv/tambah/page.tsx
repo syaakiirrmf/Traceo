@@ -1,10 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import { tambahTanahJV } from '@/lib/actions/tanah_jv'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { ActionForm } from '@/components/forms/ActionForm'
+import { SubmitButton } from '@/components/ui/SubmitButton'
 import type { Metadata } from 'next'
+import type { UserRole } from '@/types'
 
 export const metadata: Metadata = { title: 'Add Land Parcel' }
 
@@ -21,7 +25,11 @@ export default async function TambahTanahJVPage() {
     .eq('auth_id', authUser.id)
     .single()
 
-  if (!userProfile || !hasPermission(userProfile.peranan, 'tambah_fasiliti')) {
+  if (!userProfile) redirect('/login')
+
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/tanah-jv')
+
+  if (!hasPermission(userProfile.peranan, 'tambah_fasiliti')) {
     redirect('/dashboard/tanah-jv')
   }
 
@@ -44,14 +52,14 @@ export default async function TambahTanahJVPage() {
         </div>
       </div>
 
-      <form action={tambahTanahJV} className="space-y-5">
+      <ActionForm action={tambahTanahJV} className="space-y-5">
         {/* Tajuk / Title */}
         <Section title="Title — Land Title Information">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="State" name="negeri" required placeholder="e.g. Negeri Sembilan" />
             <Field label="District" name="daerah" required placeholder="e.g. Seremban" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="Town / Village / Mukim"
               name="bandar_mukim"
@@ -60,7 +68,7 @@ export default async function TambahTanahJVPage() {
             />
             <Field label="Location" name="tempat" required placeholder="e.g. Gemencheh" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="No. Lot" name="no_lot" required placeholder="e.g. LOT 1979" />
             <Field label="Title No." name="no_hak_milik" placeholder="e.g. GM 1837" />
           </div>
@@ -69,7 +77,7 @@ export default async function TambahTanahJVPage() {
 
         {/* Luas & Nilaian */}
         <Section title="Area &amp; Valuation">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="Area (m²)"
               name="luas_meter_persegi"
@@ -100,12 +108,7 @@ export default async function TambahTanahJVPage() {
         </Section>
 
         <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            className="px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium hover:bg-[var(--color-brand-hover)] transition-colors shadow-[var(--shadow-sm)]"
-          >
-            Register Parcel
-          </button>
+          <SubmitButton>Register Parcel</SubmitButton>
           <Link
             href="/dashboard/tanah-jv"
             className="px-6 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] transition-colors"
@@ -113,7 +116,7 @@ export default async function TambahTanahJVPage() {
             Cancel
           </Link>
         </div>
-      </form>
+      </ActionForm>
     </div>
   )
 }

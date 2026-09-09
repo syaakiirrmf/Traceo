@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import * as Sentry from '@sentry/nextjs'
+import { requireApiUser } from '@/lib/auth/api'
+import { rateLimitFailOpen } from '@/lib/ratelimit'
+import { tulisAudit } from '@/lib/audit'
 import { generateTanahKronologiDocx } from '@/lib/actions/tanah_kronologi'
-import { hasPermission } from '@/lib/auth/permissions'
 import { format } from 'date-fns'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
+  const authed = await requireApiUser('lihat_tanah_jv')
+  if (authed.error) return authed.error
+  const { supabase, profile: userProfile } = authed
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const rl = await rateLimitFailOpen(`tanah_kronologi:${userProfile.id}`, 20, 60, 'tanah_kronologi')
+  if (!rl.ok) {
+    Sentry.captureMessage('tanah_kronologi_429', { level: 'warning', extra: { userId: userProfile.id } })
+    return NextResponse.json(
+      { error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.` },
+      { status: 429 }
+    )
+  }
+  if (userProfile.peranan === 'pegawai_susulan') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   try {
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('id, peranan')
-      .eq('auth_id', authUser.id)
-      .single()
-
-    if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
-
-    if (!hasPermission(userProfile.peranan, 'jana_kronologi')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     const buffer = await generateTanahKronologiDocx(id)
 
@@ -35,16 +35,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const kod = (tanah?.no_lot ?? 'TANAH').replace(/[^a-zA-Z0-9]/g, '')
     const filename = `KRONOLOGI_${kod}_${today}.docx`
 
-    // Audit log
-    if (userProfile) {
-      await supabase.from('log_audit').insert({
-        user_id: userProfile.id,
-        tindakan: 'jana_kronologi',
-        entiti_jenis: 'tanah_jv',
-        entiti_id: id,
-        butiran: { format: 'docx', filename },
-      })
-    }
+    // Audit log (best-effort via RPC)
+    await tulisAudit(supabase, 'jana_kronologi', 'tanah_jv', id, { format: 'docx', filename })
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
@@ -54,6 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     })
   } catch (error) {
+    Sentry.captureException(error)
     console.error('[Tanah Kronologi Export Error]', error)
     return NextResponse.json({ error: 'Failed to generate document' }, { status: 500 })
   }

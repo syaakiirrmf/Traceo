@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState } from 'react'
 import {
-  ShieldCheck,
   Users,
   Lock,
   Unlock,
@@ -17,8 +16,6 @@ import {
   LayoutGrid,
   MapPin,
   Building2,
-  HelpCircle,
-  Eye,
   Check,
   X,
   RefreshCw,
@@ -181,6 +178,7 @@ export function SuperadminPanel({
   initialFeatureOverrides,
   initialPageOverrides,
 }: SuperadminPanelProps) {
+  void currentUser // dikekalkan dalam props API; tidak dipaparkan di panel
   const [users] = useState<User[]>(initialUsers)
   const [selectedUserId, setSelectedUserId] = useState<string>(
     initialUsers.find((u) => u.peranan !== 'superadmin')?.id || initialUsers[0]?.id || ''
@@ -192,7 +190,6 @@ export function SuperadminPanel({
   const [featureOverrides, setFeatureOverrides] = useState<FeatureAccess[]>(initialFeatureOverrides)
   const [pageOverrides, setPageOverrides] = useState<PageAccess[]>(initialPageOverrides)
 
-  const [isPending, startTransition] = useTransition()
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
 
   const selectedUser = users.find((u) => u.id === selectedUserId)
@@ -284,8 +281,9 @@ export function SuperadminPanel({
 
       if (!res.ok) throw new Error('Failed to update page access')
       showStatus(`Page access for ${pagePath} changed to ${newAllowed ? 'ALLOWED' : 'BLOCKED (Under Dev)'}`)
-    } catch (err: any) {
-      showStatus(err.message || 'An error occurred', 'error')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An error occurred'
+      showStatus(message, 'error')
     }
   }
 
@@ -305,8 +303,9 @@ export function SuperadminPanel({
         { method: 'DELETE' }
       )
       showStatus(`Access to ${pagePath} restored to original role defaults`)
-    } catch (err: any) {
-      showStatus(err.message || 'Reset error', 'error')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Reset error'
+      showStatus(message, 'error')
     }
   }
 
@@ -347,8 +346,9 @@ export function SuperadminPanel({
 
       if (!res.ok) throw new Error('Failed to update feature access')
       showStatus(`Feature ${featureKey} changed to ${newAllowed ? 'ALLOWED' : 'BLOCKED'}`)
-    } catch (err: any) {
-      showStatus(err.message || 'An error occurred', 'error')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An error occurred'
+      showStatus(message, 'error')
     }
   }
 
@@ -368,8 +368,9 @@ export function SuperadminPanel({
         { method: 'DELETE' }
       )
       showStatus(`Feature ${featureKey} restored to original role defaults`)
-    } catch (err: any) {
-      showStatus(err.message || 'Reset error', 'error')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Reset error'
+      showStatus(message, 'error')
     }
   }
 
@@ -407,8 +408,9 @@ export function SuperadminPanel({
         ),
       ])
       showStatus(`All custom controls for ${selectedUser.nama} have been reset to defaults.`)
-    } catch (e) {
-      showStatus('Error while resetting all controls', 'error')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error while resetting all controls'
+      showStatus(message, 'error')
     }
   }
 

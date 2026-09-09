@@ -6,7 +6,7 @@ import { formatRM, formatArea } from '../summary/_helpers'
 import { TanahMDTable } from '../summary/tanah-md/TanahMDTable'
 import { ExportButton } from '@/components/ExportButton'
 import { hasPermission } from '@/lib/auth/permissions'
-import { PageAccessGuard } from '@/components/ui/PageAccessGuard'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import type { Metadata } from 'next'
 import type { UserRole } from '@/types'
 
@@ -26,6 +26,8 @@ export default async function TanahJVPage() {
     .single()
   if (!userProfile) redirect('/login')
 
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/tanah-jv')
+
   const { data: tanahList } = await supabase
     .from('tanah_jv')
     .select(
@@ -40,13 +42,7 @@ export default async function TanahJVPage() {
   const canAdd = hasPermission(userProfile.peranan, 'tambah_fasiliti')
 
   return (
-    <PageAccessGuard
-      userId={userProfile.id}
-      role={userProfile.peranan as UserRole}
-      pagePath="/dashboard/tanah-jv"
-      featureName="Tanah MD (JV Registry)"
-    >
-      <div className="space-y-5 max-w-[1600px]">
+    <div className="space-y-5 max-w-[1600px]">
         {/* Header: Title + Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div className="flex items-center gap-3">
@@ -115,6 +111,5 @@ export default async function TanahJVPage() {
         {/* Interactive Tanah MD Client Table */}
         <TanahMDTable rows={rows} />
       </div>
-    </PageAccessGuard>
   )
 }

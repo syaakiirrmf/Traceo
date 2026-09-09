@@ -112,8 +112,8 @@ export function FollowUpCalendar({
         )}
       </div>
 
-      {/* Grid */}
-      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden">
+      {/* Grid — disorok di mobile (sel ~48px tidak terbaca); agenda di bawah jadi paparan utama. */}
+      <div className="hidden sm:block bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden">
         <div className="grid grid-cols-7 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]">
           {WEEKDAYS.map((d) => (
             <div
@@ -191,14 +191,20 @@ export function FollowUpCalendar({
         </div>
       </div>
 
-      {/* Upcoming list */}
-      {totalInMonth > 0 && (
-        <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden">
-          <div className="px-4 py-3 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
-              Upcoming follow-ups this month
-            </span>
-          </div>
+      {/* Agenda — paparan utama di mobile, senarai penuh di desktop. */}
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden">
+        <div className="px-4 py-3 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)] flex items-center justify-between">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+            <span className="sm:hidden">Senarai susulan</span>
+            <span className="hidden sm:inline">Upcoming follow-ups this month</span>
+          </span>
+          <span className="text-[11px] text-[var(--color-text-tertiary)]">{totalInMonth} events</span>
+        </div>
+        {totalInMonth === 0 ? (
+          <p className="px-4 py-6 text-xs text-[var(--color-text-tertiary)] text-center">
+            Tiada susulan pada bulan ini.
+          </p>
+        ) : (
           <ul className="divide-y divide-[var(--color-border)]">
             {events
               .filter((ev) => isSameMonth(parseISO(ev.tarikh), cursor))
@@ -241,8 +247,8 @@ export function FollowUpCalendar({
                 </li>
               ))}
           </ul>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

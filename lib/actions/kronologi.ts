@@ -1,6 +1,10 @@
 'use server'
 
+import 'server-only'
+
 import { createClient } from '@/lib/supabase/server'
+import { hasPermission } from '@/lib/auth/permissions'
+import { mapLimit } from '@/lib/storage/cloudinary'
 import {
   Document,
   Packer,
@@ -46,7 +50,7 @@ const STATUS: Record<string, string> = {
 
 async function imageParagraph(url: string): Promise<Paragraph | null> {
   try {
-    const res = await fetch(url)
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) })
     if (!res.ok) return null
     const buffer = Buffer.from(await res.arrayBuffer())
 
@@ -80,6 +84,28 @@ async function imageParagraph(url: string): Promise<Paragraph | null> {
 
 export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer> {
   const supabase = await createClient()
+
+  // Defense-in-depth: jangan bergantung 100% pada caller route.
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
+  if (!authUser) throw new Error('Not logged in')
+  const { data: peminta } = await supabase
+    .from('users')
+    .select('id, peranan, status')
+    .eq('auth_id', authUser.id)
+    .single()
+  if (!peminta || peminta.status === 'tidak_aktif') throw new Error('Access denied')
+  if (!hasPermission(peminta.peranan, 'jana_kronologi')) throw new Error('Access denied')
+  if (peminta.peranan === 'pegawai_susulan') {
+    const { data: assignment } = await supabase
+      .from('fasiliti_pegawai')
+      .select('fasiliti_id')
+      .eq('fasiliti_id', fasilitiId)
+      .eq('user_id', peminta.id)
+      .maybeSingle()
+    if (!assignment) throw new Error('Access denied')
+  }
 
   const [{ data: fasiliti }, { data: susulan }] = await Promise.all([
     supabase.from('fasiliti').select('*').eq('id', fasilitiId).single(),
@@ -240,27 +266,29 @@ export async function generateKronologiDocx(fasilitiId: string): Promise<Buffer>
     const lampiran = (
       s as { lampiran?: Array<{ url_fail: string; jenis_fail: string; nama_asal: string }> }
     ).lampiran
-    for (const l of lampiran ?? []) {
-      if (l.jenis_fail === 'imej') {
-        const img = await imageParagraph(l.url_fail)
-        if (img) susulanRows.push(img)
-      } else {
-        susulanRows.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Attachment: ${l.nama_asal}`,
-                italics: true,
-                size: 18,
-                color: '666666',
-                font: 'Arial',
-              }),
-            ],
-            indent: { left: 360 },
-            spacing: { after: 120 },
-          })
-        )
-      }
+    // Muat turun imej selari (concurrency 4) — bukan sequential seperti sebelum ini.
+    const imej = (lampiran ?? []).filter((l) => l.jenis_fail === 'imej')
+    const dokumen = (lampiran ?? []).filter((l) => l.jenis_fail !== 'imej')
+    const paras = await mapLimit(imej, 4, (l) => imageParagraph(l.url_fail))
+    for (const img of paras) {
+      if (img) susulanRows.push(img)
+    }
+    for (const l of dokumen) {
+      susulanRows.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Attachment: ${l.nama_asal}`,
+              italics: true,
+              size: 18,
+              color: '666666',
+              font: 'Arial',
+            }),
+          ],
+          indent: { left: 360 },
+          spacing: { after: 120 },
+        })
+      )
     }
 
     susulanRows.push(

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { GoogleGenerativeAI, type Content } from '@google/generative-ai'
 import { createClient } from '@/lib/supabase/server'
-import { rateLimit } from '@/lib/ratelimit'
+import { hasPermission } from '@/lib/auth/permissions'
+import { rateLimitFailOpen, parseClientIp } from '@/lib/ratelimit'
 import { toolDeclarations, SYSTEM_PROMPT, AI_ROLE_SCOPE } from '@/lib/ai/tools'
 import { dispatchAiTool, type AiUserContext } from '@/lib/ai/functions'
 import { cleanAiResponse, detectStructuredRequest } from '@/lib/ai/postProcess'
@@ -22,7 +23,32 @@ function safeJson<T>(value: T): T {
   return value
 }
 
+const MAX_MESSAGE_CHARS = 4000
+const MAX_BODY_BYTES = 128 * 1024 // 128KB — halang bil Gemini + DoS
+
+function checkOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get('origin')
+  if (!origin) return true
+  try {
+    const o = new URL(origin)
+    const host =
+      request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? ''
+    return o.host === host
+  } catch {
+    return false
+  }
+}
+
 export async function POST(request: NextRequest) {
+  if (!checkOrigin(request)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
+
+  const contentLength = Number(request.headers.get('content-length') ?? 0)
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: 'Request too large' }, { status: 413 })
+  }
+
   const supabase = await createClient()
 
   const {
@@ -34,16 +60,31 @@ export async function POST(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('id, peranan')
+    .select('id, peranan, status')
     .eq('auth_id', authUser.id)
     .single()
   if (!profile) {
     return NextResponse.json({ error: 'User profile not found' }, { status: 401 })
   }
+  if (profile.status === 'tidak_aktif') {
+    await supabase.auth.signOut()
+    return NextResponse.json({ error: 'Account is disabled.' }, { status: 403 })
+  }
+
+  if (!hasPermission(profile.peranan, 'lihat_assistant')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   // ─── Rate limit: cap AI spend per user (Gemini is metered) ────────────────
-  const rl = await rateLimit(`chat:${profile.id}`, 30, 60)
+  // Fail-OPEN + log bila Redis down (jangan 500kan chat), fail-CLOSED tidak
+  // diperlukan di sini kerana auth + permission sudah disemak di atas.
+  const ip = parseClientIp(
+    request.headers.get('x-forwarded-for'),
+    request.headers.get('x-real-ip')
+  )
+  const rl = await rateLimitFailOpen(`chat:${profile.id}`, 30, 60, 'chat')
   if (!rl.ok) {
+    Sentry.captureMessage('chat_429', { level: 'warning', extra: { userId: profile.id, ip } })
     return NextResponse.json(
       {
         error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`,
@@ -59,7 +100,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : []
+  const messages = Array.isArray(body.messages)
+    ? body.messages
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant'))
+        .map((m) => ({
+          role: m.role as 'user' | 'assistant',
+          content: typeof m.content === 'string' ? m.content.slice(0, MAX_MESSAGE_CHARS) : '',
+        }))
+        .filter((m) => m.content.length > 0)
+        .slice(-12)
+    : []
 
   // ─── Chat history persistence ─────────────────────────────────────────
   // Reuse the incoming session id when continuing a conversation; otherwise

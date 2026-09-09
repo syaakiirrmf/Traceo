@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import { hasPermission } from './permissions'
+import { hasPermission, PAGE_PERMISSIONS } from './permissions'
+import { redirect } from 'next/navigation'
 import type { UserRole, FeatureKey, PageKey } from '@/types'
 
 /**
@@ -56,9 +57,26 @@ export async function checkPageAccess(
     return override.is_allowed
   }
 
-  // Default: all authenticated roles can access most pages
-  // unless there's a specific restriction
-  return true
+  // Otherwise fall back to the static page→permission matrix.
+  // Unmapped pages default to DENY — never allow by default.
+  const permission = PAGE_PERMISSIONS[pagePath]
+  if (!permission) return false
+  return hasPermission(role, permission)
+}
+
+/**
+ * Server-side page guard: redirects to `fallbackPath` when the user is not
+ * allowed to view the page. Call this BEFORE fetching page data so nothing
+ * sensitive is even queried. Mirrors the strict superadmin/page.tsx pattern.
+ */
+export async function assertPageAccess(
+  userId: string,
+  role: UserRole,
+  pagePath: PageKey,
+  fallbackPath = '/dashboard'
+): Promise<void> {
+  const allowed = await checkPageAccess(userId, role, pagePath)
+  if (!allowed) redirect(fallbackPath)
 }
 
 /**

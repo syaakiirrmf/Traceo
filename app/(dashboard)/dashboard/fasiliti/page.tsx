@@ -8,6 +8,7 @@ import { FasilitiPagination } from './FasilitiPagination'
 import { ExportButton } from '@/components/ExportButton'
 import { formatCurrency } from '@/lib/utils'
 import { hasPermission } from '@/lib/auth/permissions'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import { PageAccessGuard } from '@/components/ui/PageAccessGuard'
 import type { Metadata } from 'next'
 import type { UserRole } from '@/types'
@@ -131,6 +132,8 @@ export default async function FasilitiPage({
 
   if (!userProfile) redirect('/login')
 
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/fasiliti')
+
   const isPegawai = userProfile.peranan === 'pegawai_susulan'
 
   // For pegawai_susulan: scope to only assigned facilities
@@ -184,6 +187,14 @@ export default async function FasilitiPage({
 
   const { data: fasiliti } = await query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1)
   const canAdd = hasPermission(userProfile.peranan, 'tambah_fasiliti')
+  const canExport = hasPermission(userProfile.peranan, 'eksport_excel')
+
+  const exportParams = new URLSearchParams()
+  if (params.q) exportParams.set('q', params.q)
+  if (params.status) exportParams.set('status', params.status)
+  if (params.kategori) exportParams.set('kategori', params.kategori)
+  const exportQs = exportParams.toString()
+  const exportHref = `/api/export/fasiliti${exportQs ? `?${exportQs}` : ''}`
 
   return (
     <PageAccessGuard
@@ -210,7 +221,7 @@ export default async function FasilitiPage({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <ExportButton href="/api/export/fasiliti" />
+            {canExport && <ExportButton href={exportHref} />}
             {canAdd && (
               <Link
                 href="/dashboard/fasiliti/tambah"
@@ -345,7 +356,7 @@ export default async function FasilitiPage({
                         <td className="px-4 py-3 text-center">
                           <Link
                             href={`/dashboard/fasiliti/${f.id}`}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline"
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline min-h-[44px] px-2"
                           >
                             Open
                             <ArrowUpRight size={12} />

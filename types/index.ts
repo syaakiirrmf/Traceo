@@ -15,6 +15,7 @@ export interface User {
   peranan: UserRole
   status: UserStatus
   dicipta_pada: string
+  auth_id?: string | null
 }
 
 export interface Fasiliti {
@@ -200,6 +201,7 @@ export type FeatureKey =
   | 'edit_fasiliti'
   | 'padam_fasiliti'
   | 'tambah_susulan'
+  | 'lihat_susulan'
   | 'edit_susulan'
   | 'padam_susulan'
   | 'jana_kronologi'

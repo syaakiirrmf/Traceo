@@ -5,7 +5,9 @@ import { ArrowLeft, Plus } from 'lucide-react'
 import { formatRM, formatArea } from '../_helpers'
 import { TanahMDTable } from './TanahMDTable'
 import { hasPermission } from '@/lib/auth/permissions'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import type { Metadata } from 'next'
+import type { UserRole } from '@/types'
 
 export const metadata: Metadata = { title: 'Tanah MD (JV) — Land Registry' }
 
@@ -21,6 +23,8 @@ export default async function TanahMDPage() {
     .eq('auth_id', authUser.id)
     .single()
   if (!userProfile) redirect('/login')
+
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/tanah-jv')
 
   const { data: tanah } = await supabase
     .from('tanah_jv')

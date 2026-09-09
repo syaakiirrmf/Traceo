@@ -1,28 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
-import { createClient } from '@/lib/supabase/server'
-import { hasPermission } from '@/lib/auth/permissions'
-import type { UserRole } from '@/types'
+import { requireApiUser } from '@/lib/auth/api'
+import { rateLimitFailOpen } from '@/lib/ratelimit'
+import { tulisAudit } from '@/lib/audit'
 import { generateRingkasanPdf, type RingkasanData } from '@/lib/pdf/ringkasanPdfme'
 import { format } from 'date-fns'
 
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
+export async function GET() {
+  const authed = await requireApiUser('eksport_ringkasan')
+  if (authed.error) return authed.error
+  const { supabase, profile: userProfile } = authed
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('id, peranan')
-    .eq('auth_id', authUser.id)
-    .single()
-  if (!userProfile) return NextResponse.json({ error: 'Profile not found' }, { status: 401 })
-
-  if (!hasPermission(userProfile.peranan as UserRole, 'eksport_ringkasan')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const rl = await rateLimitFailOpen(`export_ringkasan:${userProfile.id}`, 10, 60, 'export_ringkasan')
+  if (!rl.ok) {
+    Sentry.captureMessage('export_ringkasan_429', { level: 'warning', extra: { userId: userProfile.id } })
+    return NextResponse.json(
+      { error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.` },
+      { status: 429 }
+    )
   }
 
   try {
@@ -45,7 +40,7 @@ export async function GET(request: NextRequest) {
       query = query.in('id', assignedIds)
     }
 
-    const { data: fasiliti } = await query
+    const { data: fasiliti } = await query.limit(2000)
     if (!fasiliti) {
       return NextResponse.json({ error: 'No data' }, { status: 404 })
     }
@@ -83,12 +78,7 @@ export async function GET(request: NextRequest) {
     const today = format(new Date(), 'ddMMyyyy')
     const filename = `RINGKASAN_PORTFOLIO_${today}.pdf`
 
-    await supabase.from('log_audit').insert({
-      user_id: userProfile.id,
-      tindakan: 'eksport_ringkasan',
-      entiti_jenis: 'fasiliti',
-      butiran: { format: 'pdf', filename },
-    })
+    await tulisAudit(supabase, 'eksport_ringkasan', 'fasiliti', null, { format: 'pdf', filename })
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,

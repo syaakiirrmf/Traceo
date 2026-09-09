@@ -44,7 +44,7 @@ export function DeleteTanahSusulanButton({
       <button
         onClick={() => setOpen(true)}
         title="Delete follow-up"
-        className="w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)] transition-colors"
+        className="w-9 h-9 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)] transition-colors"
       >
         <Trash2 size={13} />
       </button>

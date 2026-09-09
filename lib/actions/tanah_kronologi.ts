@@ -1,6 +1,10 @@
 'use server'
 
+import 'server-only'
+
 import { createClient } from '@/lib/supabase/server'
+import { hasPermission } from '@/lib/auth/permissions'
+import { mapLimit } from '@/lib/storage/cloudinary'
 import {
   Document,
   Packer,
@@ -40,7 +44,7 @@ function fmtArea(n: number | null | undefined) {
 
 async function imageParagraph(url: string): Promise<Paragraph | null> {
   try {
-    const res = await fetch(url)
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) })
     if (!res.ok) return null
     const buffer = Buffer.from(await res.arrayBuffer())
 
@@ -74,6 +78,20 @@ async function imageParagraph(url: string): Promise<Paragraph | null> {
 
 export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffer> {
   const supabase = await createClient()
+
+  // Defense-in-depth: tanah hanya untuk admin/pengurus/viewer/superadmin.
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
+  if (!authUser) throw new Error('Not logged in')
+  const { data: peminta } = await supabase
+    .from('users')
+    .select('id, peranan, status')
+    .eq('auth_id', authUser.id)
+    .single()
+  if (!peminta || peminta.status === 'tidak_aktif') throw new Error('Access denied')
+  if (!hasPermission(peminta.peranan, 'jana_kronologi')) throw new Error('Access denied')
+  if (peminta.peranan === 'pegawai_susulan') throw new Error('Access denied')
 
   const [{ data: tanah }, { data: susulan }] = await Promise.all([
     supabase.from('tanah_jv').select('*').eq('id', tanahId).single(),
@@ -187,27 +205,28 @@ export async function generateTanahKronologiDocx(tanahId: string): Promise<Buffe
     const lampiran = (
       s as { lampiran?: Array<{ url_fail: string; jenis_fail: string; nama_asal: string }> }
     ).lampiran
-    for (const l of lampiran ?? []) {
-      if (l.jenis_fail === 'imej') {
-        const img = await imageParagraph(l.url_fail)
-        if (img) susulanRows.push(img)
-      } else {
-        susulanRows.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Attachment: ${l.nama_asal}`,
-                italics: true,
-                size: 18,
-                color: '666666',
-                font: 'Arial',
-              }),
-            ],
-            indent: { left: 360 },
-            spacing: { after: 120 },
-          })
-        )
-      }
+    const imej = (lampiran ?? []).filter((l) => l.jenis_fail === 'imej')
+    const dokumen = (lampiran ?? []).filter((l) => l.jenis_fail !== 'imej')
+    const paras = await mapLimit(imej, 4, (l) => imageParagraph(l.url_fail))
+    for (const img of paras) {
+      if (img) susulanRows.push(img)
+    }
+    for (const l of dokumen) {
+      susulanRows.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Attachment: ${l.nama_asal}`,
+              italics: true,
+              size: 18,
+              color: '666666',
+              font: 'Arial',
+            }),
+          ],
+          indent: { left: 360 },
+          spacing: { after: 120 },
+        })
+      )
     }
 
     susulanRows.push(

@@ -6,7 +6,6 @@ import {
   Building2,
   Landmark,
   UserRound,
-  MapPin,
   Eye,
   FileSpreadsheet,
   Download,

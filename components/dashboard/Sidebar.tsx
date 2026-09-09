@@ -46,20 +46,20 @@ const navItems: NavItem[] = [
     href: '/dashboard/tanah-jv',
     label: 'Tanah MD (JV)',
     icon: MapPin,
-    permission: 'tambah_fasiliti',
+    permission: 'lihat_tanah_jv',
   },
   { href: '/dashboard/fasiliti', label: 'Facilities (All)', icon: Building2 },
   {
     href: '/dashboard/susulan',
     label: 'Follow-Up Calendar',
     icon: CalendarDays,
-    permission: 'tambah_susulan',
+    permission: 'lihat_susulan',
   },
   {
     href: '/dashboard/assistant',
     label: '@syaakiirr',
     icon: Sparkles,
-    permission: 'tambah_susulan',
+    permission: 'lihat_assistant',
   },
   { href: '/dashboard/users', label: 'Users', icon: Users, permission: 'urus_pengguna' },
   {

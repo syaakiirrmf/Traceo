@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, RefreshCw, LayoutDashboard, ArrowLeft } from 'lucide-react'
+import { AlertTriangle, RefreshCw, LayoutDashboard } from 'lucide-react'
 import * as Sentry from '@sentry/nextjs'
 
 export default function DashboardError({

@@ -2,7 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { tambahSusulan } from '@/lib/actions/susulan'
 import Link from 'next/link'
-import { ArrowLeft, Upload } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
+import { LampiranInput } from '@/components/susulan/LampiranInput'
+import { ActionForm } from '@/components/forms/ActionForm'
+import { SubmitButton } from '@/components/ui/SubmitButton'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Add Follow-up' }
@@ -50,7 +53,7 @@ export default async function TambahSusulanPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      <form action={action} className="space-y-5">
+      <ActionForm action={action} className="space-y-5">
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 shadow-[var(--shadow-sm)] space-y-4">
           {/* Tarikh */}
           <div className="space-y-1.5">
@@ -94,36 +97,12 @@ export default async function TambahSusulanPage({ params }: { params: Promise<{ 
             </span>
           </h2>
 
-          <label
-            htmlFor="lampiran"
-            className="flex flex-col items-center justify-center gap-2 h-28 rounded-[var(--radius-md)] border-2 border-dashed border-[var(--color-border)] hover:border-[var(--color-brand-muted)] hover:bg-[var(--color-brand-subtle)] transition-colors cursor-pointer"
-          >
-            <Upload size={20} className="text-[var(--color-text-tertiary)]" />
-            <div className="text-center">
-              <p className="text-sm text-[var(--color-text-secondary)]">Click to upload files</p>
-              <p className="text-xs text-[var(--color-text-tertiary)] mt-0.5">
-                Images (JPG, PNG) or documents (PDF, DOCX) · Max 10MB per file
-              </p>
-            </div>
-            <input
-              id="lampiran"
-              type="file"
-              name="lampiran"
-              multiple
-              accept="image/*,.pdf,.docx,.doc"
-              className="sr-only"
-            />
-          </label>
+          <LampiranInput />
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            className="px-5 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium hover:bg-[var(--color-brand-hover)] transition-colors shadow-[var(--shadow-sm)]"
-          >
-            Save follow-up
-          </button>
+          <SubmitButton>Save follow-up</SubmitButton>
           <Link
             href={`/dashboard/fasiliti/${id}`}
             className="px-5 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] transition-colors"
@@ -131,7 +110,7 @@ export default async function TambahSusulanPage({ params }: { params: Promise<{ 
             Cancel
           </Link>
         </div>
-      </form>
+      </ActionForm>
     </div>
   )
 }

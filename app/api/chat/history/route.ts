@@ -1,25 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
+import { hasPermission } from '@/lib/auth/permissions'
+import { rateLimitFailOpen } from '@/lib/ratelimit'
 
 export const runtime = 'nodejs'
+
+async function getAuthedProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
+  if (!authUser) return null
+
+  const { data: profile } = await supabase
+    .from('users')
+    .select('id, peranan, status')
+    .eq('auth_id', authUser.id)
+    .single()
+  if (!profile) return null
+  if (profile.status === 'tidak_aktif') return null
+  if (!hasPermission(profile.peranan, 'lihat_assistant')) return null
+  return profile
+}
 
 export async function GET() {
   const supabase = await createClient()
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) {
+  const profile = await getAuthedProfile(supabase)
+  if (!profile) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('id')
-    .eq('auth_id', authUser.id)
-    .single()
-  if (!profile) {
-    return NextResponse.json({ error: 'User profile not found' }, { status: 401 })
+  const rl = await rateLimitFailOpen(`chat_history:${profile.id}`, 60, 60, 'chat_history')
+  if (!rl.ok) {
+    Sentry.captureMessage('chat_history_429', { level: 'warning', extra: { userId: profile.id } })
+    return NextResponse.json(
+      { error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.` },
+      { status: 429 }
+    )
   }
 
   const { data: sessions, error } = await supabase
@@ -40,20 +58,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const { data: profile } = await supabase
-    .from('users')
-    .select('id')
-    .eq('auth_id', authUser.id)
-    .single()
+  const profile = await getAuthedProfile(supabase)
   if (!profile) {
-    return NextResponse.json({ error: 'User profile not found' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   let body: { tajuk?: string }

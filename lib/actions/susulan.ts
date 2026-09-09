@@ -4,8 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
-import { uploadFile, deleteFile, getFileType, validateFile } from '@/lib/storage/cloudinary'
+import { uploadFile, deleteFile, getFileType, validateFileBatch, verifyFileSignature, sanitizeFileName, mapLimit } from '@/lib/storage/cloudinary'
 import { rateLimitAction } from '@/lib/ratelimit'
+import { susulanSchema, fd, parseOrThrow } from '@/lib/validation'
 import { sendNewSusulanEmail, getAdminEmails, sendApprovalEmail } from '@/lib/email'
 
 async function getCurrentUser() {
@@ -17,11 +18,15 @@ async function getCurrentUser() {
 
   const { data: userProfile } = await supabase
     .from('users')
-    .select('id, peranan')
+    .select('id, peranan, status')
     .eq('auth_id', authUser.id)
     .single()
 
   if (!userProfile) throw new Error('User not found')
+  if (userProfile.status === 'tidak_aktif') {
+    await supabase.auth.signOut()
+    throw new Error('Account is disabled.')
+  }
   return { supabase, userProfile }
 }
 
@@ -70,25 +75,41 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
 
   const susulanId = crypto.randomUUID()
 
-  // Upload files to Cloudinary first (external side-effect — cannot be part of
-  // the DB transaction). If the DB transaction fails we compensate by deleting
-  // the uploaded files.
+  // Validate dahulu sebelum upload (jangan bazir bandwidth bila input rosak).
+  const susulan = parseOrThrow(susulanSchema, {
+    tarikh_susulan: fd(formData, 'tarikh_susulan'),
+    catatan: fd(formData, 'catatan'),
+  })
+
+  // Upload fail ke Cloudinary dahulu (side-effect luar — tidak boleh masuk
+  // transaksi DB). Gagal DB → fail yang dimuat naik dipadam (compensation).
+  // Muat naik selari (concurrency 3) — bukan sequential seperti sebelum ini.
   const files = formData.getAll('lampiran') as File[]
+  const batch = validateFileBatch(files)
+  if (batch.errors.length > 0) {
+    throw new Error(batch.errors.join(' '))
+  }
   const lampiran: { url_fail: string; jenis_fail: string; nama_asal: string }[] = []
-  for (const file of files) {
-    if (!file || file.size === 0) continue
-
-    const validation = validateFile(file)
-    if (!validation.valid) continue // skip invalid files
-
+  const failed: string[] = []
+  await mapLimit(batch.valid, 3, async (file) => {
+    if (!(await verifyFileSignature(file))) {
+      failed.push(`'${file.name}': kandungan fail tidak sepadan dengan jenisnya.`)
+      return
+    }
     const uploaded = await uploadFile(file, `susulan/${susulanId}`)
     if (uploaded) {
       lampiran.push({
         url_fail: uploaded.url,
         jenis_fail: getFileType(file),
-        nama_asal: file.name,
+        nama_asal: sanitizeFileName(file.name),
       })
+    } else {
+      failed.push(`'${file.name}': muat naik gagal. Cuba lagi.`)
     }
+  })
+  if (failed.length > 0) {
+    await Promise.all(lampiran.map((l) => deleteFile(l.url_fail)))
+    throw new Error(failed.join(' '))
   }
 
   // Atomic: susulan + lampiran + audit in a single transaction
@@ -96,8 +117,8 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
     p_id: susulanId,
     p_fasiliti_id: fasilitiId,
     p_tanah_id: null,
-    p_tarikh_susulan: formData.get('tarikh_susulan') as string,
-    p_catatan: formData.get('catatan') as string,
+    p_tarikh_susulan: susulan.tarikh_susulan,
+    p_catatan: susulan.catatan,
     p_lampiran: lampiran.length > 0 ? lampiran : [],
   })
 
@@ -109,7 +130,7 @@ export async function tambahSusulan(fasilitiId: string, formData: FormData) {
 
   // Notify admin/manager team of the new follow-up (best-effort, non-blocking)
   notifyNewSusulan(supabase, fasilitiId, {
-    tarikh_susulan: formData.get('tarikh_susulan') as string,
+    tarikh_susulan: susulan.tarikh_susulan,
   })
 
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
@@ -134,10 +155,14 @@ export async function editSusulan(susulanId: string, fasilitiId: string, formDat
 
   // Ownership check for pegawai_susulan is enforced inside the transaction
   // function via RLS (susulan_update policy). Atomic: update + audit.
+  const validated = parseOrThrow(susulanSchema, {
+    tarikh_susulan: fd(formData, 'tarikh_susulan'),
+    catatan: fd(formData, 'catatan'),
+  })
   const { error } = await supabase.rpc('traceo_edit_susulan', {
     p_id: susulanId,
-    p_tarikh_susulan: formData.get('tarikh_susulan') as string,
-    p_catatan: formData.get('catatan') as string,
+    p_tarikh_susulan: validated.tarikh_susulan,
+    p_catatan: validated.catatan,
   })
 
   if (error) throw new Error(`Failed to update: ${error.message}`)
@@ -237,4 +262,108 @@ export async function padamSusulan(susulanId: string, fasilitiId: string) {
 
   revalidatePath(`/dashboard/fasiliti/${fasilitiId}`)
   return { ok: true as const }
+}
+
+// ─── Tambah Lampiran ke Susulan sedia ada ────────────────────────────────────
+// returnPath: laluan untuk revalidate (fasiliti atau tanah-jv).
+
+export async function tambahLampiranSusulan(susulanId: string, returnPath: string, formData: FormData) {
+  const { supabase, userProfile } = await getCurrentUser()
+
+  if (!hasPermission(userProfile.peranan, 'tambah_susulan')) {
+    throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('lampiran_tambah', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
+    )
+  }
+
+  const { data: parent } = await supabase
+    .from('susulan')
+    .select('id, fasiliti_id, tanah_id, dicatat_oleh')
+    .eq('id', susulanId)
+    .single()
+  if (!parent) throw new Error('Follow-up not found')
+
+  // Pegawai: hanya susulan fasiliti yang di-assign (tanah bukan skop mereka).
+  if (userProfile.peranan === 'pegawai_susulan') {
+    if (!parent.fasiliti_id) throw new Error('Access denied')
+    const { data: assignment } = await supabase
+      .from('fasiliti_pegawai')
+      .select('fasiliti_id')
+      .eq('fasiliti_id', parent.fasiliti_id)
+      .eq('user_id', userProfile.id)
+      .maybeSingle()
+    if (!assignment && parent.dicatat_oleh !== userProfile.id) throw new Error('Access denied')
+  }
+
+  const files = formData.getAll('lampiran') as File[]
+  const batch = validateFileBatch(files)
+  if (batch.errors.length > 0) throw new Error(batch.errors.join(' '))
+  if (batch.valid.length === 0) throw new Error('Tiada fail dipilih.')
+
+  const rows: { susulan_id: string; url_fail: string; jenis_fail: string; nama_asal: string }[] = []
+  const failed: string[] = []
+  await mapLimit(batch.valid, 3, async (file) => {
+    if (!(await verifyFileSignature(file))) {
+      failed.push(`'${file.name}': kandungan fail tidak sepadan dengan jenisnya.`)
+      return
+    }
+    const uploaded = await uploadFile(file, `susulan/${susulanId}`)
+    if (uploaded) {
+      rows.push({
+        susulan_id: susulanId,
+        url_fail: uploaded.url,
+        jenis_fail: getFileType(file),
+        nama_asal: sanitizeFileName(file.name),
+      })
+    } else {
+      failed.push(`'${file.name}': muat naik gagal. Cuba lagi.`)
+    }
+  })
+  if (failed.length > 0) {
+    await Promise.all(rows.map((r) => deleteFile(r.url_fail)))
+    throw new Error(failed.join(' '))
+  }
+
+  const { error } = await supabase.from('lampiran').insert(rows)
+  if (error) {
+    await Promise.all(rows.map((r) => deleteFile(r.url_fail)))
+    throw new Error(`Failed to save attachments: ${error.message}`)
+  }
+
+  revalidatePath(returnPath)
+}
+
+// ─── Padam Lampiran (admin/pengurus sahaja, selaras RLS lampiran_delete) ─────
+
+export async function padamLampiran(lampiranId: string, returnPath: string) {
+  const { supabase, userProfile } = await getCurrentUser()
+
+  if (!hasPermission(userProfile.peranan, 'edit_susulan_orang_lain')) {
+    throw new Error('Access denied')
+  }
+
+  const rl = await rateLimitAction('lampiran_padam', 20, 60, userProfile.id)
+  if (!rl.ok) {
+    throw new Error(
+      `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.`
+    )
+  }
+
+  const { data: row } = await supabase
+    .from('lampiran')
+    .select('url_fail')
+    .eq('id', lampiranId)
+    .single()
+  if (!row) throw new Error('Attachment not found')
+
+  const { error } = await supabase.from('lampiran').delete().eq('id', lampiranId)
+  if (error) throw new Error(`Failed to delete: ${error.message}`)
+
+  await deleteFile(row.url_fail)
+  revalidatePath(returnPath)
 }

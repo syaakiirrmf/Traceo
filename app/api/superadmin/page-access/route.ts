@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
+import { rateLimitFailOpen } from '@/lib/ratelimit'
 import type { PageKey } from '@/types'
 
 // Ensure only superadmin can call these APIs
@@ -15,9 +17,13 @@ async function verifySuperadmin() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('id, peranan')
+    .select('id, peranan, status')
     .eq('auth_id', authUser.id)
     .single()
+
+  if (profile?.status === 'tidak_aktif') {
+    return { supabase, authUser: null, profile: null, isSuperadmin: false }
+  }
 
   return {
     supabase,
@@ -29,9 +35,18 @@ async function verifySuperadmin() {
 
 // GET: fetch page overrides for all users or a specific user_id
 export async function GET(request: NextRequest) {
-  const { supabase, isSuperadmin } = await verifySuperadmin()
-  if (!isSuperadmin) {
+  const { supabase, isSuperadmin, profile } = await verifySuperadmin()
+  if (!isSuperadmin || !profile) {
     return NextResponse.json({ error: 'Unauthorized: Superadmin access required' }, { status: 403 })
+  }
+
+  const rl = await rateLimitFailOpen(`superadmin:${profile.id}`, 60, 60, 'superadmin')
+  if (!rl.ok) {
+    Sentry.captureMessage('superadmin_429', { level: 'warning', extra: { userId: profile.id } })
+    return NextResponse.json(
+      { error: `Too many requests. Please wait ${rl.retryAfterSeconds}s before trying again.` },
+      { status: 429 }
+    )
   }
 
   const { searchParams } = new URL(request.url)
@@ -88,8 +103,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ data })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Invalid request body' }, { status: 400 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Invalid request body'
+    return NextResponse.json({ error: message }, { status: 400 })
   }
 }
 
@@ -120,7 +136,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, message: 'Override removed' })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Failed to delete override' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to delete override'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

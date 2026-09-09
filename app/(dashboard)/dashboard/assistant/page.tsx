@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { PageAccessGuard } from '@/components/ui/PageAccessGuard'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import { ChatBox } from '@/components/ChatBox'
 import type { Metadata } from 'next'
 import type { UserRole } from '@/types'
@@ -23,14 +23,10 @@ export default async function AssistantPage() {
 
   if (!profile) redirect('/login')
 
+  await assertPageAccess(profile.id, profile.peranan as UserRole, '/dashboard/assistant')
+
   return (
-    <PageAccessGuard
-      userId={profile.id}
-      role={profile.peranan as UserRole}
-      pagePath="/dashboard/assistant"
-      featureName="Smart AI Assistant (@syaakiirr)"
-    >
-      <div className="space-y-5 h-full">
+    <div className="space-y-5 h-full">
         <div className="border-b border-[var(--color-border)] pb-4">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
@@ -50,6 +46,5 @@ export default async function AssistantPage() {
           <ChatBox userName={profile?.nama} />
         </div>
       </div>
-    </PageAccessGuard>
   )
 }

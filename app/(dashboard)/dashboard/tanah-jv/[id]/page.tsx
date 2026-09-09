@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import Link from 'next/link'
 import { ArrowLeft, Edit, Plus, Pencil, FileText } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
@@ -8,6 +9,7 @@ import { DeleteTanahSusulanButton } from '@/components/susulan/DeleteTanahSusula
 import { SusulanApprovalBadge, SusulanApprovalButtons } from '@/components/susulan/SusulanApproval'
 import type { Lampiran } from '@/types'
 import type { Metadata } from 'next'
+import type { UserRole } from '@/types'
 
 export const metadata: Metadata = { title: 'Land Parcel Details' }
 
@@ -37,13 +39,16 @@ export default async function TanahJVDetailPage({ params }: { params: Promise<{ 
     .single()
   if (!userProfile) redirect('/login')
 
-  const [{ data: tanah }, { data: susulan }] = await Promise.all([
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/tanah-jv')
+
+  const [{ data: tanah }, { data: susulan, count: susulanTotal }] = await Promise.all([
     supabase.from('tanah_jv').select('*').eq('id', id).single(),
     supabase
       .from('susulan')
-      .select('*,lampiran(*),dicatat_oleh_user:users(nama)')
+      .select('*,lampiran(*),dicatat_oleh_user:users(nama)', { count: 'exact' })
       .eq('tanah_id', id)
-      .order('tarikh_susulan', { ascending: true }),
+      .order('tarikh_susulan', { ascending: true })
+      .limit(200),
   ])
 
   if (!tanah) notFound()
@@ -158,7 +163,7 @@ export default async function TanahJVDetailPage({ params }: { params: Promise<{ 
           <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
             Follow-up Chronology
             <span className="ml-2 text-sm font-normal text-[var(--color-text-tertiary)]">
-              ({susulan?.length ?? 0} records)
+              ({susulan?.length ?? 0}{(susulanTotal ?? 0) > (susulan?.length ?? 0) ? ` of ${susulanTotal}` : ''} records)
             </span>
           </h2>
           {canAddSusulan && (
@@ -227,7 +232,7 @@ export default async function TanahJVDetailPage({ params }: { params: Promise<{ 
                         <>
                           <Link
                             href={`/dashboard/tanah-jv/${id}/susulan/${s.id}/edit`}
-                            className="w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors"
+                            className="w-9 h-9 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors"
                             title="Edit follow-up"
                           >
                             <Pencil size={13} />

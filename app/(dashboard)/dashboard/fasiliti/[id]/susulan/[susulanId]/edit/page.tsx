@@ -1,8 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
-import { editSusulan } from '@/lib/actions/susulan'
+import { editSusulan, tambahLampiranSusulan, padamLampiran } from '@/lib/actions/susulan'
+import { hasPermission } from '@/lib/auth/permissions'
+import { LampiranInput } from '@/components/susulan/LampiranInput'
+import { ActionForm } from '@/components/forms/ActionForm'
+import { SubmitButton } from '@/components/ui/SubmitButton'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Edit Follow-up' }
@@ -29,7 +33,7 @@ export default async function EditSusulanPage({
 
   const { data: susulan } = await supabase
     .from('susulan')
-    .select('*, fasiliti:fasiliti(kod_rujukan, nama_peminjam)')
+    .select('*, fasiliti:fasiliti(kod_rujukan, nama_peminjam), lampiran(*)')
     .eq('id', susulanId)
     .eq('fasiliti_id', id)
     .single()
@@ -47,6 +51,8 @@ export default async function EditSusulanPage({
   }
 
   const action = editSusulan.bind(null, susulanId, id)
+  const tambahLampiran = tambahLampiranSusulan.bind(null, susulanId, `/dashboard/fasiliti/${id}/susulan/${susulanId}/edit`)
+  const canDeleteLampiran = hasPermission(userProfile.peranan, 'edit_susulan_orang_lain')
   const fasiliti = susulan.fasiliti
 
   return (
@@ -70,7 +76,7 @@ export default async function EditSusulanPage({
         </div>
       </div>
 
-      <form action={action} className="space-y-5">
+      <ActionForm action={action} className="space-y-5">
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 shadow-[var(--shadow-sm)] space-y-4">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-[var(--color-text-primary)]">
@@ -101,12 +107,7 @@ export default async function EditSusulanPage({
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            className="px-5 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium hover:bg-[var(--color-brand-hover)] transition-colors shadow-[var(--shadow-sm)]"
-          >
-            Save changes
-          </button>
+          <SubmitButton>Save changes</SubmitButton>
           <Link
             href={`/dashboard/fasiliti/${id}`}
             className="px-5 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] transition-colors"
@@ -114,7 +115,59 @@ export default async function EditSusulanPage({
             Cancel
           </Link>
         </div>
-      </form>
+      </ActionForm>
+
+      {/* Lampiran sedia ada */}
+      <div className="mt-5 bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 shadow-[var(--shadow-sm)] space-y-3">
+        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">
+          Attachments{' '}
+          <span className="text-xs font-normal text-[var(--color-text-tertiary)]">
+            ({susulan.lampiran?.length ?? 0})
+          </span>
+        </h2>
+        {(susulan.lampiran?.length ?? 0) === 0 ? (
+          <p className="text-xs text-[var(--color-text-tertiary)]">Tiada lampiran.</p>
+        ) : (
+          <ul className="space-y-2">
+            {susulan.lampiran.map((l: { id: string; nama_asal: string; url_fail: string }) => (
+              <li
+                key={l.id}
+                className="flex items-center justify-between gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3 py-2"
+              >
+                <a
+                  href={l.url_fail}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-[var(--color-brand)] hover:underline truncate flex items-center gap-1.5 min-w-0"
+                >
+                  <FileText size={13} className="shrink-0" />
+                  <span className="truncate">{l.nama_asal}</span>
+                </a>
+                {canDeleteLampiran && (
+                  <form action={padamLampiran.bind(null, l.id, `/dashboard/fasiliti/${id}/susulan/${susulanId}/edit`)}>
+                    <button
+                      type="submit"
+                      aria-label={`Padam ${l.nama_asal}`}
+                      className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </form>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        <ActionForm action={tambahLampiran} className="space-y-3 pt-1">
+          <LampiranInput />
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
+          >
+            Tambah lampiran
+          </button>
+        </ActionForm>
+      </div>
     </div>
   )
 }

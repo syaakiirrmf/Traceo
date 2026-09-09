@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback } from 'react'
-import { Search } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Search, ChevronDown } from 'lucide-react'
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
@@ -30,6 +30,19 @@ export function FasilitiFilter({
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const paramQ = searchParams.get('q') ?? ''
+  const [q, setQ] = useState(defaultQ ?? paramQ)
+  const [prevParamQ, setPrevParamQ] = useState(paramQ)
+  // Selaras bila navigasi luar (back/forward) ubah query — adjust semasa render.
+  if (paramQ !== prevParamQ) {
+    setPrevParamQ(paramQ)
+    setQ(paramQ)
+  }
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current)
+  }, [])
 
   const updateParam = useCallback(
     (key: string, value: string) => {
@@ -55,23 +68,24 @@ export function FasilitiFilter({
         />
         <input
           type="search"
-          defaultValue={defaultQ}
+          value={q}
           placeholder="Search name, funder, code..."
           className="w-full h-9 pl-8 pr-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
           onChange={(e) => {
             const val = e.target.value
-            // Debounce: only update after user stops typing
-            const timer = setTimeout(() => updateParam('q', val), 400)
-            return () => clearTimeout(timer)
+            setQ(val)
+            if (timer.current) clearTimeout(timer.current)
+            timer.current = setTimeout(() => updateParam('q', val), 400)
           }}
         />
       </div>
 
       {/* Status filter */}
+      <div className="relative">
       <select
         defaultValue={defaultStatus ?? ''}
         onChange={(e) => updateParam('status', e.target.value)}
-        className="h-9 px-3 pr-7 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] transition-colors appearance-none"
+        className="h-9 pl-3 pr-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] transition-colors appearance-none"
       >
         {STATUS_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
@@ -79,12 +93,15 @@ export function FasilitiFilter({
           </option>
         ))}
       </select>
+      <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] pointer-events-none" />
+      </div>
 
       {/* Kategori filter */}
+      <div className="relative">
       <select
         defaultValue={defaultKategori ?? ''}
         onChange={(e) => updateParam('kategori', e.target.value)}
-        className="h-9 px-3 pr-7 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] transition-colors appearance-none"
+        className="h-9 pl-3 pr-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] transition-colors appearance-none"
       >
         {KATEGORI_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
@@ -92,6 +109,8 @@ export function FasilitiFilter({
           </option>
         ))}
       </select>
+      <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] pointer-events-none" />
+      </div>
     </div>
   )
 }

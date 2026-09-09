@@ -1,5 +1,7 @@
 'use client'
 
+import { ActionForm } from '@/components/forms/ActionForm'
+import { SubmitButton } from '@/components/ui/SubmitButton'
 import { useState } from 'react'
 import { editFasiliti } from '@/lib/actions/fasiliti'
 
@@ -39,10 +41,10 @@ export function EditFasilitiForm({
   const n = (key: string) => (fasiliti[key] != null ? String(fasiliti[key]) : '0')
 
   return (
-    <form action={action} className="space-y-5">
+    <ActionForm action={action} className="space-y-5">
       {/* ── Section 1: Basic ── */}
       <Section title="Basic Information">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
               Category <span className="text-[var(--color-danger)]">*</span>
@@ -80,7 +82,7 @@ export function EditFasilitiForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="Capital Funder"
             name="pembiaya_modal"
@@ -97,7 +99,7 @@ export function EditFasilitiForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="Start Date"
             name="tarikh_mula"
@@ -116,7 +118,7 @@ export function EditFasilitiForm({
 
       {/* ── Section 2: Maklumat Pembiayaan Modal ── */}
       <Section title="Capital Financing Information">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="Total Capital Financing (RM) — A"
             name="jumlah_pembiayaan"
@@ -172,7 +174,7 @@ export function EditFasilitiForm({
           title="Arrears & Payments Information"
           subtitle="Leave Total (E) blank to auto-compute"
         >
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {isJV1 && (
               <>
                 <Field
@@ -264,7 +266,7 @@ export function EditFasilitiForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="Estimated Value (RM)"
             name="nilai_cagaran"
@@ -310,12 +312,7 @@ export function EditFasilitiForm({
       </Section>
 
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          className="px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-brand)] text-white text-sm font-medium hover:bg-[var(--color-brand-hover)] transition-colors shadow-[var(--shadow-sm)]"
-        >
-          Save Changes
-        </button>
+        <SubmitButton>Save Changes</SubmitButton>
         <a
           href={`/dashboard/fasiliti/${fasilitiId}`}
           className="px-6 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] transition-colors"
@@ -323,7 +320,7 @@ export function EditFasilitiForm({
           Cancel
         </a>
       </div>
-    </form>
+    </ActionForm>
   )
 }
 

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
 import { rateLimitAction } from '@/lib/ratelimit'
+import { tanahSchema, fd, parseOrThrow } from '@/lib/validation'
 
 async function getCurrentUser() {
   const supabase = await createClient()
@@ -15,11 +16,15 @@ async function getCurrentUser() {
 
   const { data: userProfile } = await supabase
     .from('users')
-    .select('id, peranan')
+    .select('id, peranan, status')
     .eq('auth_id', authUser.id)
     .single()
 
   if (!userProfile) throw new Error('User profile not found')
+  if (userProfile.status === 'tidak_aktif') {
+    await supabase.auth.signOut()
+    throw new Error('Account is disabled.')
+  }
   return { supabase, userProfile }
 }
 
@@ -39,18 +44,18 @@ export async function tambahTanahJV(formData: FormData) {
     )
   }
 
-  const payload = {
-    negeri: formData.get('negeri') as string,
-    daerah: formData.get('daerah') as string,
-    bandar_mukim: formData.get('bandar_mukim') as string,
-    tempat: formData.get('tempat') as string,
-    no_lot: formData.get('no_lot') as string,
-    tarikh_daftar: (formData.get('tarikh_daftar') as string) || null,
-    no_hak_milik: (formData.get('no_hak_milik') as string) || null,
-    luas_meter_persegi: parseFloat(formData.get('luas_meter_persegi') as string) || null,
-    anggaran_nilaian: parseFloat(formData.get('anggaran_nilaian') as string) || null,
-    catatan: (formData.get('catatan') as string) || null,
-  }
+  const payload = parseOrThrow(tanahSchema, {
+    negeri: fd(formData, 'negeri'),
+    daerah: fd(formData, 'daerah'),
+    bandar_mukim: fd(formData, 'bandar_mukim'),
+    tempat: fd(formData, 'tempat'),
+    no_lot: fd(formData, 'no_lot'),
+    tarikh_daftar: fd(formData, 'tarikh_daftar'),
+    no_hak_milik: fd(formData, 'no_hak_milik'),
+    luas_meter_persegi: fd(formData, 'luas_meter_persegi'),
+    anggaran_nilaian: fd(formData, 'anggaran_nilaian'),
+    catatan: fd(formData, 'catatan'),
+  })
 
   const { data: id, error } = await supabase.rpc('traceo_tambah_tanah_jv', {
     p_payload: payload,
@@ -78,18 +83,18 @@ export async function editTanahJV(tanahId: string, formData: FormData) {
     )
   }
 
-  const payload = {
-    negeri: formData.get('negeri') as string,
-    daerah: formData.get('daerah') as string,
-    bandar_mukim: formData.get('bandar_mukim') as string,
-    tempat: formData.get('tempat') as string,
-    no_lot: formData.get('no_lot') as string,
-    tarikh_daftar: (formData.get('tarikh_daftar') as string) || null,
-    no_hak_milik: (formData.get('no_hak_milik') as string) || null,
-    luas_meter_persegi: parseFloat(formData.get('luas_meter_persegi') as string) || null,
-    anggaran_nilaian: parseFloat(formData.get('anggaran_nilaian') as string) || null,
-    catatan: (formData.get('catatan') as string) || null,
-  }
+  const payload = parseOrThrow(tanahSchema, {
+    negeri: fd(formData, 'negeri'),
+    daerah: fd(formData, 'daerah'),
+    bandar_mukim: fd(formData, 'bandar_mukim'),
+    tempat: fd(formData, 'tempat'),
+    no_lot: fd(formData, 'no_lot'),
+    tarikh_daftar: fd(formData, 'tarikh_daftar'),
+    no_hak_milik: fd(formData, 'no_hak_milik'),
+    luas_meter_persegi: fd(formData, 'luas_meter_persegi'),
+    anggaran_nilaian: fd(formData, 'anggaran_nilaian'),
+    catatan: fd(formData, 'catatan'),
+  })
 
   const { error } = await supabase.rpc('traceo_edit_tanah_jv', {
     p_id: tanahId,

@@ -3,7 +3,8 @@ import type { Mock } from 'vitest'
 import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/ratelimit', () => ({
-  rateLimit: vi.fn(),
+  rateLimitFailClosed: vi.fn(),
+  parseClientIp: vi.fn(() => '127.0.0.1'),
 }))
 
 vi.mock('next/headers', () => ({
@@ -18,13 +19,21 @@ vi.mock('@supabase/ssr', () => ({
 }))
 
 import { POST as loginPost } from '@/app/api/auth/login/route'
-import { rateLimit } from '@/lib/ratelimit'
+import { rateLimitFailClosed } from '@/lib/ratelimit'
 import { createServerClient } from '@supabase/ssr'
+
+function activeStatusChain() {
+  return {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn(async () => ({ data: { status: 'aktif' } })),
+  }
+}
 
 describe('POST /api/auth/login', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(rateLimit as Mock).mockResolvedValue({
+    ;(rateLimitFailClosed as Mock).mockResolvedValue({
       ok: true,
       remaining: 4,
       retryAfterSeconds: 0,
@@ -58,7 +67,7 @@ describe('POST /api/auth/login', () => {
   })
 
   it('returns 429 when rate limited', async () => {
-    ;(rateLimit as Mock).mockResolvedValue({
+    ;(rateLimitFailClosed as Mock).mockResolvedValue({
       ok: false,
       remaining: 0,
       retryAfterSeconds: 42,
@@ -75,6 +84,7 @@ describe('POST /api/auth/login', () => {
         signInWithPassword: vi.fn(async () => ({
           error: { message: 'Invalid login credentials' },
         })),
+        signOut: vi.fn(),
       },
     })
     const res = await loginPost(req({ email: 'a@b.com', password: 'wrong' }))
@@ -83,11 +93,28 @@ describe('POST /api/auth/login', () => {
     expect(body.error).toMatch(/Invalid email or password/)
   })
 
+  it('returns 403 for disabled accounts', async () => {
+    ;(createServerClient as Mock).mockReturnValue({
+      auth: {
+        signInWithPassword: vi.fn(async () => ({ error: null })),
+        signOut: vi.fn(),
+      },
+      from: vi.fn(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        maybeSingle: vi.fn(async () => ({ data: { status: 'tidak_aktif' } })),
+      })),
+    })
+    const res = await loginPost(req({ email: 'a@b.com', password: 'secret' }))
+    expect(res.status).toBe(403)
+  })
+
   it('returns 200 on successful login', async () => {
     ;(createServerClient as Mock).mockReturnValue({
       auth: {
         signInWithPassword: vi.fn(async () => ({ error: null })),
       },
+      from: vi.fn(() => activeStatusChain()),
     })
     const res = await loginPost(req({ email: 'a@b.com', password: 'secret' }))
     expect(res.status).toBe(200)
@@ -98,6 +125,7 @@ describe('POST /api/auth/login', () => {
     const signIn = vi.fn(async () => ({ error: null }))
     ;(createServerClient as Mock).mockReturnValue({
       auth: { signInWithPassword: signIn },
+      from: vi.fn(() => activeStatusChain()),
     })
     await loginPost(req({ email: 'User@Example.COM', password: 'x' }))
     expect(signIn).toHaveBeenCalledWith({

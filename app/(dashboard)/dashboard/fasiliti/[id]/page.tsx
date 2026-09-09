@@ -78,14 +78,16 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
     if (!assignment) redirect('/dashboard/fasiliti')
   }
 
-  // Fetch fasiliti + susulan + pegawai assigned in parallel
-  const [{ data: fasiliti }, { data: susulan }, { data: assignedPegawaiRows }] = await Promise.all([
+  // Fetch fasiliti + susulan + pegawai assigned in parallel.
+  // Timeline dihadkan 200 rekod terkini (susulan lama kekal dalam kronologi penuh).
+  const [{ data: fasiliti }, { data: susulan, count: susulanTotal }, { data: assignedPegawaiRows }] = await Promise.all([
     supabase.from('fasiliti').select('*').eq('id', id).single(),
     supabase
       .from('susulan')
-      .select('*, lampiran(*), dicatat_oleh_user:users(nama)')
+      .select('*, lampiran(*), dicatat_oleh_user:users(nama)', { count: 'exact' })
       .eq('fasiliti_id', id)
-      .order('tarikh_susulan', { ascending: true }),
+      .order('tarikh_susulan', { ascending: true })
+      .limit(200),
     supabase
       .from('fasiliti_pegawai')
       .select('user_id, user:users(id, nama, emel, peranan)')
@@ -441,7 +443,7 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
           <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
             Follow-up Chronology
             <span className="ml-2 text-sm font-normal text-[var(--color-text-tertiary)]">
-              ({susulan?.length ?? 0} records)
+              ({susulan?.length ?? 0}{(susulanTotal ?? 0) > (susulan?.length ?? 0) ? ` of ${susulanTotal}` : ''} records)
             </span>
           </h2>
           {canAddSusulan && (
@@ -510,7 +512,7 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
                         <>
                           <Link
                             href={`/dashboard/fasiliti/${id}/susulan/${s.id}/edit`}
-                            className="w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors"
+                            className="w-9 h-9 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors"
                             title="Edit follow-up"
                           >
                             <Pencil size={13} />

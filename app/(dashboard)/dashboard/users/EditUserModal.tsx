@@ -79,6 +79,11 @@ export function EditUserModal({
         }
       >
         <form id="edit-user-form" action={handleSubmit} className="space-y-4">
+          {!user.auth_id && (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-700">
+              This account has no login yet. Set a new password below to activate it.
+            </div>
+          )}
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-[var(--color-text-primary)]">
               Full Name <span className="text-[var(--color-danger)]">*</span>
@@ -126,19 +131,22 @@ export function EditUserModal({
 
           <div className="border-t border-[var(--color-border)] pt-4">
             <p className="text-xs font-semibold text-[var(--color-text-secondary)] mb-1">
-              Reset Password (optional)
+              {user.auth_id ? 'Reset Password (optional)' : 'Activate Account — Set Password'}
             </p>
             <p className="text-[11px] text-[var(--color-text-tertiary)] mb-3">
-              Leave blank to keep the current password.
+              {user.auth_id
+                ? 'Leave blank to keep the current password.'
+                : 'This will create a new login for the account.'}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-[var(--color-text-primary)]">
-                  New Password
+                  New Password {!user.auth_id && <span className="text-[var(--color-danger)]">*</span>}
                 </label>
                 <input
                   type="password"
                   name="kata_laluan"
+                  required={!user.auth_id}
                   minLength={8}
                   pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}"
                   title="8+ characters with uppercase, lowercase and number"
@@ -148,11 +156,12 @@ export function EditUserModal({
               </div>
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-[var(--color-text-primary)]">
-                  Confirm Password
+                  Confirm Password {!user.auth_id && <span className="text-[var(--color-danger)]">*</span>}
                 </label>
                 <input
                   type="password"
                   name="sahkan_kata_laluan"
+                  required={!user.auth_id}
                   placeholder="Confirm password"
                   className="w-full h-10 px-3.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
                 />

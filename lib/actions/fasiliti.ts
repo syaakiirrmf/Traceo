@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { hasPermission } from '@/lib/auth/permissions'
 import { rateLimitAction } from '@/lib/ratelimit'
+import { fasilitiSchema, fd, parseOrThrow, pegawaiIdsSchema, type FasilitiInput } from '@/lib/validation'
 import { sendOverdueEmail, getAdminEmails } from '@/lib/email'
 
 async function getCurrentUser() {
@@ -16,12 +17,58 @@ async function getCurrentUser() {
 
   const { data: userProfile } = await supabase
     .from('users')
-    .select('id, peranan')
+    .select('id, peranan, status')
     .eq('auth_id', authUser.id)
     .single()
 
   if (!userProfile) throw new Error('User not found')
+  if (userProfile.status === 'tidak_aktif') {
+    await supabase.auth.signOut()
+    throw new Error('Account is disabled.')
+  }
   return { supabase, userProfile }
+}
+
+function buildFasilitiPayload(formData: FormData) {
+  const raw = {
+    kategori: fd(formData, 'kategori'),
+    pembiaya_modal: fd(formData, 'pembiaya_modal'),
+    nama_peminjam: fd(formData, 'nama_peminjam'),
+    jumlah_pembiayaan: fd(formData, 'jumlah_pembiayaan'),
+    tarikh_mula: fd(formData, 'tarikh_mula'),
+    tarikh_tamat: fd(formData, 'tarikh_tamat'),
+    ringkasan_cagaran: fd(formData, 'ringkasan_cagaran') ?? '',
+    nilai_cagaran: fd(formData, 'nilai_cagaran'),
+    jumlah_tunggakan_semasa: fd(formData, 'jumlah_tunggakan_semasa') ?? '',
+    status_fasiliti: fd(formData, 'status_fasiliti'),
+    catatan_am: fd(formData, 'catatan_am'),
+    kadar_dividen: fd(formData, 'kadar_dividen'),
+    perkongsian_keuntungan: fd(formData, 'perkongsian_keuntungan'),
+    tunggakan_dividen: fd(formData, 'tunggakan_dividen'),
+    caj_lewat: fd(formData, 'caj_lewat'),
+    bayaran_tambahan: fd(formData, 'bayaran_tambahan'),
+    penama_aset: fd(formData, 'penama_aset'),
+    status_pindahmilik: fd(formData, 'status_pindahmilik'),
+    nama_kontraktor: fd(formData, 'nama_kontraktor'),
+    harga_jualan: fd(formData, 'harga_jualan'),
+    tahun_projek: fd(formData, 'tahun_projek'),
+    pegawai_ids: formData.getAll('pegawai_ids').filter((v): v is string => typeof v === 'string'),
+  }
+  const v: FasilitiInput = parseOrThrow(fasilitiSchema, raw)
+
+  // ─── Category-aware arrears computation (manual override wins) ─────────────
+  // JV3: C = A + B | JV Tanah: E = A+B+C+D | JV1: E = A+B+C+D
+  const jumlah_tunggakan_semasa =
+    v.jumlah_tunggakan_semasa ??
+    (v.kategori === 'pinjaman_individu'
+      ? v.jumlah_pembiayaan + v.bayaran_tambahan
+      : v.kategori === 'jv_tanah'
+        ? v.jumlah_pembiayaan + v.perkongsian_keuntungan + v.tunggakan_dividen + v.bayaran_tambahan
+        : v.jumlah_pembiayaan + v.tunggakan_dividen + v.caj_lewat + v.bayaran_tambahan)
+
+  const { pegawai_ids, ...rest } = v
+  void pegawai_ids
+  return { payload: { ...rest, jumlah_tunggakan_semasa }, pegawaiIds: v.pegawai_ids }
 }
 
 async function notifyOverdue(
@@ -66,59 +113,7 @@ export async function tambahFasiliti(formData: FormData) {
     )
   }
 
-  const kategori = formData.get('kategori') as string
-
-  const pegawaiIds = formData.getAll('pegawai_ids') as string[]
-
-  // ─── Category-aware arrears computation ──────────────────────────────────────
-  const jumlah_pembiayaan = parseFloat(formData.get('jumlah_pembiayaan') as string) || 0
-  const perkongsian_keuntungan = parseFloat(formData.get('perkongsian_keuntungan') as string) || 0
-  const tunggakan_dividen = parseFloat(formData.get('tunggakan_dividen') as string) || 0
-  const caj_lewat = parseFloat(formData.get('caj_lewat') as string) || 0
-  const bayaran_tambahan = parseFloat(formData.get('bayaran_tambahan') as string) || 0
-  const manualTunggakan = formData.get('jumlah_tunggakan_semasa') as string
-
-  let jumlah_tunggakan_semasa: number
-  if (manualTunggakan && manualTunggakan.trim() !== '') {
-    jumlah_tunggakan_semasa = parseFloat(manualTunggakan)
-  } else if (kategori === 'pinjaman_individu') {
-    // JV3: C = A + B (jumlah_pembiayaan + bayaran_tambahan)
-    jumlah_tunggakan_semasa = jumlah_pembiayaan + bayaran_tambahan
-  } else if (kategori === 'jv_tanah') {
-    // JV2: E = A + B + C + D (A=modal, B=perkongsian_keuntungan, C=tunggakan_dividen, D=bayaran_tambahan)
-    jumlah_tunggakan_semasa =
-      jumlah_pembiayaan + perkongsian_keuntungan + tunggakan_dividen + bayaran_tambahan
-  } else {
-    // JV1: E = A + B + C + D (A=modal, B=tunggakan_dividen, C=caj_lewat, D=bayaran_tambahan)
-    jumlah_tunggakan_semasa = jumlah_pembiayaan + tunggakan_dividen + caj_lewat + bayaran_tambahan
-  }
-
-  const payload = {
-    kategori,
-    pembiaya_modal: formData.get('pembiaya_modal') as string,
-    nama_peminjam: formData.get('nama_peminjam') as string,
-    jumlah_pembiayaan,
-    tarikh_mula: formData.get('tarikh_mula') as string,
-    tarikh_tamat: (formData.get('tarikh_tamat') as string) || null,
-    ringkasan_cagaran: (formData.get('ringkasan_cagaran') as string) || '',
-    nilai_cagaran: parseFloat(formData.get('nilai_cagaran') as string) || null,
-    jumlah_tunggakan_semasa,
-    status_fasiliti: formData.get('status_fasiliti') as string,
-    catatan_am: (formData.get('catatan_am') as string) || null,
-    // Financial fields
-    kadar_dividen: (formData.get('kadar_dividen') as string) || null,
-    perkongsian_keuntungan,
-    tunggakan_dividen,
-    caj_lewat,
-    bayaran_tambahan,
-    // Collateral & asset
-    penama_aset: (formData.get('penama_aset') as string) || null,
-    status_pindahmilik: (formData.get('status_pindahmilik') as string) || null,
-    // JV Tanah specific
-    nama_kontraktor: (formData.get('nama_kontraktor') as string) || null,
-    harga_jualan: (formData.get('harga_jualan') as string) || null,
-    tahun_projek: parseInt(formData.get('tahun_projek') as string) || null,
-  }
+  const { payload, pegawaiIds } = buildFasilitiPayload(formData)
 
   const { data: id, error } = await supabase.rpc('traceo_tambah_fasiliti', {
     p_payload: payload,
@@ -147,52 +142,7 @@ export async function editFasiliti(fasilitiId: string, formData: FormData) {
     )
   }
 
-  const kategori = formData.get('kategori') as string
-  const jumlah_pembiayaan = parseFloat(formData.get('jumlah_pembiayaan') as string) || 0
-  const perkongsian_keuntungan = parseFloat(formData.get('perkongsian_keuntungan') as string) || 0
-  const tunggakan_dividen = parseFloat(formData.get('tunggakan_dividen') as string) || 0
-  const caj_lewat = parseFloat(formData.get('caj_lewat') as string) || 0
-  const bayaran_tambahan = parseFloat(formData.get('bayaran_tambahan') as string) || 0
-  const manualTunggakan = formData.get('jumlah_tunggakan_semasa') as string
-
-  let jumlah_tunggakan_semasa: number
-  if (manualTunggakan && manualTunggakan.trim() !== '') {
-    jumlah_tunggakan_semasa = parseFloat(manualTunggakan)
-  } else if (kategori === 'pinjaman_individu') {
-    jumlah_tunggakan_semasa = jumlah_pembiayaan + bayaran_tambahan
-  } else if (kategori === 'jv_tanah') {
-    jumlah_tunggakan_semasa =
-      jumlah_pembiayaan + perkongsian_keuntungan + tunggakan_dividen + bayaran_tambahan
-  } else {
-    jumlah_tunggakan_semasa = jumlah_pembiayaan + tunggakan_dividen + caj_lewat + bayaran_tambahan
-  }
-
-  const payload = {
-    kategori,
-    pembiaya_modal: formData.get('pembiaya_modal') as string,
-    nama_peminjam: formData.get('nama_peminjam') as string,
-    jumlah_pembiayaan,
-    tarikh_mula: formData.get('tarikh_mula') as string,
-    tarikh_tamat: (formData.get('tarikh_tamat') as string) || null,
-    ringkasan_cagaran: (formData.get('ringkasan_cagaran') as string) || '',
-    nilai_cagaran: parseFloat(formData.get('nilai_cagaran') as string) || null,
-    jumlah_tunggakan_semasa,
-    status_fasiliti: formData.get('status_fasiliti') as string,
-    catatan_am: (formData.get('catatan_am') as string) || null,
-    // Financial fields
-    kadar_dividen: (formData.get('kadar_dividen') as string) || null,
-    perkongsian_keuntungan,
-    tunggakan_dividen,
-    caj_lewat,
-    bayaran_tambahan,
-    // Collateral & asset
-    penama_aset: (formData.get('penama_aset') as string) || null,
-    status_pindahmilik: (formData.get('status_pindahmilik') as string) || null,
-    // JV Tanah specific
-    nama_kontraktor: (formData.get('nama_kontraktor') as string) || null,
-    harga_jualan: (formData.get('harga_jualan') as string) || null,
-    tahun_projek: parseInt(formData.get('tahun_projek') as string) || null,
-  }
+  const { payload } = buildFasilitiPayload(formData)
 
   const { error } = await supabase.rpc('traceo_edit_fasiliti', {
     p_id: fasilitiId,
@@ -250,9 +200,11 @@ export async function kemaskiniPegawaiFasiliti(fasilitiId: string, pegawaiIds: s
     )
   }
 
+  const validatedIds = parseOrThrow(pegawaiIdsSchema, pegawaiIds)
+
   const { error } = await supabase.rpc('traceo_kemaskini_pegawai', {
     p_fasiliti_id: fasilitiId,
-    p_pegawai_ids: pegawaiIds.length > 0 ? pegawaiIds : null,
+    p_pegawai_ids: validatedIds.length > 0 ? validatedIds : null,
   })
   if (error) throw new Error(`Failed to assign officer: ${error.message}`)
 

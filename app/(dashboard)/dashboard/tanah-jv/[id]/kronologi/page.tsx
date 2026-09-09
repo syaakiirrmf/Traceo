@@ -3,9 +3,10 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Download, FileText } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import { hasPermission } from '@/lib/auth/permissions'
+import { assertPageAccess } from '@/lib/auth/access-control'
 import type { Lampiran } from '@/types'
 import type { Metadata } from 'next'
+import type { UserRole } from '@/types'
 
 export async function generateMetadata({
   params,
@@ -44,17 +45,16 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
     .single()
   if (!userProfile) redirect('/login')
 
-  if (!hasPermission(userProfile.peranan, 'jana_kronologi')) {
-    redirect(`/dashboard/tanah-jv/${id}`)
-  }
+  await assertPageAccess(userProfile.id, userProfile.peranan as UserRole, '/dashboard/tanah-jv')
 
-  const [{ data: tanah }, { data: susulan }] = await Promise.all([
+  const [{ data: tanah }, { data: susulan, count: susulanTotal }] = await Promise.all([
     supabase.from('tanah_jv').select('*').eq('id', id).single(),
     supabase
       .from('susulan')
-      .select('*, dicatat_oleh_user:users(nama), lampiran(*)')
+      .select('*, dicatat_oleh_user:users(nama), lampiran(*)', { count: 'exact' })
       .eq('tanah_id', id)
-      .order('tarikh_susulan', { ascending: true }),
+      .order('tarikh_susulan', { ascending: true })
+      .limit(200),
   ])
 
   if (!tanah) notFound()
@@ -62,7 +62,7 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
   return (
     <div className="max-w-3xl">
       {/* Header */}
-      <div className="flex items-start gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 mb-6">
         <Link
           href={`/dashboard/tanah-jv/${id}`}
           className="mt-1 w-8 h-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] transition-colors flex-shrink-0"
@@ -80,7 +80,7 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
           </p>
         </div>
         {/* Export buttons */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
           <a
             href={`/api/tanah-jv/${id}/kronologi-pdf`}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
@@ -101,7 +101,7 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
       {/* Preview document */}
       <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-md)] overflow-hidden">
         {/* Document header */}
-        <div className="p-8 pb-6 text-center border-b border-[var(--color-border)]">
+        <div className="px-4 sm:px-8 py-6 text-center border-b border-[var(--color-border)]">
           <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-widest mb-2">
             STRICTLY CONFIDENTIAL
           </p>
@@ -115,7 +115,7 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
         </div>
 
         {/* Info table */}
-        <div className="px-8 py-6 border-b border-[var(--color-border)]">
+        <div className="px-4 sm:px-8 py-6 border-b border-[var(--color-border)]">
           <table className="w-full text-sm">
             <tbody className="divide-y divide-[var(--color-border)]">
               {[
@@ -144,7 +144,7 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
 
         {/* Catatan */}
         {tanah.catatan && (
-          <div className="px-8 py-5 border-b border-[var(--color-border)]">
+          <div className="px-4 sm:px-8 py-5 border-b border-[var(--color-border)]">
             <h3 className="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wider mb-2">
               Notes
             </h3>
@@ -157,7 +157,7 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
         {/* Susulan entries */}
         <div className="px-8 py-6">
           <h3 className="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wider mb-5">
-            Follow-up Chronology ({susulan?.length ?? 0} records)
+            Follow-up Chronology ({susulan?.length ?? 0}{(susulanTotal ?? 0) > (susulan?.length ?? 0) ? ` of ${susulanTotal}` : ''} records)
           </h3>
 
           {!susulan || susulan.length === 0 ? (
