@@ -112,7 +112,7 @@ export function Toaster() {
           </div>
           <button
             onClick={() => dismiss(t.id)}
-            className="w-6 h-6 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
+            className="min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:w-8 sm:h-8 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
             aria-label="Tutup notifikasi"
           >
             <X size={13} />

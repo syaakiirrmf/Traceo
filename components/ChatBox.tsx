@@ -47,6 +47,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
   const [activeSesiId, setActiveSesiId] = useState<string | null>(null)
   const [loadingSessions, setLoadingSessions] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -87,6 +88,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
   async function openSesi(sesiId: string) {
     if (loading) return
     setActiveSesiId(sesiId)
+    setHistoryOpen(false)
     setMessages([])
     setError(null)
     setLoadingMessages(true)
@@ -108,6 +110,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
   async function buatSesiBaharu() {
     if (loading) return
     setActiveSesiId(null)
+    setHistoryOpen(false)
     setMessages([])
     setInput('')
     setError(null)
@@ -166,9 +169,9 @@ export function ChatBox({ userName }: ChatBoxProps) {
   }
 
   return (
-    <div className="flex h-full min-h-0">
-      {/* ─── Session sidebar ─────────────────────────────────────────────── */}
-      <aside className="w-60 shrink-0 border-r border-[var(--color-border)] bg-[var(--color-surface)] flex flex-col min-h-0">
+    <div className="relative flex h-full min-h-0">
+      {/* ─── Session sidebar (desktop) ───────────────────────────────────── */}
+      <aside className="hidden md:flex w-60 shrink-0 border-r border-[var(--color-border)] bg-[var(--color-surface)] flex-col min-h-0">
         <div className="p-3 border-b border-[var(--color-border)]">
           <button
             type="button"
@@ -219,7 +222,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
                   onClick={() => padamSesi(s.id)}
                   disabled={loading}
                   aria-label="Delete conversation"
-                  className="p-1 rounded-md text-[var(--color-text-tertiary)] opacity-0 group-hover:opacity-100 hover:text-[var(--color-danger)] transition-opacity disabled:opacity-30"
+                  className="p-1 rounded-md text-[var(--color-text-tertiary)] md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 focus-visible:opacity-100 hover:text-[var(--color-danger)] transition-opacity disabled:opacity-30"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -229,10 +232,78 @@ export function ChatBox({ userName }: ChatBoxProps) {
         </div>
       </aside>
 
+      {/* ─── Session drawer (mobile) ─────────────────────────────────────── */}
+      {historyOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-slate-900/40"
+            onClick={() => setHistoryOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="relative w-full max-w-xs bg-[var(--color-surface)] h-full shadow-2xl z-10 flex flex-col min-h-0">
+            <div className="p-3 border-b border-[var(--color-border)] flex items-center gap-2">
+              <button
+                type="button"
+                onClick={buatSesiBaharu}
+                disabled={loading}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 min-h-[44px] rounded-lg bg-[var(--color-brand)] text-white text-xs font-semibold hover:bg-[var(--color-brand-hover)] transition-colors disabled:opacity-40 disabled:pointer-events-none"
+              >
+                <Plus size={14} />
+                New Session
+              </button>
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(false)}
+                aria-label="Close history"
+                className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg border border-[var(--color-border)] text-[var(--color-text-secondary)]"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0">
+              {loadingSessions ? (
+                <p className="px-3 py-2 text-xs text-[var(--color-text-tertiary)]">
+                  Loading history…
+                </p>
+              ) : sessions.length === 0 ? (
+                <p className="px-3 py-2 text-xs text-[var(--color-text-tertiary)]">
+                  No conversation history.
+                </p>
+              ) : (
+                sessions.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => openSesi(s.id)}
+                    disabled={loading}
+                    className={`w-full flex items-center gap-1.5 rounded-lg px-2 py-3 min-h-[44px] text-left transition-colors ${
+                      activeSesiId === s.id
+                        ? 'bg-[var(--color-brand-subtle)] text-[var(--color-brand)]'
+                        : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)]'
+                    }`}
+                  >
+                    <MessageSquare size={13} className="flex-shrink-0" />
+                    <span className="block truncate text-xs font-medium">{s.tajuk}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── Chat panel ──────────────────────────────────────────────────── */}
       <div className="flex flex-col flex-1 min-w-0 bg-[var(--color-surface)]">
         {/* Header */}
-        <div className="flex items-center gap-2.5 px-5 h-13 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]/50 shrink-0">
+        <div className="flex items-center gap-2.5 px-4 sm:px-5 min-h-[56px] py-2 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]/50 shrink-0">
+          <button
+            type="button"
+            onClick={() => setHistoryOpen(true)}
+            aria-label="Open conversation history"
+            className="md:hidden min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg border border-[var(--color-border)] text-[var(--color-text-secondary)]"
+          >
+            <MessageSquare size={16} />
+          </button>
           <div className="w-7 h-7 rounded-lg bg-[var(--color-brand)] flex items-center justify-center">
             <Sparkles size={14} className="text-white" />
           </div>
@@ -271,8 +342,8 @@ export function ChatBox({ userName }: ChatBoxProps) {
                   Ask anything about facilities
                 </p>
                 <p className="text-xs text-[var(--color-text-tertiary)] mt-1 max-w-sm">
-                  I am @syaakiirr, i can help you to check facility status, total arrears, and
-                  follow-up activity directly from the database.
+                  I&apos;m @syaakiirr. Ask about facility status, total arrears, and
+                  follow-up activity.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 justify-center max-w-md">
@@ -280,7 +351,7 @@ export function ChatBox({ userName }: ChatBoxProps) {
                   <button
                     key={s}
                     onClick={() => sendMessage(s)}
-                    className="px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] transition-colors"
+                    className="px-3 min-h-[44px] inline-flex items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] transition-colors"
                   >
                     {s}
                   </button>

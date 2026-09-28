@@ -51,7 +51,7 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
     supabase.from('tanah_jv').select('*').eq('id', id).single(),
     supabase
       .from('susulan')
-      .select('*, dicatat_oleh_user:users(nama), lampiran(*)', { count: 'exact' })
+      .select('*, dicatat_oleh_user:users!susulan_dicatat_oleh_fkey(nama), lampiran(*)', { count: 'exact' })
       .eq('tanah_id', id)
       .order('tarikh_susulan', { ascending: true })
       .limit(200),
@@ -115,8 +115,8 @@ export default async function TanahKronologiPage({ params }: { params: Promise<{
         </div>
 
         {/* Info table */}
-        <div className="px-4 sm:px-8 py-6 border-b border-[var(--color-border)]">
-          <table className="w-full text-sm">
+        <div className="px-4 sm:px-8 py-6 border-b border-[var(--color-border)] overflow-x-auto">
+          <table className="w-full text-sm min-w-[300px]">
             <tbody className="divide-y divide-[var(--color-border)]">
               {[
                 ['State', tanah.negeri],

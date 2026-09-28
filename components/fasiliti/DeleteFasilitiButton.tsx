@@ -19,7 +19,12 @@ export function DeleteFasilitiButton({ fasilitiId, kodRujukan }: DeleteFasilitiB
     setLoading(true)
     try {
       await padamFasiliti(fasilitiId)
+      // Berjaya: padamFasiliti redirect — jangan sentuh state, biar navigasi jalan.
     } catch (err) {
+      // redirect() throw NEXT_REDIRECT — itu KEJAYAAN, bukan ralat. Lempar semula
+      // supaya Next.js navigasi; hanya ralat sebenar dipapar sebagai toast.
+      const digest = (err as { digest?: unknown })?.digest
+      if (typeof digest === 'string' && digest.startsWith('NEXT_REDIRECT')) throw err
       setLoading(false)
       setOpen(false)
       toast.error(

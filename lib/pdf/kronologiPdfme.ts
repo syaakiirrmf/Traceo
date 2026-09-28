@@ -52,6 +52,7 @@ interface FasilitiData {
   bayaran_tambahan?: number
   penama_aset?: string | null
   status_pindahmilik?: string | null
+  cara_selesai?: 'bayaran_penuh' | 'melalui_aset' | null
   nama_kontraktor?: string | null
   harga_jualan?: string | null
   tahun_projek?: number | null
@@ -99,6 +100,10 @@ function buildInfoRows(f: FasilitiData): Array<[string, string]> {
   if (f.nilai_cagaran) rows.push(['Estimated Value (RM)', fmtCurrency(f.nilai_cagaran)])
   if (f.penama_aset) rows.push(['Asset Nominee', f.penama_aset])
   if (f.status_pindahmilik) rows.push(['Transfer / Asset Sale Status', f.status_pindahmilik])
+  if (f.status_fasiliti === 'selesai' && f.cara_selesai === 'melalui_aset')
+    rows.push(['Settled How', 'Settled via asset (collateral became an asset)'])
+  if (f.status_fasiliti === 'selesai' && f.cara_selesai === 'bayaran_penuh')
+    rows.push(['Settled How', 'Paid in full'])
   if (isJV2 && f.harga_jualan) rows.push(['Sale Price / Type', f.harga_jualan])
   return rows
 }

@@ -528,7 +528,7 @@ export function AuditTable({ logs }: { logs: LogAudit[] }) {
         open={!!selectedLog}
         onClose={() => setSelectedLog(null)}
         title="Audit Record Details"
-        description="Comprehensive audit event log data payload"
+        description="Full JSON payload recorded for this event"
         icon={<ShieldCheck size={18} />}
         maxWidth="max-w-lg"
         footer={
@@ -539,7 +539,7 @@ export function AuditTable({ logs }: { logs: LogAudit[] }) {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
             >
               {copied ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
-              <span>{copied ? 'Copied to Clipboard' : 'Copy JSON'}</span>
+              <span>{copied ? 'Copied' : 'Copy JSON'}</span>
             </button>
             <button
               type="button"

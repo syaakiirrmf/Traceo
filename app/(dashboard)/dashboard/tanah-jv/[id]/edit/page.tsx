@@ -66,7 +66,7 @@ export default async function EditTanahJVPage({ params }: { params: Promise<{ id
 
       <ActionForm action={action} className="space-y-5">
         {/* Tajuk */}
-        <Section title="Title — Land Title Information">
+        <Section title="Land Title Information">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="State"

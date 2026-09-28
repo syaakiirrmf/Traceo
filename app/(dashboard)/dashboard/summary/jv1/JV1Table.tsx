@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { dash, formatRM, calculateLTV, STATUS_CONFIG } from '../_helpers'
 import { FormulaTooltip, ToggleColumnsButton, StatusBadge } from '../_components'
 import { TableSearch, TableSelect, matchesQuery } from '@/components/table/TableSearch'
+import { KadarDividen } from '@/components/table/KadarDividen'
 import type { Fasiliti } from '@/types'
 
 function SortIcon({
@@ -126,7 +127,13 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 </th>
                 <th
                   rowSpan={2}
-                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px] sticky left-12 z-40 bg-[var(--color-surface-raised)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
+                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[180px] sticky left-12 z-40 bg-[var(--color-surface-raised)]"
+                >
+                  Capital Financier
+                </th>
+                <th
+                  rowSpan={2}
+                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
                   onClick={() => handleSort('nama_peminjam')}
                 >
                   <span className="flex items-center">
@@ -134,7 +141,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                   </span>
                 </th>
                 <th
-                  colSpan={3}
+                  colSpan={2}
                   className="px-4 py-2 font-semibold uppercase tracking-wider text-[var(--color-text-primary)] border-r border-[var(--color-border)] bg-[var(--color-surface-raised)] border-b-2 border-b-[var(--color-text-primary)]"
                 >
                   Capital Financing Details
@@ -165,10 +172,7 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
 
               {/* Level 2: Sub-fields */}
               <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)]">
-                {/* Pembiayaan Sub-fields */}
-                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
-                  Capital Financier
-                </th>
+                {/* Pembiayaan Sub-fields (Financier moved to sticky L1) */}
                 <th
                   className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)] cursor-pointer select-none hover:bg-slate-100/60 transition-colors"
                   onClick={() => handleSort('jumlah_pembiayaan')}
@@ -268,8 +272,13 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                         {index + 1}
                       </td>
 
-                      {/* Nama Peminjam & Kod & Status Badge — Sticky Left 12 */}
-                      <td className="px-3.5 py-3 border-r border-[var(--color-border)] sticky left-12 z-20 bg-[var(--color-surface)] group-hover:bg-[var(--color-surface-raised)]">
+                      {/* Capital Financier — Sticky Left 12 (Excel order) */}
+                      <td className="px-3.5 py-3 text-[var(--color-text-secondary)] border-r border-[var(--color-border)] sticky left-12 z-20 bg-[var(--color-surface)] group-hover:bg-[var(--color-surface-raised)]">
+                        {dash(f.pembiaya_modal)}
+                      </td>
+
+                      {/* Nama Peminjam & Kod & Status Badge */}
+                      <td className="px-3.5 py-3 border-r border-[var(--color-border)]">
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-semibold text-[var(--color-text-primary)] leading-snug">
                             {dash(f.nama_peminjam)}
@@ -284,14 +293,11 @@ export function JV1Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                       </td>
 
                       {/* Pembiayaan Modal Group */}
-                      <td className="px-3.5 py-3 text-[var(--color-text-secondary)] border-r border-[var(--color-border)]">
-                        {dash(f.pembiaya_modal)}
-                      </td>
                       <td className="px-3.5 py-3 text-right font-mono font-semibold text-[var(--color-text-primary)] border-r border-[var(--color-border)] tabular-nums">
                         {formatRM(f.jumlah_pembiayaan)}
                       </td>
-                      <td className="px-3.5 py-3 text-[var(--color-text-secondary)] border-r border-[var(--color-border)] whitespace-pre-line leading-relaxed">
-                        {dash(f.kadar_dividen)}
+                      <td className="px-3.5 py-3 text-[var(--color-text-secondary)] border-r border-[var(--color-border)] leading-relaxed min-w-[200px]">
+                        <KadarDividen value={f.kadar_dividen} />
                       </td>
 
                       {/* Tunggakan & Bayaran Group (Strict color discipline: Red ONLY if > 0) */}

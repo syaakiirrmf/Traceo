@@ -6,6 +6,18 @@ html {
 }
 
 @layer base {
+  /* Cursor kebolehklikan: Tailwind v4 tetapkan butang ke cursor biasa
+     (default), jadi butang nampak seperti teks mati walaupun boleh ditekan.
+     Kembalikan tangan penunjuk untuk semua kawalan boleh-klik — sekali gus
+     untuk seluruh aplikasi tanpa perlu sentuh setiap butang. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+
   :root {
     /* ── Traceo Design Tokens ── */
 

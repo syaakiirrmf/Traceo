@@ -34,6 +34,7 @@ export function TambahFasilitiForm({
   defaultKategori?: Kategori
 }) {
   const [kategori, setKategori] = useState<Kategori>(defaultKategori)
+  const [status, setStatus] = useState('aktif')
 
   const isJV1 = kategori === 'jv_syarikat'
   const isJV2 = kategori === 'jv_tanah'
@@ -69,7 +70,8 @@ export function TambahFasilitiForm({
             <select
               name="status_fasiliti"
               required
-              defaultValue="aktif"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
               className="w-full h-10 px-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
             >
               {STATUS_OPTIONS.map((o) => (
@@ -80,6 +82,28 @@ export function TambahFasilitiForm({
             </select>
           </div>
         </div>
+        {status === 'selesai' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+                Settled How <span className="text-[var(--color-danger)]">*</span>
+              </label>
+              <select
+                name="cara_selesai"
+                required
+                defaultValue="bayaran_penuh"
+                className="w-full h-10 px-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors"
+              >
+                <option value="bayaran_penuh">Paid in full</option>
+                <option value="melalui_aset">Settled via asset</option>
+              </select>
+              <p className="text-[11px] text-[var(--color-text-tertiary)]">
+                Paid in full = borrower paid everything. Settled via asset = collateral
+                became an asset (transferred to nominee / sold).
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
@@ -256,7 +280,7 @@ export function TambahFasilitiForm({
             placeholder={
               isJV2
                 ? 'e.g. GM 1837 LOT 1979 MUKIM TUK JAMAL'
-                : 'e.g. LAND N9 — VALUATION 1.5 MILLION'
+                : 'e.g. LAND N9, VALUATION 1.5 MILLION'
             }
             className="w-full px-3.5 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15 transition-colors resize-none"
           />
@@ -281,7 +305,7 @@ export function TambahFasilitiForm({
         <Field
           label="Asset Transfer / Sale Status"
           name="status_pindahmilik"
-          placeholder="e.g. Sold to buyer — Completed"
+          placeholder="e.g. Sold to buyer, completed"
         />
 
         {/* JV2 specific: Harga Jualan */}

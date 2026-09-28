@@ -13,6 +13,7 @@ interface FromChain {
   select: Mock
   eq: Mock
   in: Mock
+  or?: Mock
   order: Mock
   limit?: Mock
   insert: Mock
@@ -177,6 +178,87 @@ describe('GET /api/export/fasiliti', () => {
       Status: 'Overdue',
       'Financing (RM)': 1000000,
       'Arrears (RM)': 50000,
+    })
+  })
+
+  it('exports Tanah sheet when kategori=tanah_lot', async () => {
+    const { fromFn, chain } = makeFrom()
+    chain.users = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      single: vi.fn(async () => ({ data: { id: 'u1', peranan: 'admin' } })),
+      maybeSingle: vi.fn().mockReturnThis(),
+    }
+    chain.fasiliti = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn(async () => ({ data: [] })),
+      insert: vi.fn().mockReturnThis(),
+      single: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockReturnThis(),
+    }
+    chain.tanah_jv = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      or: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn(async () => ({
+        data: [
+          {
+            no_lot: 'LOT 1979',
+            tempat: 'Gemencheh',
+            bandar_mukim: 'Mukim Tuk Jamal',
+            daerah: 'Tampin',
+            negeri: 'Negeri Sembilan',
+            no_hak_milik: 'GM 1837',
+            luas_meter_persegi: 1000,
+            anggaran_nilaian: 400000,
+            tarikh_daftar: '2024-05-01',
+            catatan: 'Nota tanah',
+          },
+        ],
+      })),
+      insert: vi.fn().mockReturnThis(),
+      single: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockReturnThis(),
+    }
+    chain.log_audit = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      insert: vi.fn(async () => ({ error: null })),
+      single: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockReturnThis(),
+    }
+
+    const supabase = {
+      auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })) },
+      from: fromFn,
+      rpc: mockRpc(),
+    }
+    ;(createClient as Mock).mockResolvedValue(supabase)
+
+    const req = new Request('http://localhost/api/export/fasiliti?kategori=tanah_lot')
+    const res = await exportGet(req as never)
+    expect(res.status).toBe(200)
+
+    const buffer = Buffer.from(await res.arrayBuffer())
+    const wb = XLSX.read(buffer, { type: 'buffer' })
+    // Helaian Facility tiada bila filter tanah_lot; helaian Tanah wajib ada
+    expect(wb.SheetNames).toEqual(['Tanah'])
+    const json = XLSX.utils.sheet_to_json(wb.Sheets['Tanah'])
+    expect(json).toHaveLength(1)
+    expect(json[0]).toMatchObject({
+      'No. Lot': 'LOT 1979',
+      State: 'Negeri Sembilan',
+      'Value (RM)': 400000,
     })
   })
 

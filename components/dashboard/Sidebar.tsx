@@ -5,13 +5,12 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   Building2,
+  Landmark,
   Users,
   ClipboardList,
   LogOut,
   ChevronRight,
   UserCircle2,
-  MapPin,
-  LayoutList,
   Sparkles,
   Crown,
   CalendarDays,
@@ -39,16 +38,10 @@ const navItems: NavItem[] = [
     icon: Crown,
     superadminOnly: true,
   },
-  { href: '/dashboard/summary/jv1', label: 'Summary JV 1', icon: Building2 },
-  { href: '/dashboard/summary/jv2', label: 'Land JV', icon: LayoutList },
-  { href: '/dashboard/summary/jv3', label: 'Personal Loan', icon: LayoutList },
-  {
-    href: '/dashboard/tanah-jv',
-    label: 'Tanah MD (JV)',
-    icon: MapPin,
-    permission: 'lihat_tanah_jv',
-  },
-  { href: '/dashboard/fasiliti', label: 'Facilities (All)', icon: Building2 },
+  // Semua financing + lot tanah dicari dalam satu page Facilities (filter kategori).
+  // Route summary/* dan tanah-jv kekal hidup untuk deep-link, tapi tidak dipapar di nav.
+  { href: '/dashboard/fasiliti', label: 'Facilities', icon: Building2 },
+  { href: '/dashboard/aset', label: 'Assets', icon: Landmark },
   {
     href: '/dashboard/susulan',
     label: 'Follow-Up Calendar',
@@ -116,7 +109,7 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
         {onClose && (
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="lg:hidden min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
             aria-label="Close sidebar"
           >
             &times;
@@ -138,7 +131,7 @@ export function Sidebar({ user, onClose, className }: SidebarProps) {
               href={item.href}
               onClick={() => onClose && onClose()}
               className={cn(
-                'group flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all duration-200',
+                'group flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-[13.5px] font-medium transition-all duration-200 min-h-[44px]',
                 isSuperadminItem
                   ? isActive
                     ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30 shadow-xs'

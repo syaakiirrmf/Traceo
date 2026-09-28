@@ -86,7 +86,7 @@ export function ManagerDashboardView({
   ).length
 
   return (
-    <div className="space-y-6 max-w-[1600px] p-6 font-dm">
+    <div className="min-w-0 space-y-5 sm:space-y-6 max-w-[1600px] font-dm">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
         <div>
@@ -96,7 +96,7 @@ export function ManagerDashboardView({
               JV Operations &bull; Management Dashboard
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-fustat font-black tracking-tight text-slate-900">
+          <h1 className="text-2xl sm:text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tracking-tight text-slate-900">
             Management Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -117,15 +117,15 @@ export function ManagerDashboardView({
             href="/dashboard/fasiliti/tambah"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat"
           >
-            <Plus size={14} />+ Add Facility
+            <Plus size={14} /> Add Facility
           </Link>
         </div>
       </div>
 
       {/* Manager Operational KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Active Accounts */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Active Facilities
@@ -134,7 +134,7 @@ export function ManagerDashboardView({
               <CheckCircle2 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-slate-900 tracking-tight">
             {activeCount}
           </p>
           <p className="text-xs text-slate-500 mt-1">
@@ -144,7 +144,7 @@ export function ManagerDashboardView({
         </div>
 
         {/* Overdue Accounts */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Overdue Accounts
@@ -153,14 +153,14 @@ export function ManagerDashboardView({
               <AlertTriangle size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-amber-600 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-amber-600 tracking-tight">
             {overdueCount}
           </p>
           <p className="text-xs text-slate-500 mt-1">Requires assignment &amp; follow-up</p>
         </div>
 
         {/* Total Arrears */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Total Arrears Balance
@@ -169,14 +169,14 @@ export function ManagerDashboardView({
               <BarChart3 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Manager collection target</p>
         </div>
 
         {/* Collateral Value */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Land Collateral Value
@@ -185,7 +185,7 @@ export function ManagerDashboardView({
               <Landmark size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-slate-900 tracking-tight">
             {formatCurrency(totalCagaran)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Property collateral coverage</p>
@@ -200,6 +200,7 @@ export function ManagerDashboardView({
             statuses={statusData}
             totalCagaran={totalCagaran}
             overdueList={overdueList}
+            facilities={fasilitiList}
           />
           <div className="mt-6">
             <MonthlyTrendChart data={monthlyTrend} />

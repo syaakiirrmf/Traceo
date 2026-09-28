@@ -54,7 +54,7 @@ export default async function TambahTanahJVPage() {
 
       <ActionForm action={tambahTanahJV} className="space-y-5">
         {/* Tajuk / Title */}
-        <Section title="Title — Land Title Information">
+        <Section title="Land Title Information">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="State" name="negeri" required placeholder="e.g. Negeri Sembilan" />
             <Field label="District" name="daerah" required placeholder="e.g. Seremban" />

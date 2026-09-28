@@ -1,11 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import type { UserRole, User } from '@/types'
+import type { UserRole } from '@/types'
 import type { Metadata } from 'next'
+import { getSessionUser } from '@/lib/auth/get-user'
 import { AdminDashboardView } from '@/components/dashboard/views/AdminDashboardView'
 import { ManagerDashboardView } from '@/components/dashboard/views/ManagerDashboardView'
 import { OfficerDashboardView } from '@/components/dashboard/views/OfficerDashboardView'
 import { ViewerDashboardView } from '@/components/dashboard/views/ViewerDashboardView'
+
+// Bentuk hasil fetch admin (users/audit) — dikongsi antara nilai kosong
+// segera (bukan-admin) dan hasil sebenar (admin). Fetch kelulusan susulan
+// dibuang bersama widget Follow-up Approval Pipeline (tidak relevan bila
+// seorang saja memantau — data yang dimasukkan memang sudah diluluskan).
+type AdminExtrasResult = [{ count: number | null }, { count: number | null }]
+
+const EMPTY_ADMIN_EXTRAS: AdminExtrasResult = [{ count: 0 }, { count: 0 }]
 
 const ROLE_DASHBOARD_CONFIG: Record<UserRole, { tabTitle: string }> = {
   superadmin: { tabTitle: 'Superadmin Command Center' },
@@ -52,43 +61,30 @@ function buildMonthlyTrend(
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const supabase = await createClient()
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) return { title: 'Dashboard' }
+  // Q2: kongsi cache sesi dengan layout + page — tiada query tambahan.
+  const session = await getSessionUser()
+  if (!session) return { title: 'Dashboard' }
 
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('peranan')
-    .eq('auth_id', authUser.id)
-    .single()
-
-  const role = (userProfile?.peranan as UserRole) || 'viewer'
+  const role = (session.userProfile.peranan as UserRole) || 'viewer'
   const config = ROLE_DASHBOARD_CONFIG[role] || ROLE_DASHBOARD_CONFIG.viewer
   return { title: config.tabTitle }
 }
 
 export default async function DashboardPage() {
+  // Q2: sesi dikongsi cache dengan layout + metadata — 1x set query per request.
+  const session = await getSessionUser()
+  if (!session) redirect('/login')
+
+  const currentUser = session.userProfile
+  const userRole = (currentUser.peranan as UserRole) || 'viewer'
+  // Client supabase untuk query data (createClient tiada IO — cuma baca cookies).
   const supabase = await createClient()
 
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser()
-  if (!authUser) redirect('/login')
-
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('id, nama, emel, peranan, status')
-    .eq('auth_id', authUser.id)
-    .single()
-  if (!userProfile) redirect('/login')
-
-  const currentUser = userProfile as User
-  const userRole = (userProfile.peranan as UserRole) || 'viewer'
-
-  // Fetch all fasiliti + tanah_jv in parallel
-  const [{ data: allFasiliti }, { data: allTanah }] = await Promise.all([
+  // Q4: SEMUA fetch bermula serentak. Fetch admin (users/audit/approval) tidak
+  // lagi menunggu fetch utama + kiraan selesai — sebelum ini satu roundtrip
+  // berasingan untuk admin. Bukan-admin dapat promise kosong segera.
+  const needsAdminExtras = userRole === 'admin' || userRole === 'superadmin'
+  const corePromise = Promise.all([
     supabase
       .from('fasiliti')
       .select(
@@ -96,6 +92,15 @@ export default async function DashboardPage() {
       ),
     supabase.from('tanah_jv').select('id, anggaran_nilaian'),
   ])
+  const adminExtrasPromise: Promise<AdminExtrasResult> = needsAdminExtras
+    ? Promise.all([
+        supabase.from('users').select('*', { count: 'exact', head: true }),
+        supabase.from('log_audit').select('*', { count: 'exact', head: true }),
+      ])
+    : Promise.resolve(EMPTY_ADMIN_EXTRAS)
+
+  // Fetch all fasiliti + tanah_jv in parallel
+  const [{ data: allFasiliti }, { data: allTanah }] = await corePromise
 
   const fasilitiList = (allFasiliti ?? []).map((f) => ({
     ...f,
@@ -276,25 +281,8 @@ export default async function DashboardPage() {
   }
 
   // ─── 4. ADMIN DASHBOARD VIEW (Default) ──────────────────────────────────────
-  const [
-    { count: usersCount },
-    { count: auditCount },
-    { data: approvalRows },
-  ] = await Promise.all([
-    supabase.from('users').select('*', { count: 'exact', head: true }),
-    supabase.from('log_audit').select('*', { count: 'exact', head: true }),
-    supabase.from('susulan').select('status_kelulusan'),
-  ])
-
-  const approvalStats = {
-    menunggu: 0,
-    diluluskan: 0,
-    ditolak: 0,
-  }
-  for (const s of approvalRows ?? []) {
-    const key = s.status_kelulusan as keyof typeof approvalStats
-    if (key in approvalStats) approvalStats[key] += 1
-  }
+  // Data sudah difetch selari dari awal (Q4) — await di sini hanya tuai hasil.
+  const [{ count: usersCount }, { count: auditCount }] = await adminExtrasPromise
 
   return (
     <AdminDashboardView
@@ -318,7 +306,6 @@ export default async function DashboardPage() {
       topFinanciers={topFinanciers}
       maxFinancierExposure={maxFinancierExposure}
       monthlyTrend={monthlyTrend}
-      approvalStats={approvalStats}
     />
   )
 }

@@ -12,6 +12,10 @@ const wang = z.coerce.number().min(0, 'Nilai tidak boleh negatif').max(999_999_9
 
 export const KATEGORI = ['jv_syarikat', 'jv_tanah', 'pinjaman_individu'] as const
 export const STATUS_FASILITI = ['aktif', 'tertunggak', 'tindakan_guaman', 'selesai'] as const
+// Cara selesai: bayaran_penuh (bayar habis biasa) vs melalui_aset (cagaran dah
+// jadi aset — pindah milik kepada penama / dijual). NULL = belum selesai atau
+// rekod selesai legasi sebelum pembezaan ini wujud.
+export const CARA_SELESAI = ['bayaran_penuh', 'melalui_aset'] as const
 export const PERANAN = ['admin', 'pengurus', 'pegawai_susulan', 'viewer'] as const
 
 // ─── Fasiliti ────────────────────────────────────────────────────────────────
@@ -27,10 +31,20 @@ const fasilitiBase = z.object({
   nilai_cagaran: z.union([z.coerce.number().min(0), z.literal(''), z.nan(), z.null()]).transform((v) =>
     typeof v === 'number' && Number.isFinite(v) ? v : null
   ),
-  jumlah_tunggakan_semasa: z.union([z.coerce.number().min(0), z.literal('')]).transform((v) =>
-    typeof v === 'number' && Number.isFinite(v) ? v : undefined
-  ),
+  // Kosong (''/null/undefined) → undefined supaya auto-compute dalam
+  // buildFasilitiPayload jalan ("Leave blank to auto-compute"). Tanpa preprocess,
+  // z.coerce.number() tukar '' → 0 dan auto-compute tidak pernah trigger.
+  jumlah_tunggakan_semasa: z
+    .preprocess(
+      (v) => (v === '' || v === null || v === undefined ? undefined : v),
+      z.coerce.number().min(0, 'Nilai tidak boleh negatif').max(999_999_999_999, 'Nilai terlalu besar').optional()
+    )
+    .transform((v) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined)),
   status_fasiliti: z.enum(STATUS_FASILITI, 'Status tidak sah'),
+  cara_selesai: z
+    .union([z.enum(CARA_SELESAI), z.literal(''), z.null()])
+    .optional()
+    .transform((v) => (v ? (v as (typeof CARA_SELESAI)[number]) : null)),
   catatan_am: z.string().trim().max(5000).nullable().default(null),
   kadar_dividen: z.string().trim().max(200).nullable().default(null),
   perkongsian_keuntungan: wang.default(0),
@@ -63,6 +77,17 @@ export const susulanSchema = z.object({
   tarikh_susulan: tarikh.refine((v) => v <= todayStr(), 'Tarikh susulan tidak boleh pada masa depan'),
   catatan: z.string().trim().min(1, 'Catatan diperlukan').max(5000, 'Catatan maksimum 5000 aksara'),
 })
+
+export const BAYARAN_JENIS = ['modal', 'dividen', 'caj_lewat', 'lain'] as const
+
+export const bayaranSchema = z.object({
+  tarikh_bayar: tarikh.refine((v) => v <= todayStr(), 'Tarikh bayaran tidak boleh pada masa depan'),
+  jumlah: z.coerce.number().min(0.01, 'Jumlah mesti melebihi 0').max(999_999_999_999, 'Nilai terlalu besar'),
+  jenis: z.enum(BAYARAN_JENIS),
+  catatan: z.string().trim().max(1000, 'Remark maksimum 1000 aksara').nullable().default(null),
+})
+
+export type BayaranInput = z.infer<typeof bayaranSchema>
 
 export type SusulanInput = z.infer<typeof susulanSchema>
 

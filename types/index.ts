@@ -3,6 +3,8 @@ export type UserStatus = 'aktif' | 'tidak_aktif'
 
 export type FasilitiKategori = 'jv_syarikat' | 'jv_tanah' | 'pinjaman_individu'
 export type FasilitiStatus = 'aktif' | 'tertunggak' | 'tindakan_guaman' | 'selesai'
+// Cara selesai: bayaran_penuh | melalui_aset | null (belum selesai / legasi)
+export type CaraSelesai = 'bayaran_penuh' | 'melalui_aset'
 
 export type LampiranJenis = 'imej' | 'dokumen'
 
@@ -31,6 +33,7 @@ export interface Fasiliti {
   nilai_cagaran: number | null
   jumlah_tunggakan_semasa: number  // E for JV1/JV2, C for JV3 (computed/editable)
   status_fasiliti: FasilitiStatus
+  cara_selesai: CaraSelesai | null
   catatan_am: string | null
   dicipta_oleh: string
   dicipta_pada: string
@@ -86,6 +89,22 @@ export interface Lampiran {
   jenis_fail: LampiranJenis
   nama_asal: string
   dimuat_naik_pada: string
+}
+
+export type BayaranJenis = 'modal' | 'dividen' | 'caj_lewat' | 'lain'
+
+export interface Bayaran {
+  id: string
+  fasiliti_id: string
+  tarikh_bayar: string
+  jumlah: number
+  jenis: BayaranJenis
+  catatan: string | null
+  dicatat_oleh: string
+  dicipta_pada: string
+  dikemaskini_pada: string
+  // Joined
+  dicatat_oleh_user?: Pick<User, 'id' | 'nama'>
 }
 
 export interface LogAudit {
@@ -159,6 +178,7 @@ export interface FasilitiFormData {
   nilai_cagaran?: number
   jumlah_tunggakan_semasa: number
   status_fasiliti: FasilitiStatus
+  cara_selesai?: CaraSelesai | null
   catatan_am?: string
   pegawai_ids?: string[]
   // Financial breakdown (category-specific)
@@ -218,6 +238,7 @@ export type FeatureKey =
 export type PageKey =
   | '/dashboard'
   | '/dashboard/fasiliti'
+  | '/dashboard/aset'
   | '/dashboard/tanah-jv'
   | '/dashboard/summary'
   | '/dashboard/summary/jv1'

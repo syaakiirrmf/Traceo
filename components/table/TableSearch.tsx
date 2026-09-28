@@ -39,7 +39,7 @@ export function TableSearch({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="relative w-full h-9 pl-9 pr-8 rounded-[var(--radius-md)] bg-transparent text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none active:scale-[0.985] transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]"
+          className="relative w-full h-11 sm:h-10 pl-9 pr-8 rounded-[var(--radius-md)] bg-transparent text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none active:scale-[0.985] transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)]"
         />
         {value && (
           <button
@@ -101,7 +101,7 @@ export function TableSelect({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-label={label}
-          className="relative w-full h-9 pl-3 pr-8 rounded-[var(--radius-md)] bg-transparent text-sm text-[var(--color-text-primary)] focus:outline-none active:scale-[0.985] transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] appearance-none cursor-pointer"
+          className="relative w-full h-11 sm:h-10 pl-3 pr-8 rounded-[var(--radius-md)] bg-transparent text-sm text-[var(--color-text-primary)] focus:outline-none active:scale-[0.985] transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] appearance-none cursor-pointer"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>

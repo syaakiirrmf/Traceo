@@ -141,7 +141,7 @@ export default async function SummaryIndexPage() {
               key={card.href}
               href={card.href}
               className={`group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md hover:border-[#0066FF]/30 transition-all flex flex-col justify-between gap-4 no-underline ${
-                card.hasArrears ? 'border-l-4 border-l-red-500' : ''
+                card.hasArrears ? 'border-red-200 bg-red-50/40' : ''
               }`}
             >
               {/* Top row: category label & count */}

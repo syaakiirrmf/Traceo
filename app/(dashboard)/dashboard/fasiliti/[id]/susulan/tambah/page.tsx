@@ -27,6 +27,24 @@ export default async function TambahSusulanPage({ params }: { params: Promise<{ 
 
   if (!fasiliti) redirect('/dashboard/fasiliti')
 
+  // Pegawai hanya boleh tambah susulan untuk fasiliti assigned (selaras dengan
+  // detail page) — elak RLS tolak senyap di peringkat RPC.
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('id, peranan')
+    .eq('auth_id', authUser.id)
+    .single()
+
+  if (userProfile?.peranan === 'pegawai_susulan') {
+    const { data: assignment } = await supabase
+      .from('fasiliti_pegawai')
+      .select('fasiliti_id')
+      .eq('fasiliti_id', id)
+      .eq('user_id', userProfile.id)
+      .maybeSingle()
+    if (!assignment) redirect('/dashboard/fasiliti?denied=1')
+  }
+
   const today = new Date().toISOString().split('T')[0]
 
   const action = tambahSusulan.bind(null, id)

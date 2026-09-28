@@ -16,6 +16,8 @@ const PERMISSIONS: Record<string, UserRole[]> = {
   edit_susulan_sendiri:    ['superadmin', 'admin', 'pengurus', 'pegawai_susulan'],
   edit_susulan_orang_lain: ['superadmin', 'admin', 'pengurus'],
   padam_susulan:           ['superadmin', 'admin', 'pengurus', 'pegawai_susulan'],
+  tambah_bayaran:           ['superadmin', 'admin', 'pengurus', 'pegawai_susulan'],
+  padam_bayaran:            ['superadmin', 'admin', 'pengurus'],
   jana_kronologi:          ['superadmin', 'admin', 'pengurus', 'pegawai_susulan', 'viewer'],
   eksport_excel:           ['superadmin', 'admin', 'pengurus'],
   eksport_ringkasan:       ['superadmin', 'admin', 'pengurus', 'pegawai_susulan'],
@@ -60,6 +62,7 @@ export function getRoleLabel(role: UserRole): string {
 export const PAGE_PERMISSIONS: Record<string, Permission> = {
   '/dashboard':              'lihat_dashboard',
   '/dashboard/fasiliti':     'lihat_fasiliti',
+  '/dashboard/aset':         'lihat_fasiliti',
   '/dashboard/tanah-jv':     'lihat_tanah_jv',
   '/dashboard/summary':      'lihat_summary',
   '/dashboard/summary/jv1':  'lihat_summary',

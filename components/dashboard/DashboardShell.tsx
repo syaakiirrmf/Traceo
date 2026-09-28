@@ -10,14 +10,18 @@ import type { User } from '@/types'
 interface DashboardShellProps {
   user: User
   children: React.ReactNode
-  notifications?: SusulanNotification[]
+  notificationsPromise?: Promise<SusulanNotification[]>
 }
 
-export function DashboardShell({ user, children, notifications = [] }: DashboardShellProps) {
+export function DashboardShell({
+  user,
+  children,
+  notificationsPromise = Promise.resolve([]),
+}: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--color-bg)]">
+    <div className="flex h-dvh min-h-[100dvh] overflow-hidden bg-[var(--color-bg)]">
       {/* Desktop Sidebar (hidden on mobile, fixed w-[240px] on lg:) */}
       <div className="hidden lg:block h-full" style={{ viewTransitionName: 'traceo-sidebar' }}>
         <Sidebar user={user} />
@@ -42,7 +46,7 @@ export function DashboardShell({ user, children, notifications = [] }: Dashboard
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopBar
           user={user}
-          notifications={notifications}
+          notificationsPromise={notificationsPromise}
           onMenuToggle={() => setMobileOpen(true)}
         />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">

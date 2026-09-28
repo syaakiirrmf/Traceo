@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   ArrowUpRight,
   ShieldAlert,
@@ -64,6 +65,14 @@ interface StatusData {
   key: string
   count: number
   color: string
+}
+
+// categories prop guna kekunci ringkas jv1/jv2/jv3; padankan ke nilai kategori
+// sebenar dalam DB (yang sama dipakai URL ?kategori= Facilities).
+const DONUT_KAT_DB: Record<string, string> = {
+  jv1: 'jv_syarikat',
+  jv2: 'jv_tanah',
+  jv3: 'pinjaman_individu',
 }
 
 // â”€â”€ Custom Tooltip for BarChart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -161,16 +170,45 @@ export function DashboardCharts({
   statuses,
   totalCagaran,
   overdueList,
+  facilities,
 }: {
   categories: CategoryData[]
   statuses: StatusData[]
   totalCagaran: number
   overdueList: OverdueItem[]
+  // Sumber mentah donut — supaya boleh tapis ikut kategori di sisi client
+  // dan klik segmen untuk drill-down ke senarai Facilities.
+  facilities: Array<{ kategori: string; status_fasiliti: string }>
 }) {
   const [viewMode, setViewMode] = useState<ChartViewMode>('all')
+  const [donutKategori, setDonutKategori] = useState<string>('all')
+  const router = useRouter()
 
-  const totalCount = statuses.reduce((s, c) => s + c.count, 0)
-  const activeCount = statuses.find((s) => s.key === 'aktif')?.count ?? 0
+  // Agihan status mengikut tapisan kategori donut (label/warna/kekunci ikut
+  // prop statuses supaya konsisten; kiraan datang dari facilities).
+  const donutStatuses = useMemo(() => {
+    const dbKat = DONUT_KAT_DB[donutKategori] ?? donutKategori
+    const src = donutKategori === 'all' ? facilities : facilities.filter((f) => f.kategori === dbKat)
+    const counts = new Map<string, number>()
+    for (const f of src) counts.set(f.status_fasiliti, (counts.get(f.status_fasiliti) ?? 0) + 1)
+    return statuses.map((s) => ({ ...s, count: counts.get(s.key) ?? 0 }))
+  }, [facilities, donutKategori, statuses])
+
+  // Drill-down: buka senarai Facilities yang ditapis ikut status (+ kategori
+  // bila donut sedang ditapis) — senang double-check angka carta.
+  function statusDrillHref(statusKey: string) {
+    const sp = new URLSearchParams()
+    sp.set('status', statusKey)
+    if (donutKategori !== 'all') sp.set('kategori', DONUT_KAT_DB[donutKategori] ?? donutKategori)
+    return `/dashboard/fasiliti?${sp.toString()}`
+  }
+
+  function goStatusDrill(statusKey: string) {
+    router.push(statusDrillHref(statusKey))
+  }
+
+  const totalCount = donutStatuses.reduce((s, c) => s + c.count, 0)
+  const activeCount = donutStatuses.find((s) => s.key === 'aktif')?.count ?? 0
   const activePct = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0
 
   const barData = categories.map((c) => ({
@@ -189,7 +227,7 @@ export function DashboardCharts({
     selesai: '#6366F1', // Indigo
   }
 
-  const pieData = statuses
+  const pieData = donutStatuses
     .filter((s) => s.count > 0)
     .map((s) => ({
       name: s.label,
@@ -200,7 +238,10 @@ export function DashboardCharts({
 
   return (
     <div className="space-y-6 font-dm">
-      {/* â”€â”€ Section 1: Financial & Status Charts Grid â”€â”€ */}
+      {/* ── Section 1: Action-Required Overdue — paling penting, di atas ── */}
+      <OverdueAttentionList overdueList={overdueList} />
+
+      {/* ── Section 2: Financial & Status Charts Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Chart 1: BarChart â€” Financing & Arrears */}
         <div className="lg:col-span-2 bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-5">
@@ -391,6 +432,30 @@ export function DashboardCharts({
             </p>
           </div>
 
+          {/* Donut filter: tapis carta ikut kategori — klik segmen/baris untuk
+              buka senarai fasiliti berkenaan */}
+          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Filter donut by category">
+            {[{ key: 'all', name: 'All' }, ...categories.filter((c) => DONUT_KAT_DB[c.key])].map((c) => {
+              const active = donutKategori === c.key
+              return (
+                <button
+                  key={c.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setDonutKategori(c.key)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
+                    active
+                      ? 'bg-[var(--color-brand)] text-white border-[var(--color-brand)]'
+                      : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)]'
+                  }`}
+                >
+                  {c.name}
+                </button>
+              )
+            })}
+          </div>
+
           {/* Donut with Center Stats Label */}
           <div className="relative flex items-center justify-center my-1">
             <div className="w-full h-44">
@@ -405,6 +470,13 @@ export function DashboardCharts({
                     paddingAngle={3}
                     dataKey="value"
                     strokeWidth={0}
+                    style={{ cursor: 'pointer', outline: 'none' }}
+                    onClick={(d) => {
+                      const key =
+                        (d as { key?: string })?.key ??
+                        (d as { payload?: { key?: string } })?.payload?.key
+                      if (key) goStatusDrill(key)
+                    }}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
@@ -426,22 +498,24 @@ export function DashboardCharts({
             </div>
           </div>
 
-          {/* Status Breakdown Legend Rows */}
+          {/* Status Breakdown Legend Rows — klik untuk buka senarai fasiliti */}
           <div className="space-y-2 pt-1 border-t border-[var(--color-border)]">
-            {statuses.map((st) => {
+            {donutStatuses.map((st) => {
               const pct = totalCount > 0 ? ((st.count / totalCount) * 100).toFixed(0) : '0'
               const displayColor = STATUS_COLORS[st.key] ?? st.color
               return (
-                <div
+                <Link
                   key={st.key}
-                  className="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors"
+                  href={statusDrillHref(st.key)}
+                  title={`View ${st.label} facilities`}
+                  className="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg hover:bg-[var(--color-surface-raised)] transition-colors group"
                 >
                   <div className="flex items-center gap-2">
                     <span
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: displayColor }}
                     />
-                    <span className="text-[var(--color-text-secondary)] font-semibold">
+                    <span className="text-[var(--color-text-secondary)] font-semibold group-hover:text-[var(--color-brand)] group-hover:underline">
                       {st.label}
                     </span>
                   </div>
@@ -449,13 +523,17 @@ export function DashboardCharts({
                     <span className="font-bold text-[var(--color-text-primary)]">{st.count}</span>
                     <span className="text-[10px] text-[var(--color-text-tertiary)]">({pct}%)</span>
                   </div>
-                </div>
+                </Link>
               )
             })}
           </div>
 
-          {/* Collateral Coverage Card */}
-          <div className="p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs flex items-center justify-between gap-3">
+          {/* Collateral Coverage Card — klik untuk buka lot tanah di sebalik nilai ini */}
+          <Link
+            href="/dashboard/fasiliti?kategori=tanah_lot"
+            title="View the land parcels behind this collateral value"
+            className="group p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/20 hover:border-blue-500/40 hover:bg-blue-500/10 transition-colors text-xs flex items-center justify-between gap-3"
+          >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                 <Landmark size={16} />
@@ -464,106 +542,133 @@ export function DashboardCharts({
                 <p className="text-[10px] uppercase font-bold text-[var(--color-text-tertiary)] tracking-wider truncate">
                   Land Collateral (LTV)
                 </p>
-                <p className="font-mono font-bold text-[var(--color-text-primary)] text-sm truncate">
+                <p className="font-mono font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand)] group-hover:underline text-sm truncate">
                   {formatRM(totalCagaran)}
                 </p>
               </div>
             </div>
-          </div>
+            <ArrowUpRight
+              size={14}
+              className="text-[var(--color-text-tertiary)] group-hover:text-[var(--color-brand)] transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shrink-0"
+            />
+          </Link>
         </div>
       </div>
 
       {/* â”€â”€ Section 2: Overdue Attention List â”€â”€ */}
-      <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] p-5 sm:p-6 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-              <ShieldAlert size={17} />
-            </div>
-            <div>
-              <h2 className="text-base font-fustat font-bold text-[var(--color-text-primary)]">
-                Action-Required &amp; Priority Overdue Facilities
-              </h2>
-              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                Immediate follow-up priority list for high-risk accounts
-              </p>
-            </div>
-          </div>
+    </div>
+  )
+}
 
-          <Link
-            href="/dashboard/fasiliti?status=tertunggak"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-brand)] hover:underline"
-          >
-            <span>View All Overdue</span>
-            <ArrowUpRight size={14} />
-          </Link>
+// ─── Section 1: Action-Required & Priority Overdue Facilities ─────────────────
+// Dipindah ke atas (sebelum carta) sebab ini paling penting — senarai priority
+// akaun berisiko yang perlu follow-up segera.
+function OverdueAttentionList({ overdueList }: { overdueList: OverdueItem[] }) {
+  return (
+    <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] p-5 sm:p-6 shadow-xs space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+            <ShieldAlert size={17} />
+          </div>
+          <div>
+            <h2 className="text-base font-fustat font-bold text-[var(--color-text-primary)]">
+              Action-Required &amp; Priority Overdue Facilities
+            </h2>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+              Immediate follow-up priority list for high-risk accounts
+            </p>
+          </div>
         </div>
 
-        {overdueList.length === 0 ? (
-          <div className="p-8 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-center space-y-2">
-            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
-              <CheckCircle2 size={20} />
-            </div>
-            <p className="text-xs font-bold text-[var(--color-text-primary)]">
-              Clean Portfolio Status
-            </p>
-            <p className="text-xs text-[var(--color-text-tertiary)] max-w-sm mx-auto">
-              All facilities are currently on schedule with no critical overdue arrears.
-            </p>
+        <Link
+          href="/dashboard/fasiliti?status=tertunggak"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-brand)] hover:underline"
+        >
+          <span>View All Overdue</span>
+          <ArrowUpRight size={14} />
+        </Link>
+      </div>
+
+      {overdueList.length === 0 ? (
+        <div className="p-8 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border)] text-center space-y-2">
+          <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+            <CheckCircle2 size={20} />
           </div>
-        ) : (
-          <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
-            <table className="w-full text-xs text-left border-collapse">
+          <p className="text-xs font-bold text-[var(--color-text-primary)]">
+            Clean Portfolio Status
+          </p>
+          <p className="text-xs text-[var(--color-text-tertiary)] max-w-sm mx-auto">
+            All facilities are currently on schedule with no critical overdue arrears.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
+          <table className="w-full text-xs text-left border-collapse">
               <thead>
                 <tr className="border-b border-[var(--color-border)] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)] text-[10px] font-bold">
+                  <th className="px-4 py-3.5 text-center">Priority</th>
                   <th className="px-4 py-3.5">Ref Code</th>
-                  <th className="px-4 py-3.5">Borrower / Contractor</th>
-                  <th className="px-4 py-3.5">Capital Financier</th>
-                  <th className="px-4 py-3.5 text-right">Committed Capital</th>
-                  <th className="px-4 py-3.5 text-right">Current Arrears</th>
-                  <th className="px-4 py-3.5">Status</th>
-                  <th className="px-4 py-3.5 text-center" />
+                <th className="px-4 py-3.5">Borrower / Contractor</th>
+                <th className="px-4 py-3.5">Capital Financier</th>
+                <th className="px-4 py-3.5 text-right">Committed Capital</th>
+                <th className="px-4 py-3.5 text-right">Current Arrears</th>
+                <th className="px-4 py-3.5">Status</th>
+                <th className="px-4 py-3.5 text-center" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-border)] bg-[var(--color-surface)]">
+              {overdueList.map((item, idx) => (
+                <tr key={item.id} className="hover:bg-[var(--color-surface-raised)]/60 transition-colors">
+                  <td className="px-4 py-3.5 text-center">
+                    <span
+                      title={`Priority #${idx + 1} — highest arrears first`}
+                      className={`inline-flex w-7 h-7 items-center justify-center rounded-full text-xs font-black tabular-nums border ${
+                        idx === 0
+                          ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                          : idx < 3
+                            ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30'
+                            : 'bg-[var(--color-surface-raised)] text-[var(--color-text-tertiary)] border-[var(--color-border)]'
+                      }`}
+                    >
+                      {idx + 1}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 font-mono font-medium text-[var(--color-brand)]">
+                    {item.kod_rujukan}
+                  </td>
+                  <td className="px-4 py-3.5 font-bold text-[var(--color-text-primary)]">
+                    {item.nama_peminjam}
+                  </td>
+                  <td className="px-4 py-3.5 text-[var(--color-text-secondary)]">
+                    {item.pembiaya_modal}
+                  </td>
+                  <td className="px-4 py-3.5 text-right font-mono font-medium text-[var(--color-text-primary)]">
+                    {formatRM(item.jumlah_pembiayaan)}
+                  </td>
+                  <td className="px-4 py-3.5 text-right font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-500/5">
+                    {formatRM(item.jumlah_tunggakan_semasa)}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                      <AlertTriangle size={10} />
+                      {item.status_fasiliti === 'tindakan_guaman' ? 'Legal Action' : 'Overdue'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 text-center">
+                    <Link
+                      href={`/dashboard/fasiliti/${item.id}`}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--color-brand)] hover:underline"
+                    >
+                      Open &rarr;
+                    </Link>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--color-border)] bg-[var(--color-surface)]">
-                {overdueList.map((item) => (
-                  <tr key={item.id} className="hover:bg-[var(--color-surface-raised)]/60 transition-colors">
-                    <td className="px-4 py-3.5 font-mono font-bold text-[var(--color-brand)]">
-                      {item.kod_rujukan}
-                    </td>
-                    <td className="px-4 py-3.5 font-bold text-[var(--color-text-primary)]">
-                      {item.nama_peminjam}
-                    </td>
-                    <td className="px-4 py-3.5 text-[var(--color-text-secondary)]">
-                      {item.pembiaya_modal}
-                    </td>
-                    <td className="px-4 py-3.5 text-right font-mono font-medium text-[var(--color-text-primary)]">
-                      {formatRM(item.jumlah_pembiayaan)}
-                    </td>
-                    <td className="px-4 py-3.5 text-right font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-500/5">
-                      {formatRM(item.jumlah_tunggakan_semasa)}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                        <AlertTriangle size={10} />
-                        {item.status_fasiliti === 'tindakan_guaman' ? 'Legal Action' : 'Overdue'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <Link
-                        href={`/dashboard/fasiliti/${item.id}`}
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--color-brand)] hover:underline"
-                      >
-                        Open &rarr;
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
@@ -631,11 +736,12 @@ export function MonthlyTrendChart({ data }: { data: MonthlyTrendPoint[] }) {
       <div className="flex items-center gap-2 mb-1">
         <span className="w-2 h-2 rounded-full bg-emerald-500" />
         <h2 className="text-base font-fustat font-bold text-[var(--color-text-primary)]">
-          Monthly Portfolio Growth Trend
+          New Financing by Registration Month
         </h2>
       </div>
       <p className="text-xs text-[var(--color-text-secondary)] mb-4">
-        Financing and arrears added over the last 12 months
+        New financing added each month over the last 12 months — red shows how much
+        of that month&apos;s batch is in arrears today
       </p>
 
       <div className="w-full h-56">
@@ -676,7 +782,7 @@ export function MonthlyTrendChart({ data }: { data: MonthlyTrendPoint[] }) {
             <Area
               type="monotone"
               dataKey="pembiayaan"
-              name="Financing"
+              name="New financing"
               stroke="#3B82F6"
               strokeWidth={2.5}
               fill="url(#trendFinancing)"
@@ -685,7 +791,7 @@ export function MonthlyTrendChart({ data }: { data: MonthlyTrendPoint[] }) {
             <Area
               type="monotone"
               dataKey="tunggakan"
-              name="Arrears"
+              name="In arrears today"
               stroke="#F43F5E"
               strokeWidth={2}
               fill="url(#trendArrears)"

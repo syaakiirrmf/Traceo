@@ -127,7 +127,7 @@ export function Modal({
             </div>
             <button
               onClick={onClose}
-              className="w-7 h-7 rounded-[var(--radius-sm)] hover:bg-[var(--color-surface-raised)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
+              className="min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:w-9 sm:h-9 rounded-[var(--radius-sm)] hover:bg-[var(--color-surface-raised)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
               aria-label="Tutup"
             >
               <X size={15} />

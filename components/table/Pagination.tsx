@@ -27,7 +27,7 @@ export function Pagination({
   )
 
   const btn =
-    'w-7 h-7 rounded-md inline-flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors disabled:opacity-40 disabled:pointer-events-none'
+    'min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:w-9 sm:h-9 rounded-md inline-flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors disabled:opacity-40 disabled:pointer-events-none'
 
   return (
     <div
@@ -68,7 +68,7 @@ export function Pagination({
               <button
                 type="button"
                 aria-current={p === page ? 'page' : undefined}
-                className={`w-7 h-7 rounded-md text-xs font-medium transition-colors ${p === page ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)]'}`}
+                className={`min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:w-9 sm:h-9 rounded-md text-xs font-medium transition-colors inline-flex items-center justify-center ${p === page ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)]'}`}
                 onClick={() => onPageChange(p)}
               >
                 {p}

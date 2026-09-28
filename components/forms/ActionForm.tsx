@@ -1,7 +1,8 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { AlertTriangle } from 'lucide-react'
+import { toast } from '@/components/ui/toast'
 
 export interface ActionFormState {
   error: string | null
@@ -42,11 +43,26 @@ export function ActionForm({
     initialActionState
   )
 
+  const alertRef = useRef<HTMLParagraphElement>(null)
+  const shownError = useRef<string | null>(null)
+
+  // Ralat mesti mustahil terlepas: scroll ke mesej + toast, bukan inline senyap
+  // di bawah lipatan sahaja.
+  useEffect(() => {
+    if (state.error && state.error !== shownError.current) {
+      shownError.current = state.error
+      toast.error('Gagal menyimpan', state.error)
+      alertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+    if (!state.error) shownError.current = null
+  }, [state.error])
+
   return (
     <form action={formAction} className={className}>
       {children}
       {state.error && (
         <p
+          ref={alertRef}
           role="alert"
           className="flex items-start gap-2 text-xs text-[var(--color-danger)] bg-[var(--color-danger)]/5 border border-[var(--color-danger)]/20 rounded-[var(--radius-md)] px-3 py-2.5"
         >

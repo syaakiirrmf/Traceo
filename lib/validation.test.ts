@@ -50,6 +50,18 @@ describe('fasilitiSchema', () => {
     const r = fasilitiSchema.safeParse({ ...fasilitiValid, pegawai_ids: ['not-a-uuid'] })
     expect(r.success).toBe(false)
   })
+  it('accepts cara_selesai values and normalises blank to null', () => {
+    const ok = fasilitiSchema.safeParse({ ...fasilitiValid, cara_selesai: 'melalui_aset' })
+    expect(ok.success).toBe(true)
+    if (ok.success) expect(ok.data.cara_selesai).toBe('melalui_aset')
+    const blank = fasilitiSchema.safeParse({ ...fasilitiValid, cara_selesai: '' })
+    expect(blank.success).toBe(true)
+    if (blank.success) expect(blank.data.cara_selesai).toBeNull()
+  })
+  it('rejects invalid cara_selesai', () => {
+    const r = fasilitiSchema.safeParse({ ...fasilitiValid, cara_selesai: 'alien' })
+    expect(r.success).toBe(false)
+  })
 })
 
 describe('susulanSchema', () => {

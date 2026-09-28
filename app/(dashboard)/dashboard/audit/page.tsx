@@ -79,7 +79,7 @@ export default async function AuditPage({
         </div>
 
         {/* KPI Metrics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
           <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl shadow-xs flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-lg bg-[var(--color-brand-subtle)] text-[var(--color-brand)] flex items-center justify-center shrink-0">
               <Activity size={18} />

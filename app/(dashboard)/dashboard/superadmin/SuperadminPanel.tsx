@@ -64,6 +64,12 @@ const PAGE_REGISTRY: { path: PageKey; title: string; desc: string; icon: React.E
     icon: Building2,
   },
   {
+    path: '/dashboard/aset',
+    title: 'Assets (Settled via Asset)',
+    desc: 'Facilities settled because their collateral became an asset.',
+    icon: Building2,
+  },
+  {
     path: '/dashboard/assistant',
     title: 'Smart AI Assistant (@syaakiirr)',
     desc: 'AI chat interface powered by real data.',

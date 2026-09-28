@@ -82,12 +82,18 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                 </th>
                 <th
                   rowSpan={2}
-                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px] sticky left-12 z-40 bg-[var(--color-surface-raised)]"
+                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[180px] sticky left-12 z-40 bg-[var(--color-surface-raised)]"
+                >
+                  Capital Financier
+                </th>
+                <th
+                  rowSpan={2}
+                  className="px-4 py-3 font-bold text-[var(--color-text-primary)] uppercase tracking-wider border-r border-[var(--color-border)] min-w-[220px]"
                 >
                   Contractor Name &amp; Code
                 </th>
                 <th
-                  colSpan={3}
+                  colSpan={2}
                   className="px-4 py-2 font-semibold uppercase tracking-wider text-[var(--color-text-primary)] border-r border-[var(--color-border)] bg-[var(--color-surface-raised)] border-b-2 border-b-[var(--color-text-primary)]"
                 >
                   Capital Financing Details
@@ -117,9 +123,6 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
               </tr>
 
               <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider bg-[var(--color-surface-raised)]">
-                <th className="px-3.5 py-2 font-medium border-r border-[var(--color-border)]">
-                  Capital Financier
-                </th>
                 <th className="px-3.5 py-2 font-medium text-right border-r border-[var(--color-border)]">
                   Total Financing (RM){' '}
                   <span className="font-semibold text-[var(--color-text-primary)]">(A)</span>
@@ -188,7 +191,11 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                         {index + 1}
                       </td>
 
-                      <td className="px-3.5 py-3 border-r border-[var(--color-border)] sticky left-12 z-20 bg-[var(--color-surface)] group-hover:bg-[var(--color-surface-raised)]">
+                      <td className="px-3.5 py-3 text-[var(--color-text-secondary)] border-r border-[var(--color-border)] sticky left-12 z-20 bg-[var(--color-surface)] group-hover:bg-[var(--color-surface-raised)]">
+                        {dash(f.pembiaya_modal)}
+                      </td>
+
+                      <td className="px-3.5 py-3 border-r border-[var(--color-border)]">
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-semibold text-[var(--color-text-primary)] leading-snug">
                             {dash(f.nama_peminjam)}
@@ -200,10 +207,6 @@ export function JV2Table({ rows }: { rows: Partial<Fasiliti>[] }) {
                         <span className="inline-block mt-1 font-mono text-[11px] text-[var(--color-text-tertiary)]">
                           {f.kod_rujukan}
                         </span>
-                      </td>
-
-                      <td className="px-3.5 py-3 text-[var(--color-text-secondary)] border-r border-[var(--color-border)]">
-                        {dash(f.pembiaya_modal)}
                       </td>
                       <td className="px-3.5 py-3 text-right font-mono font-semibold text-[var(--color-text-primary)] border-r border-[var(--color-border)] tabular-nums">
                         {formatRM(f.jumlah_pembiayaan)}

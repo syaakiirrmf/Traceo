@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { UserPlus, Check, Users } from 'lucide-react'
-import { kemaskiniPegawaiFasiliti } from '@/lib/actions/fasiliti'
+import { kemaskiniPegawaiFasiliti, senaraiPegawai } from '@/lib/actions/fasiliti'
 import { Modal } from '@/components/ui/modal'
 import { toast } from '@/components/ui/toast'
 
@@ -17,18 +17,36 @@ interface Officer {
 interface AssignPegawaiModalProps {
   fasilitiId: string
   assignedPegawaiIds: string[]
-  allOfficers: Officer[]
 }
 
 export function AssignPegawaiModal({
   fasilitiId,
   assignedPegawaiIds,
-  allOfficers,
 }: AssignPegawaiModalProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>(assignedPegawaiIds)
   const [loading, setLoading] = useState(false)
+  // No.3c: senarai pegawai diambil HANYA bila modal dibuka (bukan server-side
+  // untuk setiap lawatan detail page). Cache dalam sesi modal terbuka.
+  const [officers, setOfficers] = useState<Officer[] | null>(null)
+  const [loadingOfficers, setLoadingOfficers] = useState(false)
+  const [officersError, setOfficersError] = useState<string | null>(null)
+
+  async function handleOpen() {
+    setSelectedIds(assignedPegawaiIds)
+    setOfficersError(null)
+    setOpen(true)
+    if (officers !== null) return
+    setLoadingOfficers(true)
+    try {
+      setOfficers(await senaraiPegawai())
+    } catch (err) {
+      setOfficersError(err instanceof Error ? err.message : 'Please try again.')
+    } finally {
+      setLoadingOfficers(false)
+    }
+  }
 
   function toggleOfficer(id: string) {
     if (selectedIds.includes(id)) {
@@ -60,10 +78,7 @@ export function AssignPegawaiModal({
   return (
     <>
       <button
-        onClick={() => {
-          setSelectedIds(assignedPegawaiIds)
-          setOpen(true)
-        }}
+        onClick={handleOpen}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
       >
         <UserPlus size={14} />
@@ -98,12 +113,25 @@ export function AssignPegawaiModal({
         }
       >
         <div className="max-h-60 overflow-y-auto space-y-1.5 pr-1">
-          {allOfficers.length === 0 ? (
+          {loadingOfficers ? (
+            <div className="py-4 space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-14 rounded-[var(--radius-md)] bg-[var(--color-surface-raised)] animate-pulse"
+                />
+              ))}
+            </div>
+          ) : officersError ? (
+            <p className="text-sm text-[var(--color-danger)] py-4 text-center">
+              Failed to load officers: {officersError}
+            </p>
+          ) : (officers ?? []).length === 0 ? (
             <p className="text-sm text-[var(--color-text-tertiary)] py-4 text-center">
               No registered follow-up officers or managers found
             </p>
           ) : (
-            allOfficers.map((off) => {
+            (officers ?? []).map((off) => {
               const isSelected = selectedIds.includes(off.id)
               return (
                 <div

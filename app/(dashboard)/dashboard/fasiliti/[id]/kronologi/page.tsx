@@ -58,7 +58,7 @@ export default async function KronologiPage({ params }: { params: Promise<{ id: 
     supabase.from('fasiliti').select('*').eq('id', id).single(),
     supabase
       .from('susulan')
-      .select('*, dicatat_oleh_user:users(nama), lampiran(*)', { count: 'exact' })
+      .select('*, dicatat_oleh_user:users!susulan_dicatat_oleh_fkey(nama), lampiran(*)', { count: 'exact' })
       .eq('fasiliti_id', id)
       .order('tarikh_susulan', { ascending: true })
       .limit(200),
@@ -121,8 +121,8 @@ export default async function KronologiPage({ params }: { params: Promise<{ id: 
         </div>
 
         {/* Info table */}
-        <div className="px-4 sm:px-8 py-6 border-b border-[var(--color-border)]">
-          <table className="w-full text-sm">
+        <div className="px-4 sm:px-8 py-6 border-b border-[var(--color-border)] overflow-x-auto">
+          <table className="w-full text-sm min-w-[300px]">
             <tbody className="divide-y divide-[var(--color-border)]">
               {[
                 ['Capital Funder', fasiliti.pembiaya_modal],
@@ -138,7 +138,7 @@ export default async function KronologiPage({ params }: { params: Promise<{ id: 
                   <td className="py-2 pr-4 font-medium text-[var(--color-text-secondary)] w-[40%]">
                     {label}
                   </td>
-                  <td className="py-2 text-[var(--color-text-primary)]">{value}</td>
+                  <td className="py-2 text-[var(--color-text-primary)] break-words min-w-0">{value}</td>
                 </tr>
               ))}
             </tbody>

@@ -45,7 +45,7 @@ export default async function TanahJVDetailPage({ params }: { params: Promise<{ 
     supabase.from('tanah_jv').select('*').eq('id', id).single(),
     supabase
       .from('susulan')
-      .select('*,lampiran(*),dicatat_oleh_user:users(nama)', { count: 'exact' })
+      .select('*,lampiran(*),dicatat_oleh_user:users!susulan_dicatat_oleh_fkey(nama)', { count: 'exact' })
       .eq('tanah_id', id)
       .order('tarikh_susulan', { ascending: true })
       .limit(200),
@@ -103,7 +103,7 @@ export default async function TanahJVDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 sm:gap-4">
         <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4">
           <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">
             Area
@@ -125,7 +125,7 @@ export default async function TanahJVDetailPage({ params }: { params: Promise<{ 
       {/* Tajuk details */}
       <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5 space-y-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] border-b border-[var(--color-border)] pb-2">
-          Title — Land Title Information
+          Land Title Information
         </p>
         <InfoRow label="State" value={tanah.negeri} />
         <InfoRow label="District" value={tanah.daerah} />

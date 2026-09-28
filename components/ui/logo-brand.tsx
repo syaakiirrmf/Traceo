@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 export interface LogoBrandProps {
   size?: 'sm' | 'md' | 'lg' | 'xl'
-  variant?: 'default' | 'light' | 'dark' | 'gradient'
+  variant?: 'default' | 'light' | 'dark'
   showText?: boolean
   className?: string
   iconClassName?: string
@@ -43,8 +43,6 @@ export function LogoBrand({
     default: 'text-[var(--color-text-primary)]',
     dark: 'text-slate-900',
     light: 'text-white',
-    gradient:
-      'bg-gradient-to-r from-[#0066FF] via-slate-800 to-slate-900 bg-clip-text text-transparent',
   }
 
   const currentSize = sizeMap[size] || sizeMap.md

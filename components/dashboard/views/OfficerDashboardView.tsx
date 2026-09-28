@@ -78,7 +78,7 @@ export function OfficerDashboardView({
   )
 
   return (
-    <div className="space-y-6 max-w-[1600px] p-6 font-dm">
+    <div className="min-w-0 space-y-5 sm:space-y-6 max-w-[1600px] font-dm">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
         <div>
@@ -88,7 +88,7 @@ export function OfficerDashboardView({
               Officer Workspace &bull; Personal Assignment
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-fustat font-black tracking-tight text-slate-900">
+          <h1 className="text-2xl sm:text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 tracking-tight text-slate-900">
             Officer Workspace
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -117,7 +117,7 @@ export function OfficerDashboardView({
       </div>
 
       {/* Officer Personal KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Assigned Facilities */}
         <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between mb-3">
@@ -128,7 +128,7 @@ export function OfficerDashboardView({
               <Building2 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-slate-900 tracking-tight">
             {assignedFasiliti.length}
           </p>
           <p className="text-xs text-slate-500 mt-1">Facilities under your supervision</p>
@@ -144,7 +144,7 @@ export function OfficerDashboardView({
               <AlertTriangle size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-amber-600 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-amber-600 tracking-tight">
             {overdueCount}
           </p>
           <p className="text-xs text-slate-500 mt-1">
@@ -163,7 +163,7 @@ export function OfficerDashboardView({
               <CheckCircle2 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-slate-900 tracking-tight">
             {recentSusulan.length}
           </p>
           <p className="text-xs text-slate-500 mt-1">Follow-up records you recently updated</p>

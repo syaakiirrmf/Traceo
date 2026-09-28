@@ -5,11 +5,15 @@ import { ArrowLeft, Plus, Edit, FileText, Pencil } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { hasPermission } from '@/lib/auth/permissions'
 import { DeleteFasilitiButton } from '@/components/fasiliti/DeleteFasilitiButton'
+import { SettleViaAssetButton } from '@/components/fasiliti/SettleViaAssetButton'
 import { FinancingCalculator } from '@/components/fasiliti/FinancingCalculator'
 import { DeleteSusulanButton } from '@/components/susulan/DeleteSusulanButton'
 import { SusulanApprovalBadge, SusulanApprovalButtons } from '@/components/susulan/SusulanApproval'
 import { AssignPegawaiModal } from '@/components/fasiliti/AssignPegawaiModal'
-import type { Lampiran } from '@/types'
+import { BayaranForm } from '@/components/bayaran/BayaranForm'
+import { DeleteBayaranButton } from '@/components/bayaran/DeleteBayaranButton'
+import { KadarDividen } from '@/components/table/KadarDividen'
+import type { Lampiran, Bayaran } from '@/types'
 import type { Metadata } from 'next'
 
 const STATUS_LABELS = {
@@ -30,6 +34,13 @@ const KATEGORI_LABELS = {
   jv_syarikat: 'Corporate JV',
   jv_tanah: 'Land JV',
   pinjaman_individu: 'Individual Loan',
+} as const
+
+const BAYARAN_JENIS_LABELS = {
+  modal: 'Modal',
+  dividen: 'Dividen',
+  caj_lewat: 'Caj lewat',
+  lain: 'Lain-lain',
 } as const
 
 export async function generateMetadata({
@@ -78,68 +89,116 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
     if (!assignment) redirect('/dashboard/fasiliti')
   }
 
-  // Fetch fasiliti + susulan + pegawai assigned in parallel.
+  // Fetch fasiliti + susulan + bayaran + pegawai assigned in parallel.
   // Timeline dihadkan 200 rekod terkini (susulan lama kekal dalam kronologi penuh).
-  const [{ data: fasiliti }, { data: susulan, count: susulanTotal }, { data: assignedPegawaiRows }] = await Promise.all([
+  // NOTA prestasi (No.3a/3b): tiada count:exact (jimat agregat COUNT penuh) dan
+  // tiada join lampiran(*) dalam senarai 200 — lampiran diambil dalam query
+  // kedua yang ringan (ikut susulan_id) dan dicantum dalam memori.
+  const SUSULAN_LIMIT = 200
+  const [{ data: fasiliti }, { data: susulanRows }, { data: assignedPegawaiRows }, { data: bayaranRows }] = await Promise.all([
     supabase.from('fasiliti').select('*').eq('id', id).single(),
     supabase
       .from('susulan')
-      .select('*, lampiran(*), dicatat_oleh_user:users(nama)', { count: 'exact' })
+      .select('*, dicatat_oleh_user:users!susulan_dicatat_oleh_fkey(nama)')
       .eq('fasiliti_id', id)
       .order('tarikh_susulan', { ascending: true })
-      .limit(200),
+      .limit(SUSULAN_LIMIT),
     supabase
       .from('fasiliti_pegawai')
       .select('user_id, user:users(id, nama, emel, peranan)')
       .eq('fasiliti_id', id),
+    supabase
+      .from('bayaran')
+      .select('*, dicatat_oleh_user:users(nama)')
+      .eq('fasiliti_id', id)
+      .order('tarikh_bayar', { ascending: false }),
   ])
 
   if (!fasiliti) notFound()
 
+  // Lampiran untuk susulan yang dipapar sahaja (query ringan tanpa join).
+  const susulanIds = (susulanRows ?? []).map((s) => s.id as string)
+  const { data: lampiranRows } = susulanIds.length
+    ? await supabase
+        .from('lampiran')
+        .select('id, susulan_id, url_fail, jenis_fail, nama_asal')
+        .in('susulan_id', susulanIds)
+    : { data: [] as Lampiran[] | null }
+  const lampiranMap = new Map<string, Lampiran[]>()
+  for (const l of (lampiranRows ?? []) as (Lampiran & { susulan_id: string })[]) {
+    const arr = lampiranMap.get(l.susulan_id) ?? []
+    arr.push(l)
+    lampiranMap.set(l.susulan_id, arr)
+  }
+  const susulan = (susulanRows ?? []).map((s) => ({
+    ...s,
+    lampiran: lampiranMap.get(s.id as string) ?? [],
+  }))
+  const susulanCapped = (susulanRows ?? []).length >= SUSULAN_LIMIT
+
   const canEdit = hasPermission(userProfile.peranan, 'edit_fasiliti')
   const canDelete = hasPermission(userProfile.peranan, 'padam_fasiliti')
   const canAddSusulan = hasPermission(userProfile.peranan, 'tambah_susulan')
+  const canAddBayaran = hasPermission(userProfile.peranan, 'tambah_bayaran')
+  const canPadamBayaran = hasPermission(userProfile.peranan, 'padam_bayaran')
   const canExport = hasPermission(userProfile.peranan, 'jana_kronologi')
 
-  // Fetch all active officers if user can edit
-  const { data: allOfficers } = canEdit
-    ? await supabase
-        .from('users')
-        .select('id, nama, emel, peranan')
-        .eq('status', 'aktif')
-        .in('peranan', ['pegawai_susulan', 'pengurus', 'admin'])
-        .order('nama', { ascending: true })
-    : { data: [] }
+  const bayaranList = (bayaranRows ?? []) as (Bayaran & { dicatat_oleh_user?: { nama: string } | null })[]
+  const totalBayar = bayaranList.reduce((s, b) => s + (Number(b.jumlah) || 0), 0)
+  const rawBaki = (Number(fasiliti.jumlah_tunggakan_semasa) || 0) - totalBayar
+  // Kes selesai (cth. settle via asset): baki tidak boleh negatif walaupun
+  // rekod bayaran lama masih ada.
+  const bakiSemasa = fasiliti.status_fasiliti === 'selesai' ? Math.max(0, rawBaki) : rawBaki
 
+  // NOTA prestasi (No.3c): senarai pegawai TIDAK difetch di sini lagi —
+  // AssignPegawaiModal ambil sendiri bila dibuka. Jimat 1 query setiap
+  // lawatan detail page (majoriti tidak buka modal).
   const assignedPegawaiIds = (assignedPegawaiRows ?? []).map((r) => r.user_id)
   const assignedPegawaiList = (assignedPegawaiRows ?? []).flatMap((r) => r.user).filter(Boolean)
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Back + header */}
-      <div className="flex items-start gap-4">
+    <div className="space-y-5 max-w-4xl">
+      {/* Back + title — tajuk sentiasa dapat lebar penuh supaya tidak tersepit
+          sebaris-per-kata; barisan tindakan duduk di bawahnya dan wrap kemas. */}
+      <div className="flex items-start gap-3">
         <Link
           href="/dashboard/fasiliti"
-          className="mt-1 w-8 h-8 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
+          className="mt-0.5 w-9 h-9 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0"
           aria-label="Back"
         >
           <ArrowLeft size={15} />
         </Link>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="font-mono text-sm font-semibold text-[var(--color-brand)] bg-[var(--color-brand-subtle)] px-2.5 py-0.5 rounded-full">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-[13px] font-semibold text-[var(--color-brand)] bg-[var(--color-brand-subtle)] px-2.5 py-1 rounded-lg">
               {fasiliti.kod_rujukan}
             </span>
             <span
-              className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[fasiliti.status_fasiliti as keyof typeof STATUS_STYLES]}`}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${STATUS_STYLES[fasiliti.status_fasiliti as keyof typeof STATUS_STYLES]}`}
             >
               {STATUS_LABELS[fasiliti.status_fasiliti as keyof typeof STATUS_LABELS]}
             </span>
+            {fasiliti.status_fasiliti === 'selesai' && fasiliti.cara_selesai === 'melalui_aset' && (
+              <span
+                className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+                title="Settled because the collateral became an asset (transferred to nominee / sold)"
+              >
+                Settled via Asset
+              </span>
+            )}
+            {fasiliti.status_fasiliti === 'selesai' && fasiliti.cara_selesai === 'bayaran_penuh' && (
+              <span
+                className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border border-[var(--color-border)]"
+                title="Settled because the borrower paid everything"
+              >
+                Paid in Full
+              </span>
+            )}
           </div>
-          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)] mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-text-primary)] mt-2 text-balance break-words">
             {fasiliti.nama_peminjam}
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
+          <p className="text-sm text-[var(--color-text-secondary)] mt-1">
             {KATEGORI_LABELS[fasiliti.kategori as keyof typeof KATEGORI_LABELS]} ·{' '}
             {fasiliti.pembiaya_modal}
           </p>
@@ -157,13 +216,13 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
             </p>
           )}
         </div>
-        {/* Actions */}
-        <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+      </div>
+      {/* Actions — baris sendiri: Edit utama, selebihnya ghost kemas */}
+      <div className="flex flex-wrap items-center gap-2">
           {canEdit && (
             <AssignPegawaiModal
               fasilitiId={id}
               assignedPegawaiIds={assignedPegawaiIds}
-              allOfficers={allOfficers ?? []}
             />
           )}
           {canExport && (
@@ -180,10 +239,18 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
             kadarDividen={fasiliti.kadar_dividen}
             kategori={fasiliti.kategori}
           />
+          {canEdit && fasiliti.status_fasiliti !== 'selesai' && (
+            <SettleViaAssetButton
+              fasilitiId={id}
+              kodRujukan={fasiliti.kod_rujukan}
+              defaultPenama={fasiliti.penama_aset}
+              defaultPindahmilik={fasiliti.status_pindahmilik}
+            />
+          )}
           {canEdit && (
             <Link
               href={`/dashboard/fasiliti/${id}/edit`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-surface-raised)] transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--color-brand)] text-white text-sm font-semibold hover:bg-[var(--color-brand-hover)] active:scale-[0.98] transition-all shadow-sm shadow-[var(--color-brand)]/25"
             >
               <Edit size={14} />
               Edit
@@ -191,7 +258,6 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
           )}
           {canDelete && <DeleteFasilitiButton fasilitiId={id} kodRujukan={fasiliti.kod_rujukan} />}
         </div>
-      </div>
 
       {/* ── Top stat cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -216,7 +282,10 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
             key={item.label}
             className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-4 min-w-0 flex flex-col justify-between"
           >
-            <p className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1 truncate">
+            <p
+              className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1 leading-snug"
+              title={item.label}
+            >
               {item.label}
             </p>
             <p
@@ -248,12 +317,14 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
 
         {/* JV1 / JV3: text description of profit sharing */}
         {fasiliti.kategori !== 'jv_tanah' && fasiliti.kadar_dividen && (
-          <InfoRow
-            label={
-              fasiliti.kategori === 'jv_syarikat' ? 'Dividend Profit Sharing' : 'Profit Sharing'
-            }
-            value={fasiliti.kadar_dividen}
-          />
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-4 py-1.5 border-b border-slate-100/80 last:border-0">
+            <span className="text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wide min-w-0 shrink-0 sm:w-52">
+              {fasiliti.kategori === 'jv_syarikat' ? 'Dividend Profit Sharing' : 'Profit Sharing'}
+            </span>
+            <span className="text-sm sm:text-right min-w-0 flex-1 sm:max-w-[60%]">
+              <KadarDividen value={fasiliti.kadar_dividen} compact />
+            </span>
+          </div>
         )}
         {/* JV2: Perkongsian Keuntungan as numeric B */}
         {fasiliti.kategori === 'jv_tanah' && fasiliti.perkongsian_keuntungan > 0 && (
@@ -437,13 +508,94 @@ export default async function FasilitiDetailPage({ params }: { params: Promise<{
         </div>
       )}
 
+      {/* ── Bayaran & Baki ── */}
+      <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] border border-[var(--color-border)] p-5">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3 mb-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+            Bayaran &amp; Baki
+            <span className="ml-2 font-normal normal-case tracking-normal">
+              ({bayaranList.length} rekod)
+            </span>
+          </p>
+          {canAddBayaran && <BayaranForm fasilitiId={id} />}
+        </div>
+
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-3 mb-4">
+          <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] p-3">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-tertiary)]">
+              Tunggakan (E)
+            </p>
+            <p className="mt-1 text-xl font-bold tabular-nums leading-none break-words text-[var(--color-text-primary)]">
+              {formatCurrency(fasiliti.jumlah_tunggakan_semasa)}
+            </p>
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-emerald-500/20 bg-emerald-50/50 p-3">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
+              Jumlah dibayar
+            </p>
+            <p className="mt-1 text-xl font-bold tabular-nums leading-none break-words text-emerald-600">
+              {formatCurrency(totalBayar)}
+            </p>
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-subtle)]/30 p-3">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-danger)]">
+              Baki (E − dibayar)
+            </p>
+            <p className="mt-1 text-xl font-bold tabular-nums leading-none break-words text-[var(--color-danger)]">
+              {formatCurrency(bakiSemasa)}
+            </p>
+          </div>
+        </div>
+
+        {bayaranList.length === 0 ? (
+          <p className="text-sm text-[var(--color-text-tertiary)] text-center py-4">
+            Tiada rekod bayaran lagi.
+          </p>
+        ) : (
+          <ul className="divide-y divide-[var(--color-border)] border-t border-[var(--color-border)]">
+            {bayaranList.map((b) => (
+              <li key={b.id} className="py-3 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold tabular-nums text-emerald-600">
+                      {formatCurrency(b.jumlah)}
+                    </span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full border border-[var(--color-border)] text-[var(--color-text-secondary)]">
+                      {BAYARAN_JENIS_LABELS[b.jenis] ?? b.jenis}
+                    </span>
+                    <span className="text-xs text-[var(--color-text-tertiary)]">
+                      {formatDate(b.tarikh_bayar, 'dd/MM/yyyy')}
+                    </span>
+                  </div>
+                  {b.catatan && (
+                    <p className="mt-1 text-sm text-[var(--color-text-primary)] break-words">
+                      {b.catatan}
+                    </p>
+                  )}
+                  <p className="mt-0.5 text-[11px] text-[var(--color-text-tertiary)]">
+                    Direkod oleh {b.dicatat_oleh_user?.nama ?? '—'}
+                  </p>
+                </div>
+                {canPadamBayaran && (
+                  <DeleteBayaranButton
+                    bayaranId={b.id}
+                    fasilitiId={id}
+                    label={`${formatCurrency(b.jumlah)} (${formatDate(b.tarikh_bayar, 'dd/MM/yyyy')})`}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       {/* Susulan section */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
             Follow-up Chronology
             <span className="ml-2 text-sm font-normal text-[var(--color-text-tertiary)]">
-              ({susulan?.length ?? 0}{(susulanTotal ?? 0) > (susulan?.length ?? 0) ? ` of ${susulanTotal}` : ''} records)
+              ({susulan.length}{susulanCapped ? '+' : ''} records{susulanCapped ? ' — full history in Chronology' : ''})
             </span>
           </h2>
           {canAddSusulan && (

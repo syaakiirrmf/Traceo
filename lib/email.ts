@@ -1,8 +1,27 @@
 import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const EMAIL_FROM = process.env.EMAIL_FROM || 'Traceo <onboarding@resend.dev>'
+
+// Gmail SMTP (Nodemailer) — jalan tanpa servis pihak ketiga, cuma perlu akaun
+// Gmail + App Password (bukan kata laluan login biasa). Diutamakan bila
+// dikonfigurasi; Resend jadi sandaran.
+const GMAIL_USER = process.env.GMAIL_USER
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
+const gmailConfigured = Boolean(GMAIL_USER && GMAIL_APP_PASSWORD)
+// GMAIL_TLS_INSECURE=1: longgarkan semakan sijil TLS. Hanya perlu bila antivirus
+// di laptop buat imbasan TLS (dia menyelit di tengah dan sijil jadi tidak sah).
+// Sertakan hanya di persekitaran yang kau kawal; jangan hidupkan di server awam.
+const gmailTlsInsecure = process.env.GMAIL_TLS_INSECURE === '1'
+const gmailTransporter = gmailConfigured
+  ? nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: GMAIL_USER as string, pass: GMAIL_APP_PASSWORD as string },
+      ...(gmailTlsInsecure ? { tls: { rejectUnauthorized: false } } : {}),
+    })
+  : null
 
 // resend requires a real API key; a placeholder/empty value means emailing is
 // disabled (e.g. local dev). We fall back to console logging so the rest of the
@@ -16,16 +35,66 @@ type SendInput = {
   html: string
 }
 
+// NOTIFY_EMAIL_OVERRIDE: hala semua notifikasi ke satu alamat (pengujian).
+// Kosongkan untuk hantar ke emel akaun penerima sebenar (pengeluaran).
+const NOTIFY_OVERRIDE = process.env.NOTIFY_EMAIL_OVERRIDE?.trim() || ''
+
+// Dedupe: jangan hantar emel seiras (penerima + tajuk sama) lebih dari sekali
+// dalam 60 saat. Kes biasa: 1 kes tertunggak mencetus 1 emel setiap admin
+// (6 akaun = 6 emel); dengan lencongan ujian keenam-enam menuju ke satu inbox
+// dan nampak seperti spam. Tanpa lencongan, penerima berbeza tidak terjejas.
+const DEDUPE_WINDOW_MS = 60_000
+const recentSends = new Map<string, number>()
+
+function isDuplicateSend(to: string | string[], subject: string): boolean {
+  const key = `${JSON.stringify(to)}|${subject}`
+  const now = Date.now()
+  if (recentSends.size > 500) {
+    const cutoff = now - DEDUPE_WINDOW_MS
+    for (const [k, t] of recentSends) {
+      if (t < cutoff) recentSends.delete(k)
+    }
+  }
+  const last = recentSends.get(key)
+  if (last !== undefined && now - last < DEDUPE_WINDOW_MS) return true
+  recentSends.set(key, now)
+  return false
+}
+
 export async function sendEmail({ to, subject, html }: SendInput): Promise<void> {
+  const finalTo = NOTIFY_OVERRIDE || to
+  if (NOTIFY_OVERRIDE) {
+    console.info('[email] override penerima:', { asal: to, hantarKe: NOTIFY_OVERRIDE, subject })
+  }
+  if (isDuplicateSend(finalTo, subject)) {
+    console.info('[email] salinan seiras dilangkau:', { to: finalTo, subject })
+    return
+  }
+
+  if (gmailTransporter) {
+    try {
+      await gmailTransporter.sendMail({
+        from: `"Traceo" <${GMAIL_USER}>`,
+        to: finalTo,
+        subject,
+        html,
+      })
+      return
+    } catch (err) {
+      console.error('[email] gmail send threw:', err instanceof Error ? err.message : err)
+      return
+    }
+  }
+
   if (!resend) {
-    console.info('[email] not configured, skipping:', { to, subject })
+    console.info('[email] not configured, skipping:', { to: finalTo, subject })
     return
   }
 
   try {
     const { error } = await resend.emails.send({
       from: EMAIL_FROM,
-      to,
+      to: finalTo,
       subject,
       html,
     })

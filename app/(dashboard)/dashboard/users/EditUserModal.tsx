@@ -131,7 +131,7 @@ export function EditUserModal({
 
           <div className="border-t border-[var(--color-border)] pt-4">
             <p className="text-xs font-semibold text-[var(--color-text-secondary)] mb-1">
-              {user.auth_id ? 'Reset Password (optional)' : 'Activate Account — Set Password'}
+              {user.auth_id ? 'Reset Password (optional)' : 'Activate Account: Set Password'}
             </p>
             <p className="text-[11px] text-[var(--color-text-tertiary)] mb-3">
               {user.auth_id

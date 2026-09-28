@@ -10,7 +10,6 @@ import {
   Users,
   FileText,
   AlertTriangle,
-  ClipboardCheck,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { DashboardCharts, MonthlyTrendChart, type MonthlyTrendPoint } from '@/components/dashboard/DashboardCharts'
@@ -71,7 +70,6 @@ export interface AdminDashboardViewProps {
   }>
   maxFinancierExposure: number
   monthlyTrend: MonthlyTrendPoint[]
-  approvalStats: { menunggu: number; diluluskan: number; ditolak: number }
 }
 
 export function AdminDashboardView({
@@ -88,15 +86,9 @@ export function AdminDashboardView({
   topFinanciers,
   maxFinancierExposure,
   monthlyTrend,
-  approvalStats,
 }: AdminDashboardViewProps) {
-  const approvalTotal =
-    approvalStats.menunggu + approvalStats.diluluskan + approvalStats.ditolak
-  const approvalPendingPct =
-    approvalTotal > 0 ? (approvalStats.menunggu / approvalTotal) * 100 : 0
-
   return (
-    <div className="space-y-6 max-w-[1600px] p-6 font-dm">
+    <div className="min-w-0 space-y-5 sm:space-y-6 max-w-[1600px] font-dm">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
         <div>
@@ -134,15 +126,15 @@ export function AdminDashboardView({
             href="/dashboard/fasiliti/tambah"
             className="inline-flex items-center gap-4 py-2 rounded-xl bg-[#0066FF] text-white text-xs font-bold hover:bg-[#0048CC] transition-all duration-200 shadow-xs font-fustat px-4"
           >
-            <Plus size={14} />+ Add Facility
+            <Plus size={14} /> Add Facility
           </Link>
         </div>
       </div>
 
       {/* Admin Executive KPI Grid (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Capital */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Total Financed Capital
@@ -151,14 +143,14 @@ export function AdminDashboardView({
               <Building2 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="min-w-0 text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black text-slate-900 tracking-tight tabular-nums leading-none break-words" title={formatCurrency(totalPembiayaan)}>
             {formatCurrency(totalPembiayaan)}
           </p>
           <p className="text-xs text-slate-500 mt-1">{fasilitiList.length} facilities registered</p>
         </div>
 
         {/* Total Arrears */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Total Arrears Balance
@@ -167,14 +159,14 @@ export function AdminDashboardView({
               <AlertTriangle size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
+          <p className="min-w-0 text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black text-rose-600 tracking-tight tabular-nums leading-none break-words" title={formatCurrency(totalTunggakan)}>
             {formatCurrency(totalTunggakan)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Total current arrears</p>
         </div>
 
         {/* Land Collateral */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Land Collateral Value
@@ -183,14 +175,14 @@ export function AdminDashboardView({
               <Landmark size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="min-w-0 text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black text-slate-900 tracking-tight tabular-nums leading-none break-words" title={formatCurrency(totalCagaran)}>
             {formatCurrency(totalCagaran)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Registered property collateral value</p>
         </div>
 
         {/* System & Users Status */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               System &amp; Users Status
@@ -199,7 +191,7 @@ export function AdminDashboardView({
               <Users size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="min-w-0 text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black text-slate-900 tracking-tight tabular-nums leading-none break-words">
             {usersCount} Users
           </p>
           <p className="text-xs text-slate-500 mt-1">
@@ -247,7 +239,7 @@ export function AdminDashboardView({
           <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
             Avg Financing
           </p>
-          <p className="mt-1.5 text-2xl font-fustat font-black text-slate-900 tabular-nums">
+          <p className="mt-1.5 min-w-0 text-2xl font-fustat font-black text-slate-900 tabular-nums leading-none break-words" title={formatCurrency(kpi.avgFinancing)}>
             {formatCurrency(kpi.avgFinancing)}
           </p>
           <p className="text-[11px] text-slate-500 mt-0.5">
@@ -264,6 +256,7 @@ export function AdminDashboardView({
             statuses={statusData}
             totalCagaran={totalCagaran}
             overdueList={overdueList}
+            facilities={fasilitiList}
           />
           <div className="mt-4">
             <MonthlyTrendChart data={monthlyTrend} />
@@ -271,7 +264,7 @@ export function AdminDashboardView({
         </div>
 
         {/* Top Financiers by Exposure */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Top Financiers by Exposure
@@ -281,10 +274,20 @@ export function AdminDashboardView({
           <div className="space-y-4">
             {topFinanciers.map((f) => {
               const pct = (f.pembiayaan / maxFinancierExposure) * 100
-              return (
-                <div key={f.nama}>
+              // Drill-down: tapis exact-match ikut pembiaya_modal — senang double-check data.
+              // Mesti exact (bukan q substring): dashboard himpun ikut string tepat,
+              // substring akan termasuk varian nama (cth. "... (PBB ...)") dan jumlah lari.
+              // 'Not Specified' tiada nilai sebenar untuk dicari, jadi kekal sebagai teks biasa.
+              const drillHref =
+                f.nama === 'Not Specified'
+                  ? null
+                  : `/dashboard/fasiliti?financier=${encodeURIComponent(f.nama)}`
+              const inner = (
+                <>
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-xs font-semibold text-slate-800 truncate">{f.nama}</p>
+                    <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-[#0066FF] group-hover:underline">
+                      {f.nama}
+                    </p>
                     <p className="text-xs font-mono font-bold text-slate-900 tabular-nums">
                       {formatCurrency(f.pembiayaan)}
                     </p>
@@ -297,7 +300,27 @@ export function AdminDashboardView({
                   </div>
                   <p className="text-[10.5px] text-slate-500 mt-1">
                     {f.count} facilities · Arrears {formatCurrency(f.tunggakan)}
+                    {drillHref && (
+                      <span className="text-[#0066FF] font-semibold"> · View breakdown →</span>
+                    )}
                   </p>
+                </>
+              )
+              return drillHref ? (
+                <Link
+                  key={f.nama}
+                  href={drillHref}
+                  className="group block rounded-lg p-1 -m-1 hover:bg-slate-50 transition-colors"
+                  title={`Exact match: sum of jumlah_pembiayaan across ${f.count} facilities where pembiaya_modal = "${f.nama}". Click to verify the breakdown.`}
+                >
+                  {inner}
+                </Link>
+              ) : (
+                <div
+                  key={f.nama}
+                  title={`Sum of jumlah_pembiayaan across ${f.count} facilities with no pembiaya_modal set.`}
+                >
+                  {inner}
                 </div>
               )
             })}
@@ -310,64 +333,6 @@ export function AdminDashboardView({
         </div>
       </div>
 
-      {/* Follow-up Approval Pipeline */}
-      <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Follow-up Approval Pipeline
-          </span>
-          <ClipboardCheck size={16} className="text-[#0066FF]" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-50/50">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600">
-              Pending Approval
-            </p>
-            <p className="mt-1.5 text-2xl font-fustat font-black text-amber-600 tabular-nums">
-              {approvalStats.menunggu}
-            </p>
-            <p className="text-[10.5px] text-slate-500 mt-0.5">
-              {approvalPendingPct.toFixed(0)}% of all follow-ups
-            </p>
-          </div>
-          <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-50/50">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
-              Approved
-            </p>
-            <p className="mt-1.5 text-2xl font-fustat font-black text-emerald-600 tabular-nums">
-              {approvalStats.diluluskan}
-            </p>
-            <p className="text-[10.5px] text-slate-500 mt-0.5">Follow-ups approved</p>
-          </div>
-          <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-50/50">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-rose-600">
-              Rejected
-            </p>
-            <p className="mt-1.5 text-2xl font-fustat font-black text-rose-600 tabular-nums">
-              {approvalStats.ditolak}
-            </p>
-            <p className="text-[10.5px] text-slate-500 mt-0.5">Follow-ups rejected</p>
-          </div>
-        </div>
-        <div className="mt-4 h-2 rounded-full bg-slate-100 overflow-hidden flex">
-          {approvalTotal > 0 && (
-            <>
-              <div
-                className="h-full bg-amber-500"
-                style={{ width: `${(approvalStats.menunggu / approvalTotal) * 100}%` }}
-              />
-              <div
-                className="h-full bg-emerald-500"
-                style={{ width: `${(approvalStats.diluluskan / approvalTotal) * 100}%` }}
-              />
-              <div
-                className="h-full bg-rose-500"
-                style={{ width: `${(approvalStats.ditolak / approvalTotal) * 100}%` }}
-              />
-            </>
-          )}
-        </div>
-      </div>
     </div>
   )
 }

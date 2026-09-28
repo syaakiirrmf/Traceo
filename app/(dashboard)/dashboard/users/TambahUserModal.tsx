@@ -72,13 +72,13 @@ export function TambahUserModal() {
         }
       >
         <form id="tambah-user-form" action={handleSubmit} className="space-y-4">
-          <Field label="Full Name" name="nama" required placeholder="John Doe" />
+          <Field label="Full Name" name="nama" required placeholder="e.g. Ahmad bin Ali" />
           <Field
             label="Email Address"
             name="emel"
             type="email"
             required
-            placeholder="john@company.com"
+            placeholder="e.g. ahmad@company.com"
           />
           <Field
             label="Password"

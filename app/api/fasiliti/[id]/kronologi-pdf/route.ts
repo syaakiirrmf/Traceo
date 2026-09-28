@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       supabase.from('fasiliti').select('*').eq('id', id).single(),
       supabase
         .from('susulan')
-        .select('*, dicatat_oleh_user:users(nama), lampiran(*)')
+        .select('*, dicatat_oleh_user:users!susulan_dicatat_oleh_fkey(nama), lampiran(*)')
         .eq('fasiliti_id', id)
         .order('tarikh_susulan', { ascending: true }),
     ])

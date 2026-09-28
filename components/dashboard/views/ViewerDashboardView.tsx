@@ -61,7 +61,7 @@ export function ViewerDashboardView({
   const healthyRate = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 100
 
   return (
-    <div className="space-y-6 max-w-[1600px] p-6 font-dm">
+    <div className="min-w-0 space-y-5 sm:space-y-6 max-w-[1600px] font-dm">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/70 pb-5">
         <div>
@@ -71,7 +71,7 @@ export function ViewerDashboardView({
               Portfolio Overview &bull; Read-Only Analytics
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-fustat font-black tracking-tight text-slate-900">
+          <h1 className="text-2xl sm:text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 tracking-tight text-slate-900">
             Portfolio Overview
           </h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -92,9 +92,9 @@ export function ViewerDashboardView({
       </div>
 
       {/* Viewer Analytical KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Total Portfolio Value */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Total Portfolio Financed
@@ -103,7 +103,7 @@ export function ViewerDashboardView({
               <Building2 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-slate-900 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-slate-900 tracking-tight">
             {formatCurrency(totalPembiayaan)}
           </p>
           <p className="text-xs text-slate-500 mt-1">
@@ -113,7 +113,7 @@ export function ViewerDashboardView({
         </div>
 
         {/* Active Accounts Ratio */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Active Portfolio Rate
@@ -122,7 +122,7 @@ export function ViewerDashboardView({
               <CheckCircle2 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-emerald-600 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-emerald-600 tracking-tight">
             {healthyRate}%
           </p>
           <p className="text-xs text-slate-500 mt-1">
@@ -131,7 +131,7 @@ export function ViewerDashboardView({
         </div>
 
         {/* Arrears Summary */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+        <div className="min-w-0 overflow-hidden p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Total Arrears Balance
@@ -140,7 +140,7 @@ export function ViewerDashboardView({
               <BarChart3 size={18} />
             </div>
           </div>
-          <p className="text-3xl font-fustat font-black text-rose-600 tracking-tight">
+          <p className="text-[clamp(1.4rem,1.1rem+2.5vw,1.875rem)] font-fustat font-black tabular-nums leading-none break-words min-w-0 text-rose-600 tracking-tight">
             {formatCurrency(totalTunggakan)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Total current arrears across all accounts</p>
@@ -186,6 +186,7 @@ export function ViewerDashboardView({
             statuses={statusData}
             totalCagaran={totalCagaran}
             overdueList={[]}
+            facilities={fasilitiList}
           />
           <div className="mt-6">
             <MonthlyTrendChart data={monthlyTrend} />
